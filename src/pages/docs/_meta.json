@@ -15,7 +15,6 @@
     "title": "Management Console"
   },
   "promises": "Promises",
-  "api-gateway": "API Gateway",
   "template-interface": "Template Interface",
   "-- API Reference": {
     "type": "separator",

@@ -52,7 +52,7 @@ The `worker-id` can take a expression to dynamically create a worker based on in
 
 For example, if you had a path `users/{user-id}/todos`, you could create a new worker for each user by setting the `worker-id` to `todos-${request.path.user-id}`.
 
-See the [expression language](/docs/api-gateway/expression-language) page for more details.
+See the [expression language](/docs/console/api-gateway/expression-language) page for more details.
 
 <Callout type="info">
   If you invoke a function on a worker that does not exist yet the worker will be created and then
@@ -66,7 +66,7 @@ The parameters describe how information from the request will be used to constru
 
 ### 4. Response
 
-The response describes how the value returned by the worker function should be translated back into an HTTP response. The default is a successful response with a 200 status code and the function return value in the body, but you can customize the status code, body, and headers using the [expression language](/docs/api-gateway/expression-language).
+The response describes how the value returned by the worker function should be translated back into an HTTP response. The default is a successful response with a 200 status code and the function return value in the body, but you can customize the status code, body, and headers using the [expression language](/docs/console/api-gateway/expression-language).
 
 ## Deployments
 
