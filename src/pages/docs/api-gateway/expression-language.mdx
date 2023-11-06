@@ -6,13 +6,13 @@ To make route definitions as flexible as possible Golem provides a powerful expr
 
 Here is an overview of the syntax you can use for capturing variables in your HTTP endpoint definition and accessing them later:
 
-| Type               | Syntax Example                   | Access Method                      |
-| ------------------ | -------------------------------- | ---------------------------------- |
-| Path Parameters    | Path: `users/{user-id}`          | `${request.path.user-id}`          |
-| Query Parameters   | Path: `users/{user-id}?{active}` | `${request.query.active}`          |
-| Request Body       | N/A                              | `${request.body}`                  |
-| Request Body Field | N/A                              | `${request.body.<FIELD_NAME>}`     |
-| Request Headers    | N/A                              | `${request.headers.<HEADER_NAME>}` |
+| Type               | Path Definition            | Access Method                      |
+| ------------------ | -------------------------- | ---------------------------------- |
+| Path Parameters    | `users/{user-id}`          | `${request.path.user-id}`          |
+| Query Parameters   | `users/{user-id}?{active}` | `${request.query.active}`          |
+| Request Body       | N/A                        | `${request.body}`                  |
+| Request Body Field | N/A                        | `${request.body.<FIELD_NAME>}`     |
+| Request Headers    | N/A                        | `${request.headers.<HEADER_NAME>}` |
 
 <Callout type="info">
 Code is always indicated by `${…}`. Any text that is not wrapped this way is interpreted as a string.
