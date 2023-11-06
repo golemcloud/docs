@@ -1,4 +1,5 @@
 import { Card, Callout, Steps } from "nextra/components"
+import Image from 'next/image'
 
 # API Gateway
 
@@ -12,15 +13,17 @@ Let's create our first API.
 
 {/* prettier-ignore */}
 <Steps>
-### Go to the [management console](https://console.golem.cloud)
-### Open a project where you have uploaded at least one worker template
-- Click on `Projects` in the top navigation bar
-- Select a project where you have uploaded at least one worker template
-### Click on `APIs` in the top navigation bar
-- This will list all the APIs you have defined in your project
-### Click the `Create New` button in the top right
-- Specify an **API name** and **version**
-### Create the API 
+    ### Go to the [management console](https://console.golem.cloud/)
+    ### Select a project
+      - Click on `Projects` in the top navigation bar
+      <Image src="/images/projects-link.png" alt="All Projects" height={500} width={800} className="rounded-md"/>
+      - Select a project where you have uploaded at least one worker template
+    ### Click on `APIs` in the top navigation bar
+      <Image src="/images/project-apis-link.png" alt="Project APIs" height={500} width={800} className="rounded-md"/>
+    ### Click the `Create New` button in the top right
+      <Image src="/images/create-new-api.png" alt="Project APIs" height={1000} width={1000} className="rounded-md"/>
+    ### Create the API 
+    Specify an **API name** and **version**
 </Steps>
 
 Now that we have an API we're ready to create some routes!
