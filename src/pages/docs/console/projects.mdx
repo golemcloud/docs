@@ -44,12 +44,12 @@ classDiagram
         Expression Mappings
     }
 
-    Project --> "0..*" Template
-    Project --> "1..*" ApiGateway
-    Project --> "0..n" User
-    Template --> "1..n" Worker
-    ApiGateway --> "1..*" Route : consists of
-    Route --> "1..1" Worker : binds to
+    Project --> Template
+    Project --> ApiGateway
+    Project --> User
+    Template --> Worker
+    ApiGateway --> Route : consists of
+    Route --> Worker : binds to
 ```
 
 ## Creating your first Project
