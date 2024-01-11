@@ -78,18 +78,15 @@ function convertToMarkdown(
 ): string {
   const title = pascalToSpace(tag.name)
 
+  const itemsMarkdown = apiItems.map(i => convertItemToMarkdown(api, i)).join("\n\n")
+
   const errors = makeRequestError(api, apiItems[0].operation)
 
   const errorTitle = errors ? `## ${title} API Errors` : ""
   const errorsContent = errors ? errors : ""
   const errorSection = errors ? `${errorTitle}\n${errorsContent}` : ""
 
-  return [
-    `# ${title} API`,
-    `${tag.description}`,
-    `${apiItems.map(i => convertItemToMarkdown(api, i)).join("\n\n")}`,
-    errorSection,
-  ].join("\n")
+  return [`# ${title} API`, tag.description, itemsMarkdown, errorSection].join("\n")
 }
 
 function convertItemToMarkdown(
