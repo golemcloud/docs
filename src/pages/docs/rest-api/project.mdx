@@ -2,212 +2,179 @@
 
 ### Summary
 
-Projects are groups of **templates** and their **workers,** providing both a separate namespace for these entities and allows sharing between **accounts**.
+Projects are groups of templates and their workers, providing both a separate namespace for these entities and allows sharing between accounts.
 
-Every account has a **default project** which is assumed when no specific project ID is passed in some template and worker related APIs.
+Every account has a default project which is assumed when no specific project ID is passed in some template and worker related APIs.
 
-### Get the default project
+## Get the default project
 
-| Method | Path                   | Request | Response     |
-| ------ | ---------------------- | ------- | ------------ |
-| GET    | `/v2/projects/default` | -       | Project JSON |
+| Path                   | Method | Protected |
+| ---------------------- | ------ | --------- |
+| `/v2/projects/default` | GET    | Yes       |
 
-**Response format:**
+#### Explanation
 
-```json
+- name of the project can be used for lookup the project if the ID is now known
+- defaultEnvironmentId is currently always default
+- projectType is either Default
+
+#### Example Response JSON
+
+```json copy
 {
-  "projectId": "866e1f4a-cf1a-40aa-ad8f-77e33294e999",
+  "projectId": "5a8591dd-4039-49df-9202-96385ba3eff8",
   "projectData": {
-    "name": "default-project",
-    "ownerAccountId": "ae9b9f24-cfba-4dc6-92c6-c6fecdee88b5",
-    "description": "Default project of the account ae9b9f24-cfba-4dc6-92c6-c6fecdee88b5",
-    "defaultEnvironmentId": "default",
+    "name": "string",
+    "ownerAccountId": "string",
+    "description": "string",
+    "defaultEnvironmentId": "string",
     "projectType": "Default"
   }
 }
 ```
 
-**Explanation**
+## List all projects
 
-- `name` of the project can be used for lookup the project if the ID is now known
-- `defaultEnvironmentId` is currently always `default`
-- `projectType` is either `Default`
+| Path           | Method | Protected |
+| -------------- | ------ | --------- |
+| `/v2/projects` | GET    | Yes       |
 
-**Example cURL:**
+#### Query Parameters
 
-```bash
-curl 'https://release.api.golem.cloud/v2/projects/default'
-     -H 'Authorization: Bearer 03f17466-202f-43ac-86cc-52e6c6a42d2d'
+| Name         | Type   | Required | Description            |
+| ------------ | ------ | -------- | ---------------------- |
+| project-name | string | No       | Filter by project name |
+
+#### Explanation
+
+Returns all projects of the account if no project-name is specified.
+Otherwise, returns all projects of the account that has the given name.
+As unique names are not enforced on the API level, the response may contain multiple entries.
+
+## Create project
+
+| Path           | Method | Protected |
+| -------------- | ------ | --------- |
+| `/v2/projects` | POST   | Yes       |
+
+#### Explanation
+
+Creates a new project. The ownerAccountId must be the caller's account ID.
+
+#### Example Request JSON
+
+```json copy
+{
+  "name": "string",
+  "ownerAccountId": "string",
+  "description": "string"
+}
 ```
 
-### Get project by ID
+#### Example Response JSON
 
-| Method | Path                        | Request | Response     |
-| ------ | --------------------------- | ------- | ------------ |
-| GET    | `/v2/projects/{project-id}` | -       | Project JSON |
-
-**Response format:**
-
-```json
+```json copy
 {
-  "projectId": "866e1f4a-cf1a-40aa-ad8f-77e33294e999",
+  "projectId": "5a8591dd-4039-49df-9202-96385ba3eff8",
   "projectData": {
-    "name": "default-project",
-    "ownerAccountId": "ae9b9f24-cfba-4dc6-92c6-c6fecdee88b5",
-    "description": "Default project of the account ae9b9f24-cfba-4dc6-92c6-c6fecdee88b5",
-    "defaultEnvironmentId": "default",
+    "name": "string",
+    "ownerAccountId": "string",
+    "description": "string",
+    "defaultEnvironmentId": "string",
     "projectType": "Default"
   }
 }
 ```
 
-**Explanation**
+## Get project by ID
 
-Gets a project by its identifier. Response is the same as for the **default project**.
+| Path                        | Method | Protected |
+| --------------------------- | ------ | --------- |
+| `/v2/projects/{project_id}` | GET    | Yes       |
 
-**Example cURL:**
+#### Explanation
 
-```bash
-curl 'https://release.api.golem.cloud/v2/projects/866e1f4a-cf1a-40aa-ad8f-77e33294e999'
-     -H 'Authorization: Bearer 03f17466-202f-43ac-86cc-52e6c6a42d2d'
-```
+Gets a project by its identifier. Response is the same as for the default project.
 
-### List all projects
+#### Example Response JSON
 
-| Method | Path           | Request | Response              |
-| ------ | -------------- | ------- | --------------------- |
-| GET    | `/v2/projects` | -       | Array of Project JSON |
-
-**Response format:**
-
-```json
-[
-  {
-    "projectId": "866e1f4a-cf1a-40aa-ad8f-77e33294e999",
-    "projectData": {
-      "name": "default-project",
-      "ownerAccountId": "ae9b9f24-cfba-4dc6-92c6-c6fecdee88b5",
-      "description": "Default project of the account ae9b9f24-cfba-4dc6-92c6-c6fecdee88b5",
-      "defaultEnvironmentId": "default",
-      "projectType": "Default"
-    }
-  }
-]
-```
-
-**Explanation**
-
-Returns all projects of the account.
-
-**Example cURL:**
-
-```bash
-curl 'https://release.api.golem.cloud/v2/projects'
-     -H 'Authorization: Bearer 03f17466-202f-43ac-86cc-52e6c6a42d2d'
-```
-
-### List projects with a given name
-
-| Method | Path                            | Request | Response              |
-| ------ | ------------------------------- | ------- | --------------------- |
-| GET    | `/v2/projects?project-name=xxx` | -       | Array of Project JSON |
-
-**Response format:**
-
-```json
-[
-  {
-    "projectId": "866e1f4a-cf1a-40aa-ad8f-77e33294e999",
-    "projectData": {
-      "name": "xxx",
-      "ownerAccountId": "ae9b9f24-cfba-4dc6-92c6-c6fecdee88b5",
-      "description": "A project named xxx",
-      "defaultEnvironmentId": "default",
-      "projectType": "NonDefault"
-    }
-  }
-]
-```
-
-**Explanation**
-
-Returns all projects of the account that has the given `name`. As unique names are not enforced on the API level, the response may contain multiple entries.
-
-**Example cURL:**
-
-```bash
-curl 'https://release.api.golem.cloud/v2/projects?project-name=xxx'
-     -H 'Authorization: Bearer 03f17466-202f-43ac-86cc-52e6c6a42d2d'
-```
-
-### Create project
-
-| Method | Path           | Request                 | Response     |
-| ------ | -------------- | ----------------------- | ------------ |
-| POST   | `/v2/projects` | ProjectDataRequest JSON | Project JSON |
-
-**Request format:**
-
-```json
+```json copy
 {
-  "name": "xxx",
-  "ownerAccountId": "ae9b9f24-cfba-4dc6-92c6-c6fecdee88b5",
-  "description": "A project called xxx"
-}
-```
-
-**Response format:**
-
-```json
-{
-  "projectId": "866e1f4a-cf1a-40aa-ad8f-77e33294e999",
+  "projectId": "5a8591dd-4039-49df-9202-96385ba3eff8",
   "projectData": {
-    "name": "xxx",
-    "ownerAccountId": "ae9b9f24-cfba-4dc6-92c6-c6fecdee88b5",
-    "description": "A project called xxx",
-    "defaultEnvironmentId": "default",
-    "projectType": "NonDefault"
+    "name": "string",
+    "ownerAccountId": "string",
+    "description": "string",
+    "defaultEnvironmentId": "string",
+    "projectType": "Default"
   }
 }
 ```
 
-**Explanation**
+## Delete project
 
-Creates a new project. The `ownerAccountId` must be the caller's account ID.
+| Path                        | Method | Protected |
+| --------------------------- | ------ | --------- |
+| `/v2/projects/{project_id}` | DELETE | Yes       |
 
-**Example cURL:**
-
-```bash
-curl 'https://release.api.golem.cloud/v2/projects/866e1f4a-cf1a-40aa-ad8f-77e33294e999'
-     -H 'Authorization: Bearer 03f17466-202f-43ac-86cc-52e6c6a42d2d'
-```
-
-### Delete project
-
-| Method | Path                        | Request | Response |
-| ------ | --------------------------- | ------- | -------- |
-| DELETE | `/v2/projects/{project-id}` | -       | -        |
-
-**Explanation**
+#### Explanation
 
 Deletes a project given by its identifier.
 
-**Example cURL:**
+#### Example Response JSON
 
-```bash
-curl -X DELETE
-     'https://release.api.golem.cloud/v2/projects/866e1f4a-cf1a-40aa-ad8f-77e33294e999'
-     -H 'Authorization: Bearer 03f17466-202f-43ac-86cc-52e6c6a42d2d'
+```json copy
+{}
 ```
 
-## Project API errors
+## Get project actions
 
-All project endpoints can return with the following errors:
+| Path                                | Method | Protected |
+| ----------------------------------- | ------ | --------- |
+| `/v2/projects/{project_id}/actions` | GET    | Yes       |
 
-| Status | Body                     | Description                                                               |
-| ------ | ------------------------ | ------------------------------------------------------------------------- |
-| 400    | `{ "errors": ["error1"}` | Invalid request, returning with a list of issues detected in the request. |
-| 401    | `{ "message": "..." }`   | Unauthorized                                                              |
-| 403    | `{ "error": "..." }`     | Maximum number of projects exceeded                                       |
-| 404    | `{ "message": "..." }`   | Project not found                                                         |
-| 500    | `{ "error": "..." }`     | Internal server error                                                     |
+#### Explanation
+
+Returns a list of actions that can be performed on the project.
+
+## Project API Errors
+
+### Http Status 400
+
+```json copy
+{
+  "errors": ["string"]
+}
+```
+
+### Http Status 401
+
+```json copy
+{
+  "error": "string"
+}
+```
+
+### Http Status 403
+
+```json copy
+{
+  "error": "string"
+}
+```
+
+### Http Status 404
+
+```json copy
+{
+  "error": "string"
+}
+```
+
+### Http Status 500
+
+```json copy
+{
+  "error": "string"
+}
+```

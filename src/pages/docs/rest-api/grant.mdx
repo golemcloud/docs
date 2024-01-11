@@ -1,0 +1,81 @@
+# Grant API
+
+### Summary
+
+undefined
+
+## undefined
+
+| Path                               | Method | Protected |
+| ---------------------------------- | ------ | --------- |
+| `/v2/accounts/{account_id}/grants` | GET    | Yes       |
+
+## undefined
+
+| Path                                      | Method | Protected |
+| ----------------------------------------- | ------ | --------- |
+| `/v2/accounts/{account_id}/grants/{role}` | GET    | Yes       |
+
+#### Example Response JSON
+
+```json copy
+"Admin"
+```
+
+## undefined
+
+| Path                                      | Method | Protected |
+| ----------------------------------------- | ------ | --------- |
+| `/v2/accounts/{account_id}/grants/{role}` | PUT    | Yes       |
+
+#### Example Response JSON
+
+```json copy
+"Admin"
+```
+
+## undefined
+
+| Path                                      | Method | Protected |
+| ----------------------------------------- | ------ | --------- |
+| `/v2/accounts/{account_id}/grants/{role}` | DELETE | Yes       |
+
+#### Example Response JSON
+
+```json copy
+{}
+```
+
+## Grant API Errors
+
+### Http Status 400
+
+```json copy
+{
+  "errors": ["string"]
+}
+```
+
+### Http Status 401
+
+```json copy
+{
+  "error": "string"
+}
+```
+
+### Http Status 404
+
+```json copy
+{
+  "error": "string"
+}
+```
+
+### Http Status 500
+
+```json copy
+{
+  "error": "string"
+}
+```

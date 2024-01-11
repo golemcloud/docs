@@ -1,0 +1,83 @@
+# Limits API
+
+### Summary
+
+undefined
+
+## undefined
+
+| Path                  | Method | Protected |
+| --------------------- | ------ | --------- |
+| `/v2/resource-limits` | GET    | Yes       |
+
+#### Query Parameters
+
+| Name       | Type   | Required | Description |
+| ---------- | ------ | -------- | ----------- |
+| account-id | string | Yes      | -           |
+
+#### Example Response JSON
+
+```json copy
+{
+  "availableFuel": 0,
+  "maxMemoryPerWorker": 0
+}
+```
+
+## undefined
+
+| Path                  | Method | Protected |
+| --------------------- | ------ | --------- |
+| `/v2/resource-limits` | POST   | Yes       |
+
+#### Example Request JSON
+
+```json copy
+{
+  "updates": {
+    "property1": 0,
+    "property2": 0
+  }
+}
+```
+
+#### Example Response JSON
+
+```json copy
+{}
+```
+
+## Limits API Errors
+
+### Http Status 400
+
+```json copy
+{
+  "errors": ["string"]
+}
+```
+
+### Http Status 401
+
+```json copy
+{
+  "error": "string"
+}
+```
+
+### Http Status 403
+
+```json copy
+{
+  "error": "string"
+}
+```
+
+### Http Status 500
+
+```json copy
+{
+  "error": "string"
+}
+```
