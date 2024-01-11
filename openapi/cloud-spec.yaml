@@ -11,6 +11,7 @@ tags:
   - name: HealthCheck
   - name: Limits
   - name: Login
+    description: The login endpoints are implementing an OAuth2 flow.
   - name: Project
     description: |-
       Projects are groups of templates and their workers, providing both a separate namespace for these entities and allows sharing between accounts.
@@ -649,11 +650,20 @@ paths:
     post:
       tags:
         - Login
+      summary: Acquire token with OAuth2 authorization
+      description: |
+        Gets a token by authorizing with an external OAuth2 provider. Currently only github is supported.
+
+        In the response:
+        - `id` is the identifier of the token itself
+        - `accountId` is the account's identifier, can be used on the account API
+        - `secret` is the secret key to be sent in the Authorization header as a bearer token for all the other endpoints
       parameters:
         - name: provider
           schema:
             type: string
           in: query
+          description: Currently only `github` is supported.
           required: true
           deprecated: false
           explode: true
@@ -661,6 +671,7 @@ paths:
           schema:
             type: string
           in: query
+          description: OAuth2 access token
           required: true
           deprecated: false
           explode: true
@@ -672,19 +683,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/UnsafeToken"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request.
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Failed to login
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: External service call failed during login
           content:
             application/json; charset=utf-8:
               schema:
@@ -693,6 +704,10 @@ paths:
     get:
       tags:
         - Login
+      summary: Get information about a token
+      description: |-
+        Gets information about a token that is selected by the secret key passed in the Authorization header.
+        The JSON is the same as the data object in the oauth2 endpoint's response.
       responses:
         "200":
           description: ""
@@ -701,19 +716,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/Token"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request.
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Failed to login
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: External service call failed during login
           content:
             application/json; charset=utf-8:
               schema:
@@ -725,6 +740,11 @@ paths:
     post:
       tags:
         - Login
+      summary: Start GitHub OAuth2 interactive flow
+      description: |-
+        Starts an interactive authorization flow.
+        The user must open the returned url and enter the userCode in a form before the expires deadline.
+        Then the finish GitHub OAuth2 interactive flow endpoint must be called with the encoded session to finish the flow.
       responses:
         "200":
           description: ""
@@ -733,19 +753,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/OAuth2Data"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request.
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Failed to login
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: External service call failed during login
           content:
             application/json; charset=utf-8:
               schema:
@@ -754,6 +774,10 @@ paths:
     post:
       tags:
         - Login
+      summary: Finish GitHub OAuth2 interactive flow
+      description: |-
+        Finishes an interactive authorization flow. The returned JSON is equivalent to the oauth2 endpoint's response.
+        Returns a JSON string containing the encodedSession from the start endpoint's response.
       requestBody:
         content:
           application/json; charset=utf-8:
@@ -768,19 +792,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/UnsafeToken"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request.
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Failed to login
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: External service call failed during login
           content:
             application/json; charset=utf-8:
               schema:
