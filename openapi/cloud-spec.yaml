@@ -10,6 +10,7 @@ tags:
   - name: Grant
   - name: HealthCheck
   - name: Limits
+    description: The limits API allows users to query their current resource limits.
   - name: Login
     description: The login endpoints are implementing an OAuth2 flow.
   - name: Project
@@ -18,7 +19,26 @@ tags:
 
       Every account has a default project which is assumed when no specific project ID is passed in some template and worker related APIs.
   - name: ProjectGrant
+    description: |-
+      Projects can have grants providing access to other accounts than the project's owner.
+
+      The project grant API allows listing, creating and deleting such grants. What the grants allow exactly are defined by policies, covered by the Project policy API.
   - name: ProjectPolicy
+    description: |-
+      Project policies describe a set of actions one account can perform when it was associated with a grant for a project.
+
+      The following actions can be used in the projectActions fields of this API:
+      - `ViewComponent` grants read access to a template
+      - `CreateComponent` allows creating new templates in a project
+      - `UpdateComponent` allows uploading new versions for existing templates in a project
+      - `DeleteComponent` allows deleting templates from a project
+      - `ViewInstance` allows querying existing workers of a template belonging to the project
+      - `CreateInstance` allows launching new workers of a template in the project
+      - `UpdateInstance` allows manipulating existing workers of a template belonging to the project
+      - `DeleteInstance` allows deleting workers of a template belonging to the project
+      - `ViewProjectGrants` allows listing the existing grants of the project
+      - `CreateProjectGrants` allows creating new grants for the project
+      - `DeleteProjectGrants` allows deleting existing grants of the project
   - name: Template
     description: The template API provides endpoint to upload, download and find Golem templates (WASM files with associated metadata).
   - name: Token
@@ -561,11 +581,13 @@ paths:
     get:
       tags:
         - Limits
+      summary: Get resource limits for a given account.
       parameters:
         - name: account-id
           schema:
             type: string
           in: query
+          description: The Account ID to check resource limits for.
           required: true
           deprecated: false
           explode: true
@@ -577,25 +599,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/ResourceLimits"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
-          content:
-            application/json; charset=utf-8:
-              schema:
-                $ref: "#/components/schemas/ErrorBody"
-        "403":
-          description: ""
+          description: Unauthorized request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -606,6 +622,7 @@ paths:
     post:
       tags:
         - Limits
+      summary: Update resource limits for a given account.
       requestBody:
         content:
           application/json; charset=utf-8:
@@ -620,25 +637,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/UpdateResourceLimitsResponse"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
-          content:
-            application/json; charset=utf-8:
-              schema:
-                $ref: "#/components/schemas/ErrorBody"
-        "403":
-          description: ""
+          description: Unauthorized request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -683,7 +694,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/UnsafeToken"
         "400":
-          description: Invalid request, returning with a list of issues detected in the request.
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
@@ -716,7 +727,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Token"
         "400":
-          description: Invalid request, returning with a list of issues detected in the request.
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
@@ -753,7 +764,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/OAuth2Data"
         "400":
-          description: Invalid request, returning with a list of issues detected in the request.
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
@@ -792,7 +803,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/UnsafeToken"
         "400":
-          description: Invalid request, returning with a list of issues detected in the request.
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
@@ -848,31 +859,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/Project"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "403":
-          description: ""
+          description: Maximum number of projects exceeded
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Project not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Project already exists
           content:
             application/json; charset=utf-8:
               schema:
@@ -908,31 +919,31 @@ paths:
                 items:
                   $ref: "#/components/schemas/Project"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "403":
-          description: ""
+          description: Maximum number of projects exceeded
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Project not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Project already exists
           content:
             application/json; charset=utf-8:
               schema:
@@ -959,31 +970,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/Project"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "403":
-          description: ""
+          description: Maximum number of projects exceeded
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Project not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Project already exists
           content:
             application/json; charset=utf-8:
               schema:
@@ -1014,31 +1025,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/Project"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "403":
-          description: ""
+          description: Maximum number of projects exceeded
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Project not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Project already exists
           content:
             application/json; charset=utf-8:
               schema:
@@ -1068,31 +1079,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/DeleteProjectResponse"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "403":
-          description: ""
+          description: Maximum number of projects exceeded
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Project not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Project already exists
           content:
             application/json; charset=utf-8:
               schema:
@@ -1125,31 +1136,31 @@ paths:
                 items:
                   $ref: "#/components/schemas/ProjectAction"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "403":
-          description: ""
+          description: Maximum number of projects exceeded
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Project not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Project already exists
           content:
             application/json; charset=utf-8:
               schema:
@@ -1161,6 +1172,15 @@ paths:
     get:
       tags:
         - ProjectGrant
+      summary: Get a project's grants
+      description: |-
+        Returns all projects grants associated with the given project.
+
+        For each grant:
+        - `id`` is the identifier of the grant itself
+        - `granteeAccountId` the account that gets access for the project
+        - `grantorProjectId` the project ID
+        - `projectPolicyId` the associated policy - see the project policy API below
       parameters:
         - name: project_id
           schema:
@@ -1180,31 +1200,31 @@ paths:
                 items:
                   $ref: "#/components/schemas/ProjectGrant"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "403":
-          description: ""
+          description: Maximum number of projects exceeded
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Project not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -1215,6 +1235,13 @@ paths:
     post:
       tags:
         - ProjectGrant
+      summary: Create a project grant
+      description: |-
+        Creates a new project grant from the following information:
+        - `granteeAccountId` the account that gets access for the project
+        - `projectPolicyId` the associated policy - see the project policy API below
+
+        The response describes the new project grant including it's id that can be used to query specifically this grant in the future.
       parameters:
         - name: project_id
           schema:
@@ -1238,31 +1265,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProjectGrant"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "403":
-          description: ""
+          description: Maximum number of projects exceeded
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Project not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -1274,6 +1301,8 @@ paths:
     get:
       tags:
         - ProjectGrant
+      summary: Get a specific grant of a project
+      description: Returns a specific grant of a specific project. The returned object is the same as the elements of the grants endpoint's response described above.
       parameters:
         - name: project_id
           schema:
@@ -1299,31 +1328,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProjectGrant"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "403":
-          description: ""
+          description: Maximum number of projects exceeded
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Project not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -1334,6 +1363,8 @@ paths:
     delete:
       tags:
         - ProjectGrant
+      summary: Delete a project grant
+      description: Deletes an existing grant of a specific project.
       parameters:
         - name: project_id
           schema:
@@ -1359,31 +1390,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/DeleteProjectGrantResponse"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "403":
-          description: ""
+          description: Maximum number of projects exceeded
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Project not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -1395,6 +1426,8 @@ paths:
     get:
       tags:
         - ProjectPolicy
+      summary: Get a project policy
+      description: Returns a given project policy by it's ID. Project policy identifiers are used in project grants.
       parameters:
         - name: project_policy_id
           schema:
@@ -1412,31 +1445,25 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProjectPolicy"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
-          content:
-            application/json; charset=utf-8:
-              schema:
-                $ref: "#/components/schemas/ErrorBody"
-        "403":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Project not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -1448,6 +1475,8 @@ paths:
     post:
       tags:
         - ProjectPolicy
+      summary: Create a project policy
+      description: Creates a new project policy and returns the object describing it, including the newly created policy's id.
       requestBody:
         content:
           application/json; charset=utf-8:
@@ -1462,31 +1491,25 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProjectPolicy"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
-          content:
-            application/json; charset=utf-8:
-              schema:
-                $ref: "#/components/schemas/ErrorBody"
-        "403":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Project not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -1529,37 +1552,37 @@ paths:
                 items:
                   $ref: "#/components/schemas/Template"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "403":
-          description: ""
+          description: Maximum number of templates exceeded
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Template not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "409":
-          description: ""
+          description: Template already exists
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -1596,37 +1619,37 @@ paths:
               schema:
                 $ref: "#/components/schemas/Template"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "403":
-          description: ""
+          description: Maximum number of templates exceeded
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Template not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "409":
-          description: ""
+          description: Template already exists
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -1668,37 +1691,37 @@ paths:
               schema:
                 $ref: "#/components/schemas/Template"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "403":
-          description: ""
+          description: Maximum number of templates exceeded
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Template not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "409":
-          description: ""
+          description: Template already exists
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -1739,37 +1762,37 @@ paths:
                 items:
                   $ref: "#/components/schemas/Template"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "403":
-          description: ""
+          description: Maximum number of templates exceeded
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Template not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "409":
-          description: ""
+          description: Template already exists
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -1809,37 +1832,37 @@ paths:
                 type: string
                 format: binary
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "403":
-          description: ""
+          description: Maximum number of templates exceeded
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Template not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "409":
-          description: ""
+          description: Template already exists
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -1871,37 +1894,37 @@ paths:
                 type: integer
                 format: int32
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "403":
-          description: ""
+          description: Maximum number of templates exceeded
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Template not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "409":
-          description: ""
+          description: Template already exists
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -1935,25 +1958,25 @@ paths:
                 items:
                   $ref: "#/components/schemas/Token"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Token not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -1990,25 +2013,25 @@ paths:
               schema:
                 $ref: "#/components/schemas/UnsafeToken"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Token not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -2048,25 +2071,25 @@ paths:
               schema:
                 $ref: "#/components/schemas/Token"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Token not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -2103,25 +2126,25 @@ paths:
               schema:
                 $ref: "#/components/schemas/DeleteTokenResponse"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Token not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
