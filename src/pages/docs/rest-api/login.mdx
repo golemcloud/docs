@@ -1,7 +1,5 @@
 # Login API
 
-### Summary
-
 The login endpoints are implementing an OAuth2 flow.
 
 ## Acquire token with OAuth2 authorization
@@ -115,32 +113,8 @@ Returns a JSON string containing the encodedSession from the start endpoint's re
 
 ## Login API Errors
 
-### Status `400`
-
-Invalid request, returning with a list of issues detected in the request.
-
-```json copy
-{
-  "errors": ["string"]
-}
-```
-
-### Status `401`
-
-Failed to login
-
-```json copy
-{
-  "error": "string"
-}
-```
-
-### Status `500`
-
-External service call failed during login
-
-```json copy
-{
-  "error": "string"
-}
-```
+| Status Code | Description                                                              | Body                    |
+| ----------- | ------------------------------------------------------------------------ | ----------------------- |
+| 400         | Invalid request, returning with a list of issues detected in the request | `{"errors":["string"]}` |
+| 401         | Failed to login                                                          | `{"error":"string"}`    |
+| 500         | External service call failed during login                                | `{"error":"string"}`    |

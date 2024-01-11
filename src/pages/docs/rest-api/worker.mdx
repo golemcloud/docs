@@ -1,7 +1,5 @@
 # Worker API
 
-### Summary
-
 undefined
 
 ## undefined
@@ -214,53 +212,11 @@ true
 
 ## Worker API Errors
 
-### Status `400`
-
-```json copy
-{
-  "errors": ["string"]
-}
-```
-
-### Status `401`
-
-```json copy
-{
-  "error": "string"
-}
-```
-
-### Status `403`
-
-```json copy
-{
-  "error": "string"
-}
-```
-
-### Status `404`
-
-```json copy
-{
-  "error": "string"
-}
-```
-
-### Status `409`
-
-```json copy
-{
-  "error": "string"
-}
-```
-
-### Status `500`
-
-```json copy
-{
-  "golemError": {
-    "type": "InvalidRequest",
-    "details": "string"
-  }
-}
-```
+| Status Code | Description | Body                                                          |
+| ----------- | ----------- | ------------------------------------------------------------- |
+| 400         |             | `{"errors":["string"]}`                                       |
+| 401         |             | `{"error":"string"}`                                          |
+| 403         |             | `{"error":"string"}`                                          |
+| 404         |             | `{"error":"string"}`                                          |
+| 409         |             | `{"error":"string"}`                                          |
+| 500         |             | `{"golemError":{"type":"InvalidRequest","details":"string"}}` |

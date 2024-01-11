@@ -1,10 +1,8 @@
 # Limits API
 
-### Summary
+The limits API allows users to query their current resource limits.
 
-undefined
-
-## undefined
+## Get resource limits for a given account.
 
 | Path                  | Method | Protected |
 | --------------------- | ------ | --------- |
@@ -12,9 +10,9 @@ undefined
 
 **Query Parameters**
 
-| Name       | Type   | Required | Description |
-| ---------- | ------ | -------- | ----------- |
-| account-id | string | Yes      | -           |
+| Name       | Type   | Required | Description                                  |
+| ---------- | ------ | -------- | -------------------------------------------- |
+| account-id | string | Yes      | The Account ID to check resource limits for. |
 
 **Example Response JSON**
 
@@ -25,7 +23,7 @@ undefined
 }
 ```
 
-## undefined
+## Update resource limits for a given account.
 
 | Path                  | Method | Protected |
 | --------------------- | ------ | --------- |
@@ -50,34 +48,8 @@ undefined
 
 ## Limits API Errors
 
-### Status `400`
-
-```json copy
-{
-  "errors": ["string"]
-}
-```
-
-### Status `401`
-
-```json copy
-{
-  "error": "string"
-}
-```
-
-### Status `403`
-
-```json copy
-{
-  "error": "string"
-}
-```
-
-### Status `500`
-
-```json copy
-{
-  "error": "string"
-}
-```
+| Status Code | Description                                                              | Body                    |
+| ----------- | ------------------------------------------------------------------------ | ----------------------- |
+| 400         | Invalid request, returning with a list of issues detected in the request | `{"errors":["string"]}` |
+| 401         | Unauthorized request                                                     | `{"error":"string"}`    |
+| 500         | Internal server error                                                    | `{"error":"string"}`    |

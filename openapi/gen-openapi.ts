@@ -33,9 +33,11 @@ async function main() {
     return foundTag
   })
 
-  const markdown = Array.from(grouped.entries()).map(([tag, items]) => {
-    return [tag, convertToMarkdown(api, tag, items)] as const
-  })
+  const markdown = Array.from(grouped.entries())
+    .filter(([tag, _]) => tag.name !== "HealthCheck")
+    .map(([tag, items]) => {
+      return [tag, convertToMarkdown(api, tag, items)] as const
+    })
 
   await Promise.all(
     markdown.map(([tag, content]) => {
@@ -74,17 +76,16 @@ function convertToMarkdown(
   tag: OpenAPIV3.TagObject,
   apiItems: ApiItem[]
 ): string {
-  const title = tag.name
+  const title = pascalToSpace(tag.name)
 
   const errors = makeRequestError(api, apiItems[0].operation)
 
-  const errorTitle = errors ? `## ${tag.name} API Errors` : ""
-  const errorsContent = errors ? errors.join("\n") : ""
+  const errorTitle = errors ? `## ${title} API Errors` : ""
+  const errorsContent = errors ? errors : ""
   const errorSection = errors ? `${errorTitle}\n${errorsContent}` : ""
 
   return [
     `# ${title} API`,
-    `### Summary`,
     `${tag.description}`,
     `${apiItems.map(i => convertItemToMarkdown(api, i)).join("\n\n")}`,
     errorSection,
@@ -238,19 +239,21 @@ function makeRequestError(api: OpenAPIV3.Document, operation: OpenAPIV3.Operatio
     .map(({ status, desc, schema }) => {
       const sample = OpenAPISampler.sample(schema as JSONSchema7, undefined, api)
 
-      return [
-        `### Status \`${status}\``,
-        desc,
-        "```json copy",
-        JSON.stringify(sample, null, 2),
-        "```",
-      ].join("\n")
+      const jsonRendered = ["`", JSON.stringify(sample), "`"].join("")
+
+      const shortedDesc = desc?.split("\n").join(" ")
+
+      return [status, shortedDesc, jsonRendered]
     })
 
   if (errorResponses.length === 0) {
     return undefined
   }
-  return errorResponses
+
+  return makeMarkdownTable({
+    headers: ["Status Code", "Description", "Body"],
+    rows: errorResponses,
+  })
 }
 
 function groupBy<T, K>(items: T[], keySelector: (item: T) => K): Map<K, [T]> {
@@ -270,6 +273,10 @@ function groupBy<T, K>(items: T[], keySelector: (item: T) => K): Map<K, [T]> {
 
 function pascalToKebab(str: string) {
   return str.replace(/([a-z0-9])(?=[A-Z])/g, "$1-").toLowerCase()
+}
+
+function pascalToSpace(str: string) {
+  return str.replace(/([a-z])([A-Z])/g, "$1 $2")
 }
 
 main().catch(e => console.error(e))

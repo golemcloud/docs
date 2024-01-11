@@ -1,7 +1,5 @@
 # Token API
 
-### Summary
-
 The token API allows creating custom access tokens for the Golem Cloud REST API to be used by tools and services.
 
 ## Get all tokens
@@ -95,34 +93,9 @@ Deletes a previously created token given by it's identifier.
 
 ## Token API Errors
 
-### Status `400`
-
-```json copy
-{
-  "errors": ["string"]
-}
-```
-
-### Status `401`
-
-```json copy
-{
-  "error": "string"
-}
-```
-
-### Status `404`
-
-```json copy
-{
-  "error": "string"
-}
-```
-
-### Status `500`
-
-```json copy
-{
-  "error": "string"
-}
-```
+| Status Code | Description                                                              | Body                    |
+| ----------- | ------------------------------------------------------------------------ | ----------------------- |
+| 400         | Invalid request, returning with a list of issues detected in the request | `{"errors":["string"]}` |
+| 401         | Unauthorized                                                             | `{"error":"string"}`    |
+| 404         | Token not found                                                          | `{"error":"string"}`    |
+| 500         | Internal server error                                                    | `{"error":"string"}`    |

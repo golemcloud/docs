@@ -1,7 +1,5 @@
 # Account API
 
-### Summary
-
 The account API allows users to query and manipulate their own account data.
 
 ## Get account
@@ -120,43 +118,9 @@ Create a new account. The response is the created account data.
 
 ## Account API Errors
 
-### Status `400`
-
-Invalid request.
-Returns a list of issues detected in the request.
-
-```json copy
-{
-  "errors": ["string"]
-}
-```
-
-### Status `401`
-
-Unauthorized request.
-
-```json copy
-{
-  "error": "string"
-}
-```
-
-### Status `404`
-
-Account not found.
-
-```json copy
-{
-  "error": "string"
-}
-```
-
-### Status `500`
-
-Internal server error.
-
-```json copy
-{
-  "error": "string"
-}
-```
+| Status Code | Description                                                        | Body                    |
+| ----------- | ------------------------------------------------------------------ | ----------------------- |
+| 400         | Invalid request. Returns a list of issues detected in the request. | `{"errors":["string"]}` |
+| 401         | Unauthorized request.                                              | `{"error":"string"}`    |
+| 404         | Account not found.                                                 | `{"error":"string"}`    |
+| 500         | Internal server error.                                             | `{"error":"string"}`    |
