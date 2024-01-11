@@ -44,6 +44,7 @@ tags:
   - name: Token
     description: The token API allows creating custom access tokens for the Golem Cloud REST API to be used by tools and services.
   - name: Worker
+    description: The worker API allows to launch new workers, query and manipulate their status, and invoke their exported functions.
 paths:
   /v2/accounts/{account_id}:
     get:
@@ -2156,6 +2157,14 @@ paths:
     get:
       tags:
         - Worker
+      summary: Get a versioned worker id by it's template id and worker name
+      description: |-
+        This endpoint just returns the components of a worker identifier based on a textual workerId of the format templateId.workerName
+        These components are:
+
+        - `rawTemplateId` the same as the templateId part of the input string
+        - `workerName` the same as the workerName part of the input string
+        - `templateVersionUsed` is the specific template version the worker is running with
       parameters:
         - name: worker_id
           schema:
@@ -2172,37 +2181,37 @@ paths:
               schema:
                 $ref: "#/components/schemas/VersionedWorkerId"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "403":
-          description: ""
+          description: Maximum number of workers exceeded
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Template / Worker / Promise not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "409":
-          description: ""
+          description: Worker already exists
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -2214,6 +2223,14 @@ paths:
     post:
       tags:
         - Worker
+      summary: Launch a new worker.
+      description: |-
+        Creates a new worker. The worker initially is in `Idle`` status, waiting to be invoked.
+
+        The parameters in the request are the following:
+        - `name` is the name of the created worker. This has to be unique, but only for a given template
+        - `args` is a list of strings which appear as command line arguments for the worker
+        - `env` is a list of key-value pairs (represented by arrays) which appear as environment variables for the worker
       parameters:
         - name: template_id
           schema:
@@ -2237,37 +2254,37 @@ paths:
               schema:
                 $ref: "#/components/schemas/VersionedWorkerId"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "403":
-          description: ""
+          description: Maximum number of workers exceeded
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Template / Worker / Promise not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "409":
-          description: ""
+          description: Worker already exists
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -2279,6 +2296,8 @@ paths:
     delete:
       tags:
         - Worker
+      summary: Delete a worker
+      description: Interrupts and deletes an existing worker.
       parameters:
         - name: template_id
           schema:
@@ -2303,37 +2322,37 @@ paths:
               schema:
                 $ref: "#/components/schemas/DeleteWorkerResponse"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "403":
-          description: ""
+          description: Maximum number of workers exceeded
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Template / Worker / Promise not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "409":
-          description: ""
+          description: Worker already exists
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -2344,6 +2363,23 @@ paths:
     get:
       tags:
         - Worker
+      summary: Get metadata of a worker
+      description: |-
+        Returns metadata about an existing worker:
+        - `workerId` is a combination of the used template and the worker's user specified name
+        - `accountId` the account the worker is created by
+        - `args` is the provided command line arguments passed to the worker
+        - `env` is the provided map of environment variables passed to the worker
+        - `templateVersion` is the version of the template used by the worker
+        - `retryCount` is the number of retries the worker did in case of a failure
+        - `status` is the worker's current status, one of the following:
+        - `Running` if the worker is currently executing
+        - `Idle` if the worker is waiting for an invocation
+        - `Suspended` if the worker was running but is now waiting to be resumed by an event (such as end of a sleep, a promise, etc)
+        - `Interrupted` if the worker was interrupted by the user
+        - `Retrying` if the worker failed, and an automatic retry was scheduled for it
+        - `Failed` if the worker failed and there are no more retries scheduled for it
+        - `Exited` if the worker explicitly exited using the exit WASI function
       parameters:
         - name: template_id
           schema:
@@ -2368,37 +2404,37 @@ paths:
               schema:
                 $ref: "#/components/schemas/WorkerMetadata"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "403":
-          description: ""
+          description: Maximum number of workers exceeded
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Template / Worker / Promise not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "409":
-          description: ""
+          description: Worker already exists
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -2410,6 +2446,10 @@ paths:
     post:
       tags:
         - Worker
+      summary: Get an invocation key
+      description: |-
+        Creates an invocation key for a given worker.
+        An invocation key is passed to the below defined invoke APIs to guarantee that retrying those invocations only performs the operation on the worker once.
       parameters:
         - name: template_id
           schema:
@@ -2434,37 +2474,37 @@ paths:
               schema:
                 $ref: "#/components/schemas/InvocationKey"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "403":
-          description: ""
+          description: Maximum number of workers exceeded
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Template / Worker / Promise not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "409":
-          description: ""
+          description: Worker already exists
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -2476,6 +2516,8 @@ paths:
     post:
       tags:
         - Worker
+      summary: Invoke a function and await it's resolution
+      description: Supply the parameters in the request body as JSON.
       parameters:
         - name: template_id
           schema:
@@ -2496,6 +2538,7 @@ paths:
           schema:
             type: string
           in: query
+          description: must be created with the create invokation key endpoint
           required: true
           deprecated: false
           explode: true
@@ -2503,6 +2546,7 @@ paths:
           schema:
             type: string
           in: query
+          description: name of the exported function to be invoked
           required: true
           deprecated: false
           explode: true
@@ -2510,6 +2554,7 @@ paths:
           schema:
             $ref: "#/components/schemas/CallingConvention"
           in: query
+          description: One of `component`, `stdio`, `stdio-event-loop`. Defaults to `component`.
           required: false
           deprecated: false
           explode: true
@@ -2527,37 +2572,37 @@ paths:
               schema:
                 $ref: "#/components/schemas/InvokeResult"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "403":
-          description: ""
+          description: Maximum number of workers exceeded
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Template / Worker / Promise not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "409":
-          description: ""
+          description: Worker already exists
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -2569,6 +2614,10 @@ paths:
     post:
       tags:
         - Worker
+      summary: Invoke a function
+      description: |-
+        A simpler version of the previously defined invoke and await endpoint just triggers the execution of a function and immediately returns. Custom calling convention and invocation key is not supported.
+        To understand how to get the function name and how to encode the function parameters check Template interface
       parameters:
         - name: template_id
           schema:
@@ -2589,6 +2638,7 @@ paths:
           schema:
             type: string
           in: query
+          description: name of the exported function to be invoked
           required: true
           deprecated: false
           explode: true
@@ -2606,37 +2656,37 @@ paths:
               schema:
                 $ref: "#/components/schemas/InvokeResponse"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "403":
-          description: ""
+          description: Maximum number of workers exceeded
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Template / Worker / Promise not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "409":
-          description: ""
+          description: Worker already exists
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -2648,6 +2698,11 @@ paths:
     post:
       tags:
         - Worker
+      summary: Complete a promise
+      description: |-
+        Completes a promise with a given custom array of bytes.
+        The promise must be previously created from within the worker, and it's identifier (a combination of a worker identifier and an oplogIdx ) must be sent out to an external caller so it can use this endpoint to mark the promise completed.
+        The data field is sent back to the worker and it has no predefined meaning.
       parameters:
         - name: template_id
           schema:
@@ -2678,37 +2733,37 @@ paths:
               schema:
                 type: boolean
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "403":
-          description: ""
+          description: Maximum number of workers exceeded
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Template / Worker / Promise not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "409":
-          description: ""
+          description: Worker already exists
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -2720,6 +2775,12 @@ paths:
     post:
       tags:
         - Worker
+      summary: Interrupt a worker
+      description: |-
+        Interrupts the execution of a worker.
+        The worker's status will be Interrupted unless the recover-immediately parameter was used, in which case it remains as it was.
+        An interrupted worker can be still used, and it is going to be automatically resumed the first time it is used.
+        For example in case of a new invocation, the previously interrupted invocation is continued before the new one gets processed.
       parameters:
         - name: template_id
           schema:
@@ -2740,6 +2801,7 @@ paths:
           schema:
             type: boolean
           in: query
+          description: if true will simulate a worker recovery. Defaults to false.
           required: false
           deprecated: false
           explode: true
@@ -2751,37 +2813,37 @@ paths:
               schema:
                 $ref: "#/components/schemas/InterruptResponse"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "403":
-          description: ""
+          description: Maximum number of workers exceeded
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Template / Worker / Promise not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "409":
-          description: ""
+          description: Worker already exists
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -2793,6 +2855,7 @@ paths:
     post:
       tags:
         - Worker
+      summary: Resume a worker
       parameters:
         - name: template_id
           schema:
@@ -2817,37 +2880,37 @@ paths:
               schema:
                 $ref: "#/components/schemas/ResumeResponse"
         "400":
-          description: ""
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: ""
+          description: Unauthorized
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "403":
-          description: ""
+          description: Maximum number of workers exceeded
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: ""
+          description: Template / Worker / Promise not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "409":
-          description: ""
+          description: Worker already exists
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: ""
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:

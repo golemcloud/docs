@@ -1,12 +1,19 @@
 # Worker API
 
-undefined
+The worker API allows to launch new workers, query and manipulate their status, and invoke their exported functions.
 
-## undefined
+## Get a versioned worker id by it's template id and worker name
 
 | Path                                | Method | Protected |
 | ----------------------------------- | ------ | --------- |
 | `/v2/templates/workers/{worker_id}` | GET    | Yes       |
+
+This endpoint just returns the components of a worker identifier based on a textual workerId of the format templateId.workerName
+These components are:
+
+- `rawTemplateId` the same as the templateId part of the input string
+- `workerName` the same as the workerName part of the input string
+- `templateVersionUsed` is the specific template version the worker is running with
 
 **Example Response JSON**
 
@@ -20,11 +27,19 @@ undefined
 }
 ```
 
-## undefined
+## Launch a new worker.
 
 | Path                                  | Method | Protected |
 | ------------------------------------- | ------ | --------- |
 | `/v2/templates/{template_id}/workers` | POST   | Yes       |
+
+Creates a new worker. The worker initially is in `Idle`` status, waiting to be invoked.
+
+The parameters in the request are the following:
+
+- `name` is the name of the created worker. This has to be unique, but only for a given template
+- `args` is a list of strings which appear as command line arguments for the worker
+- `env` is a list of key-value pairs (represented by arrays) which appear as environment variables for the worker
 
 **Example Request JSON**
 
@@ -51,11 +66,13 @@ undefined
 }
 ```
 
-## undefined
+## Delete a worker
 
 | Path                                                | Method | Protected |
 | --------------------------------------------------- | ------ | --------- |
 | `/v2/templates/{template_id}/workers/{worker_name}` | DELETE | Yes       |
+
+Interrupts and deletes an existing worker.
 
 **Example Response JSON**
 
@@ -63,11 +80,28 @@ undefined
 {}
 ```
 
-## undefined
+## Get metadata of a worker
 
 | Path                                                | Method | Protected |
 | --------------------------------------------------- | ------ | --------- |
 | `/v2/templates/{template_id}/workers/{worker_name}` | GET    | Yes       |
+
+Returns metadata about an existing worker:
+
+- `workerId` is a combination of the used template and the worker's user specified name
+- `accountId` the account the worker is created by
+- `args` is the provided command line arguments passed to the worker
+- `env` is the provided map of environment variables passed to the worker
+- `templateVersion` is the version of the template used by the worker
+- `retryCount` is the number of retries the worker did in case of a failure
+- `status` is the worker's current status, one of the following:
+- `Running` if the worker is currently executing
+- `Idle` if the worker is waiting for an invocation
+- `Suspended` if the worker was running but is now waiting to be resumed by an event (such as end of a sleep, a promise, etc)
+- `Interrupted` if the worker was interrupted by the user
+- `Retrying` if the worker failed, and an automatic retry was scheduled for it
+- `Failed` if the worker failed and there are no more retries scheduled for it
+- `Exited` if the worker explicitly exited using the exit WASI function
 
 **Example Response JSON**
 
@@ -89,11 +123,14 @@ undefined
 }
 ```
 
-## undefined
+## Get an invocation key
 
 | Path                                                    | Method | Protected |
 | ------------------------------------------------------- | ------ | --------- |
 | `/v2/templates/{template_id}/workers/{worker_name}/key` | POST   | Yes       |
+
+Creates an invocation key for a given worker.
+An invocation key is passed to the below defined invoke APIs to guarantee that retrying those invocations only performs the operation on the worker once.
 
 **Example Response JSON**
 
@@ -103,19 +140,21 @@ undefined
 }
 ```
 
-## undefined
+## Invoke a function and await it's resolution
 
 | Path                                                                 | Method | Protected |
 | -------------------------------------------------------------------- | ------ | --------- |
 | `/v2/templates/{template_id}/workers/{worker_name}/invoke-and-await` | POST   | Yes       |
 
+Supply the parameters in the request body as JSON.
+
 **Query Parameters**
 
-| Name               | Type                                   | Required | Description |
-| ------------------ | -------------------------------------- | -------- | ----------- |
-| invocation-key     | string                                 | Yes      | -           |
-| function           | string                                 | Yes      | -           |
-| calling-convention | #/components/schemas/CallingConvention | No       | -           |
+| Name               | Type                                   | Required | Description                                                               |
+| ------------------ | -------------------------------------- | -------- | ------------------------------------------------------------------------- |
+| invocation-key     | string                                 | Yes      | must be created with the create invokation key endpoint                   |
+| function           | string                                 | Yes      | name of the exported function to be invoked                               |
+| calling-convention | #/components/schemas/CallingConvention | No       | One of `component`, `stdio`, `stdio-event-loop`. Defaults to `component`. |
 
 **Example Request JSON**
 
@@ -133,17 +172,20 @@ undefined
 }
 ```
 
-## undefined
+## Invoke a function
 
 | Path                                                       | Method | Protected |
 | ---------------------------------------------------------- | ------ | --------- |
 | `/v2/templates/{template_id}/workers/{worker_name}/invoke` | POST   | Yes       |
 
+A simpler version of the previously defined invoke and await endpoint just triggers the execution of a function and immediately returns. Custom calling convention and invocation key is not supported.
+To understand how to get the function name and how to encode the function parameters check Template interface
+
 **Query Parameters**
 
-| Name     | Type   | Required | Description |
-| -------- | ------ | -------- | ----------- |
-| function | string | Yes      | -           |
+| Name     | Type   | Required | Description                                 |
+| -------- | ------ | -------- | ------------------------------------------- |
+| function | string | Yes      | name of the exported function to be invoked |
 
 **Example Request JSON**
 
@@ -159,11 +201,15 @@ undefined
 {}
 ```
 
-## undefined
+## Complete a promise
 
 | Path                                                         | Method | Protected |
 | ------------------------------------------------------------ | ------ | --------- |
 | `/v2/templates/{template_id}/workers/{worker_name}/complete` | POST   | Yes       |
+
+Completes a promise with a given custom array of bytes.
+The promise must be previously created from within the worker, and it's identifier (a combination of a worker identifier and an oplogIdx ) must be sent out to an external caller so it can use this endpoint to mark the promise completed.
+The data field is sent back to the worker and it has no predefined meaning.
 
 **Example Request JSON**
 
@@ -180,17 +226,22 @@ undefined
 true
 ```
 
-## undefined
+## Interrupt a worker
 
 | Path                                                          | Method | Protected |
 | ------------------------------------------------------------- | ------ | --------- |
 | `/v2/templates/{template_id}/workers/{worker_name}/interrupt` | POST   | Yes       |
 
+Interrupts the execution of a worker.
+The worker's status will be Interrupted unless the recover-immediately parameter was used, in which case it remains as it was.
+An interrupted worker can be still used, and it is going to be automatically resumed the first time it is used.
+For example in case of a new invocation, the previously interrupted invocation is continued before the new one gets processed.
+
 **Query Parameters**
 
-| Name                 | Type    | Required | Description |
-| -------------------- | ------- | -------- | ----------- |
-| recovery-immediately | boolean | No       | -           |
+| Name                 | Type    | Required | Description                                                 |
+| -------------------- | ------- | -------- | ----------------------------------------------------------- |
+| recovery-immediately | boolean | No       | if true will simulate a worker recovery. Defaults to false. |
 
 **Example Response JSON**
 
@@ -198,7 +249,7 @@ true
 {}
 ```
 
-## undefined
+## Resume a worker
 
 | Path                                                       | Method | Protected |
 | ---------------------------------------------------------- | ------ | --------- |
@@ -212,11 +263,11 @@ true
 
 ## Worker API Errors
 
-| Status Code | Description | Body                                                          |
-| ----------- | ----------- | ------------------------------------------------------------- |
-| 400         |             | `{"errors":["string"]}`                                       |
-| 401         |             | `{"error":"string"}`                                          |
-| 403         |             | `{"error":"string"}`                                          |
-| 404         |             | `{"error":"string"}`                                          |
-| 409         |             | `{"error":"string"}`                                          |
-| 500         |             | `{"golemError":{"type":"InvalidRequest","details":"string"}}` |
+| Status Code | Description                                                              | Body                                                          |
+| ----------- | ------------------------------------------------------------------------ | ------------------------------------------------------------- |
+| 400         | Invalid request, returning with a list of issues detected in the request | `{"errors":["string"]}`                                       |
+| 401         | Unauthorized                                                             | `{"error":"string"}`                                          |
+| 403         | Maximum number of workers exceeded                                       | `{"error":"string"}`                                          |
+| 404         | Template / Worker / Promise not found                                    | `{"error":"string"}`                                          |
+| 409         | Worker already exists                                                    | `{"error":"string"}`                                          |
+| 500         | Internal server error                                                    | `{"golemError":{"type":"InvalidRequest","details":"string"}}` |
