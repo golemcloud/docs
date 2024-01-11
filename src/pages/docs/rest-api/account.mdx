@@ -10,11 +10,9 @@ The account API allows users to query and manipulate their own account data.
 | --------------------------- | ------ | --------- |
 | `/v2/accounts/{account_id}` | GET    | Yes       |
 
-#### Explanation
-
 Retrieve an account for a given Account ID
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {
@@ -31,14 +29,12 @@ Retrieve an account for a given Account ID
 | --------------------------- | ------ | --------- |
 | `/v2/accounts/{account_id}` | PUT    | Yes       |
 
-#### Explanation
-
 Allows the user to change the account details such as name and email.
 
 Changing the planId is not allowed and the request will be rejected.
 The response is the updated account data.
 
-#### Example Request JSON
+**Example Request JSON**
 
 ```json copy
 {
@@ -47,7 +43,7 @@ The response is the updated account data.
 }
 ```
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {
@@ -64,11 +60,9 @@ The response is the updated account data.
 | --------------------------- | ------ | --------- |
 | `/v2/accounts/{account_id}` | DELETE | Yes       |
 
-#### Explanation
-
 Delete an account.
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {}
@@ -80,7 +74,7 @@ Delete an account.
 | -------------------------------- | ------ | --------- |
 | `/v2/accounts/{account_id}/plan` | GET    | Yes       |
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {
@@ -102,11 +96,9 @@ Delete an account.
 | -------------- | ------ | --------- |
 | `/v2/accounts` | POST   | Yes       |
 
-#### Explanation
-
 Create a new account. The response is the created account data.
 
-#### Example Request JSON
+**Example Request JSON**
 
 ```json copy
 {
@@ -115,7 +107,7 @@ Create a new account. The response is the created account data.
 }
 ```
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {
@@ -128,7 +120,7 @@ Create a new account. The response is the created account data.
 
 ## Account API Errors
 
-### Http Status 400
+### Status `400`
 
 Invalid request.
 Returns a list of issues detected in the request.
@@ -139,7 +131,7 @@ Returns a list of issues detected in the request.
 }
 ```
 
-### Http Status 401
+### Status `401`
 
 Unauthorized request.
 
@@ -149,7 +141,7 @@ Unauthorized request.
 }
 ```
 
-### Http Status 404
+### Status `404`
 
 Account not found.
 
@@ -159,7 +151,7 @@ Account not found.
 }
 ```
 
-### Http Status 500
+### Status `500`
 
 Internal server error.
 

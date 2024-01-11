@@ -10,13 +10,19 @@ undefined
 | ---------------------------------- | ------ | --------- |
 | `/v2/accounts/{account_id}/grants` | GET    | Yes       |
 
+**Example Response JSON**
+
+```json copy
+["Admin"]
+```
+
 ## undefined
 
 | Path                                      | Method | Protected |
 | ----------------------------------------- | ------ | --------- |
 | `/v2/accounts/{account_id}/grants/{role}` | GET    | Yes       |
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 "Admin"
@@ -28,7 +34,7 @@ undefined
 | ----------------------------------------- | ------ | --------- |
 | `/v2/accounts/{account_id}/grants/{role}` | PUT    | Yes       |
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 "Admin"
@@ -40,7 +46,7 @@ undefined
 | ----------------------------------------- | ------ | --------- |
 | `/v2/accounts/{account_id}/grants/{role}` | DELETE | Yes       |
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {}
@@ -48,7 +54,7 @@ undefined
 
 ## Grant API Errors
 
-### Http Status 400
+### Status `400`
 
 ```json copy
 {
@@ -56,7 +62,7 @@ undefined
 }
 ```
 
-### Http Status 401
+### Status `401`
 
 ```json copy
 {
@@ -64,7 +70,7 @@ undefined
 }
 ```
 
-### Http Status 404
+### Status `404`
 
 ```json copy
 {
@@ -72,7 +78,7 @@ undefined
 }
 ```
 
-### Http Status 500
+### Status `500`
 
 ```json copy
 {

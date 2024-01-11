@@ -10,13 +10,28 @@ undefined
 | ---------------------------------- | ------ | --------- |
 | `/v2/projects/{project_id}/grants` | GET    | Yes       |
 
+**Example Response JSON**
+
+```json copy
+[
+  {
+    "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+    "data": {
+      "granteeAccountId": "string",
+      "grantorProjectId": "fe216e71-e471-414b-9530-d000f4582d33",
+      "projectPolicyId": "46e8c3fb-5136-4f2a-a8be-e5188bef1348"
+    }
+  }
+]
+```
+
 ## undefined
 
 | Path                               | Method | Protected |
 | ---------------------------------- | ------ | --------- |
 | `/v2/projects/{project_id}/grants` | POST   | Yes       |
 
-#### Example Request JSON
+**Example Request JSON**
 
 ```json copy
 {
@@ -27,7 +42,7 @@ undefined
 }
 ```
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {
@@ -46,7 +61,7 @@ undefined
 | --------------------------------------------- | ------ | --------- |
 | `/v2/projects/{project_id}/grants/{grant_id}` | GET    | Yes       |
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {
@@ -65,7 +80,7 @@ undefined
 | --------------------------------------------- | ------ | --------- |
 | `/v2/projects/{project_id}/grants/{grant_id}` | DELETE | Yes       |
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {}
@@ -73,7 +88,7 @@ undefined
 
 ## ProjectGrant API Errors
 
-### Http Status 400
+### Status `400`
 
 ```json copy
 {
@@ -81,7 +96,7 @@ undefined
 }
 ```
 
-### Http Status 401
+### Status `401`
 
 ```json copy
 {
@@ -89,7 +104,7 @@ undefined
 }
 ```
 
-### Http Status 403
+### Status `403`
 
 ```json copy
 {
@@ -97,7 +112,7 @@ undefined
 }
 ```
 
-### Http Status 404
+### Status `404`
 
 ```json copy
 {
@@ -105,7 +120,7 @@ undefined
 }
 ```
 
-### Http Status 500
+### Status `500`
 
 ```json copy
 {

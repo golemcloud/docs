@@ -10,8 +10,6 @@ The template API provides endpoint to upload, download and find Golem templates 
 | ----------------------------- | ------ | --------- |
 | `/v2/templates/{template_id}` | GET    | Yes       |
 
-#### Explanation
-
 Each template can have multiple versions. Every time a new WASM is uploaded for a given template id, that creates a new version.
 This endpoint returns a list of all versions for the template id provided as part of the URL. Each element of the response describes a single version of a template, but does not contain the binary (WASM) itself:
 
@@ -23,13 +21,97 @@ This endpoint returns a list of all versions for the template id provided as par
 - `exports` is a list of exported functions, including their parameter's and return value's types
 - `producers` is a list of producer information added by tooling, each consisting of a list of fields associating one or more values to a given key. This contains information about what compilers and other WASM related tools were used to construct the Golem template.
 
+**Example Response JSON**
+
+```json copy
+[
+  {
+    "versionedTemplateId": {
+      "templateId": "196100ac-4eec-4fb6-a7f7-86c8b584771d",
+      "version": 0
+    },
+    "userTemplateId": {
+      "versionedTemplateId": {
+        "templateId": "196100ac-4eec-4fb6-a7f7-86c8b584771d",
+        "version": 0
+      }
+    },
+    "protectedTemplateId": {
+      "versionedTemplateId": {
+        "templateId": "196100ac-4eec-4fb6-a7f7-86c8b584771d",
+        "version": 0
+      }
+    },
+    "templateName": "string",
+    "templateSize": 0,
+    "metadata": {
+      "exports": [
+        {
+          "type": "Instance",
+          "name": "string",
+          "functions": [
+            {
+              "name": "string",
+              "parameters": [
+                {
+                  "name": "string",
+                  "typ": {
+                    "type": "Variant",
+                    "cases": [
+                      {
+                        "name": "string",
+                        "typ": {}
+                      }
+                    ]
+                  }
+                }
+              ],
+              "results": [
+                {
+                  "name": "string",
+                  "typ": {
+                    "type": "Variant",
+                    "cases": [
+                      {
+                        "name": "string",
+                        "typ": {}
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "producers": [
+        {
+          "fields": [
+            {
+              "name": "string",
+              "values": [
+                {
+                  "name": "string",
+                  "version": "string"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "projectId": "5a8591dd-4039-49df-9202-96385ba3eff8"
+  }
+]
+```
+
 ## Update a template
 
 | Path                                 | Method | Protected |
 | ------------------------------------ | ------ | --------- |
 | `/v2/templates/{template_id}/upload` | PUT    | Yes       |
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {
@@ -117,15 +199,13 @@ This endpoint returns a list of all versions for the template id provided as par
 | --------------- | ------ | --------- |
 | `/v2/templates` | POST   | Yes       |
 
-#### Explanation
-
 The request body is encoded as multipart/form-data with the following fields:
 
 - `field0` with content type application/json containing a TemplateQuery JSON (described below)
 - `template` with content type application/octet-stream containing the WASM
 - The template's `projectId` is optional, in case it is missing the default project is used.
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {
@@ -213,16 +293,98 @@ The request body is encoded as multipart/form-data with the following fields:
 | --------------- | ------ | --------- |
 | `/v2/templates` | GET    | Yes       |
 
-#### Query Parameters
+Gets all templates, optionally filtered by project and/or template name.
+
+**Query Parameters**
 
 | Name          | Type   | Required | Description                |
 | ------------- | ------ | -------- | -------------------------- |
 | project-id    | string | No       | Project ID to filter by    |
 | template-name | string | No       | Template name to filter by |
 
-#### Explanation
+**Example Response JSON**
 
-Gets all templates, optionally filtered by project and/or template name.
+```json copy
+[
+  {
+    "versionedTemplateId": {
+      "templateId": "196100ac-4eec-4fb6-a7f7-86c8b584771d",
+      "version": 0
+    },
+    "userTemplateId": {
+      "versionedTemplateId": {
+        "templateId": "196100ac-4eec-4fb6-a7f7-86c8b584771d",
+        "version": 0
+      }
+    },
+    "protectedTemplateId": {
+      "versionedTemplateId": {
+        "templateId": "196100ac-4eec-4fb6-a7f7-86c8b584771d",
+        "version": 0
+      }
+    },
+    "templateName": "string",
+    "templateSize": 0,
+    "metadata": {
+      "exports": [
+        {
+          "type": "Instance",
+          "name": "string",
+          "functions": [
+            {
+              "name": "string",
+              "parameters": [
+                {
+                  "name": "string",
+                  "typ": {
+                    "type": "Variant",
+                    "cases": [
+                      {
+                        "name": "string",
+                        "typ": {}
+                      }
+                    ]
+                  }
+                }
+              ],
+              "results": [
+                {
+                  "name": "string",
+                  "typ": {
+                    "type": "Variant",
+                    "cases": [
+                      {
+                        "name": "string",
+                        "typ": {}
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "producers": [
+        {
+          "fields": [
+            {
+              "name": "string",
+              "values": [
+                {
+                  "name": "string",
+                  "version": "string"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "projectId": "5a8591dd-4039-49df-9202-96385ba3eff8"
+  }
+]
+```
 
 ## Download a template
 
@@ -230,15 +392,13 @@ Gets all templates, optionally filtered by project and/or template name.
 | -------------------------------------- | ------ | --------- |
 | `/v2/templates/{template_id}/download` | GET    | Yes       |
 
-#### Query Parameters
+Downloads a specific version of the template's WASM.
+
+**Query Parameters**
 
 | Name    | Type    | Required | Description |
 | ------- | ------- | -------- | ----------- |
 | version | integer | No       | -           |
-
-#### Explanation
-
-Downloads a specific version of the template's WASM.
 
 ## Get the latest version of a given template
 
@@ -246,13 +406,11 @@ Downloads a specific version of the template's WASM.
 | ------------------------------------ | ------ | --------- |
 | `/v2/templates/{template_id}/latest` | GET    | Yes       |
 
-#### Explanation
-
 Gets the latest version of a template.
 
 ## Template API Errors
 
-### Http Status 400
+### Status `400`
 
 ```json copy
 {
@@ -260,7 +418,7 @@ Gets the latest version of a template.
 }
 ```
 
-### Http Status 401
+### Status `401`
 
 ```json copy
 {
@@ -268,7 +426,7 @@ Gets the latest version of a template.
 }
 ```
 
-### Http Status 403
+### Status `403`
 
 ```json copy
 {
@@ -276,7 +434,7 @@ Gets the latest version of a template.
 }
 ```
 
-### Http Status 404
+### Status `404`
 
 ```json copy
 {
@@ -284,7 +442,7 @@ Gets the latest version of a template.
 }
 ```
 
-### Http Status 409
+### Status `409`
 
 ```json copy
 {
@@ -292,7 +450,7 @@ Gets the latest version of a template.
 }
 ```
 
-### Http Status 500
+### Status `500`
 
 ```json copy
 {

@@ -10,10 +10,21 @@ The token API allows creating custom access tokens for the Golem Cloud REST API 
 | ---------------------------------- | ------ | --------- |
 | `/v2/accounts/{account_id}/tokens` | GET    | Yes       |
 
-#### Explanation
-
 Gets all created tokens of an account.
 The format of each element is the same as the data object in the oauth2 endpoint's response.
+
+**Example Response JSON**
+
+```json copy
+[
+  {
+    "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+    "accountId": "string",
+    "createdAt": "2019-08-24T14:15:22Z",
+    "expiresAt": "2019-08-24T14:15:22Z"
+  }
+]
+```
 
 ## Create new token
 
@@ -21,12 +32,10 @@ The format of each element is the same as the data object in the oauth2 endpoint
 | ---------------------------------- | ------ | --------- |
 | `/v2/accounts/{account_id}/tokens` | POST   | Yes       |
 
-#### Explanation
-
 Creates a new token with a given expiration date.
 The response not only contains the token data but also the secret which can be passed as a bearer token to the Authorization header to the Golem Cloud REST API.
 
-#### Example Request JSON
+**Example Request JSON**
 
 ```json copy
 {
@@ -34,7 +43,7 @@ The response not only contains the token data but also the secret which can be p
 }
 ```
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {
@@ -56,12 +65,10 @@ The response not only contains the token data but also the secret which can be p
 | --------------------------------------------- | ------ | --------- |
 | `/v2/accounts/{account_id}/tokens/{token_id}` | GET    | Yes       |
 
-#### Explanation
-
 Gets information about a token given by it's identifier.
 The JSON is the same as the data object in the oauth2 endpoint's response.
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {
@@ -78,11 +85,9 @@ The JSON is the same as the data object in the oauth2 endpoint's response.
 | --------------------------------------------- | ------ | --------- |
 | `/v2/accounts/{account_id}/tokens/{token_id}` | DELETE | Yes       |
 
-#### Explanation
-
 Deletes a previously created token given by it's identifier.
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {}
@@ -90,7 +95,7 @@ Deletes a previously created token given by it's identifier.
 
 ## Token API Errors
 
-### Http Status 400
+### Status `400`
 
 ```json copy
 {
@@ -98,7 +103,7 @@ Deletes a previously created token given by it's identifier.
 }
 ```
 
-### Http Status 401
+### Status `401`
 
 ```json copy
 {
@@ -106,7 +111,7 @@ Deletes a previously created token given by it's identifier.
 }
 ```
 
-### Http Status 404
+### Status `404`
 
 ```json copy
 {
@@ -114,7 +119,7 @@ Deletes a previously created token given by it's identifier.
 }
 ```
 
-### Http Status 500
+### Status `500`
 
 ```json copy
 {

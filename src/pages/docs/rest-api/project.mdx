@@ -12,13 +12,11 @@ Every account has a default project which is assumed when no specific project ID
 | ---------------------- | ------ | --------- |
 | `/v2/projects/default` | GET    | Yes       |
 
-#### Explanation
-
 - name of the project can be used for lookup the project if the ID is now known
 - defaultEnvironmentId is currently always default
 - projectType is either Default
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {
@@ -39,17 +37,32 @@ Every account has a default project which is assumed when no specific project ID
 | -------------- | ------ | --------- |
 | `/v2/projects` | GET    | Yes       |
 
-#### Query Parameters
+Returns all projects of the account if no project-name is specified.
+Otherwise, returns all projects of the account that has the given name.
+As unique names are not enforced on the API level, the response may contain multiple entries.
+
+**Query Parameters**
 
 | Name         | Type   | Required | Description            |
 | ------------ | ------ | -------- | ---------------------- |
 | project-name | string | No       | Filter by project name |
 
-#### Explanation
+**Example Response JSON**
 
-Returns all projects of the account if no project-name is specified.
-Otherwise, returns all projects of the account that has the given name.
-As unique names are not enforced on the API level, the response may contain multiple entries.
+```json copy
+[
+  {
+    "projectId": "5a8591dd-4039-49df-9202-96385ba3eff8",
+    "projectData": {
+      "name": "string",
+      "ownerAccountId": "string",
+      "description": "string",
+      "defaultEnvironmentId": "string",
+      "projectType": "Default"
+    }
+  }
+]
+```
 
 ## Create project
 
@@ -57,11 +70,9 @@ As unique names are not enforced on the API level, the response may contain mult
 | -------------- | ------ | --------- |
 | `/v2/projects` | POST   | Yes       |
 
-#### Explanation
-
 Creates a new project. The ownerAccountId must be the caller's account ID.
 
-#### Example Request JSON
+**Example Request JSON**
 
 ```json copy
 {
@@ -71,7 +82,7 @@ Creates a new project. The ownerAccountId must be the caller's account ID.
 }
 ```
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {
@@ -92,11 +103,9 @@ Creates a new project. The ownerAccountId must be the caller's account ID.
 | --------------------------- | ------ | --------- |
 | `/v2/projects/{project_id}` | GET    | Yes       |
 
-#### Explanation
-
 Gets a project by its identifier. Response is the same as for the default project.
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {
@@ -117,11 +126,9 @@ Gets a project by its identifier. Response is the same as for the default projec
 | --------------------------- | ------ | --------- |
 | `/v2/projects/{project_id}` | DELETE | Yes       |
 
-#### Explanation
-
 Deletes a project given by its identifier.
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {}
@@ -133,13 +140,17 @@ Deletes a project given by its identifier.
 | ----------------------------------- | ------ | --------- |
 | `/v2/projects/{project_id}/actions` | GET    | Yes       |
 
-#### Explanation
-
 Returns a list of actions that can be performed on the project.
+
+**Example Response JSON**
+
+```json copy
+["ViewTemplate"]
+```
 
 ## Project API Errors
 
-### Http Status 400
+### Status `400`
 
 ```json copy
 {
@@ -147,7 +158,7 @@ Returns a list of actions that can be performed on the project.
 }
 ```
 
-### Http Status 401
+### Status `401`
 
 ```json copy
 {
@@ -155,7 +166,7 @@ Returns a list of actions that can be performed on the project.
 }
 ```
 
-### Http Status 403
+### Status `403`
 
 ```json copy
 {
@@ -163,7 +174,7 @@ Returns a list of actions that can be performed on the project.
 }
 ```
 
-### Http Status 404
+### Status `404`
 
 ```json copy
 {
@@ -171,7 +182,7 @@ Returns a list of actions that can be performed on the project.
 }
 ```
 
-### Http Status 500
+### Status `500`
 
 ```json copy
 {

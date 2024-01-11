@@ -1,4 +1,5 @@
 import SwaggerParser from "@apidevtools/swagger-parser"
+import type { JSONSchema7 } from "json-schema"
 import { writeFile } from "fs/promises"
 import { OpenAPIV3 } from "openapi-types"
 import OpenAPISampler from "openapi-sampler"
@@ -105,8 +106,7 @@ function convertItemToMarkdown(
 
   const queryParamsTable = makeQueryParamTable(queryParams)
 
-  const explanation =
-    operation.description === undefined ? "" : `#### Explanation\n${operation.description}`
+  const explanation = operation.description === undefined ? "" : operation.description
 
   const requestBody = makeRequestBody(api, operation)
 
@@ -115,8 +115,11 @@ function convertItemToMarkdown(
   return [
     `## ${operation.summary}`,
     overviewTable,
-    queryParamsTable,
+    "",
     explanation,
+    "",
+    queryParamsTable,
+    "",
     requestBody,
     response,
   ].join("\n")
@@ -157,7 +160,7 @@ function makeQueryParamTable(queryParams: OpenAPIV3.ParameterObject[]) {
       rows,
     })
 
-    return `#### Query Parameters\n${table}`
+    return `**Query Parameters**\n\n${table}`
   } else {
     return ""
   }
@@ -171,15 +174,11 @@ function makeResponseType(api: OpenAPIV3.Document, operation: OpenAPIV3.Operatio
     }
     const responseSchema = response.content?.["application/json; charset=utf-8"]?.schema
 
-    if (!responseSchema) {
+    if (responseSchema === undefined) {
       return undefined
     } else {
-      if ("$ref" in responseSchema) {
-        const sample = OpenAPISampler.sample(responseSchema, undefined, api)
-        return sample as Record<string, unknown>
-      } else {
-        return undefined
-      }
+      const sample = OpenAPISampler.sample(responseSchema as JSONSchema7, undefined, api)
+      return sample as Record<string, unknown>
     }
   })()
 
@@ -187,7 +186,8 @@ function makeResponseType(api: OpenAPIV3.Document, operation: OpenAPIV3.Operatio
     return ""
   } else {
     return [
-      `#### Example Response JSON`,
+      `**Example Response JSON**`,
+      "",
       "```json copy",
       JSON.stringify(response, null, 2),
       "```",
@@ -197,7 +197,7 @@ function makeResponseType(api: OpenAPIV3.Document, operation: OpenAPIV3.Operatio
 
 function makeRequestBody(api: OpenAPIV3.Document, operation: OpenAPIV3.OperationObject) {
   const requestBody = operation.requestBody
-  if (!requestBody) {
+  if (requestBody === undefined) {
     return ""
   } else {
     const content = "content" in requestBody ? requestBody?.content : undefined
@@ -205,12 +205,13 @@ function makeRequestBody(api: OpenAPIV3.Document, operation: OpenAPIV3.Operation
       return ""
     } else {
       const jsonSchema = content["application/json; charset=utf-8"]?.schema
-      if (!jsonSchema || !("$ref" in jsonSchema)) {
+
+      if (jsonSchema === undefined) {
         return ""
       } else {
-        const sample = OpenAPISampler.sample(jsonSchema, undefined, api)
+        const sample = OpenAPISampler.sample(jsonSchema as JSONSchema7, undefined, api)
         return [
-          `#### Example Request JSON`,
+          `**Example Request JSON**`,
           "```json copy",
           JSON.stringify(sample, null, 2),
           "```",
@@ -226,7 +227,7 @@ function makeRequestError(api: OpenAPIV3.Document, operation: OpenAPIV3.Operatio
     .map(([status, response]) => {
       if ("content" in response) {
         const schema = response.content?.["application/json; charset=utf-8"]?.schema
-        if (schema && "$ref" in schema) {
+        if (schema) {
           return { status, desc: response.description, schema }
         }
       }
@@ -235,10 +236,10 @@ function makeRequestError(api: OpenAPIV3.Document, operation: OpenAPIV3.Operatio
     .filter(resp => resp !== undefined)
     .map(resp => resp!)
     .map(({ status, desc, schema }) => {
-      const sample = OpenAPISampler.sample(schema, undefined, api)
+      const sample = OpenAPISampler.sample(schema as JSONSchema7, undefined, api)
 
       return [
-        `### Http Status ${status}`,
+        `### Status \`${status}\``,
         desc,
         "```json copy",
         JSON.stringify(sample, null, 2),
@@ -252,8 +253,8 @@ function makeRequestError(api: OpenAPIV3.Document, operation: OpenAPIV3.Operatio
   return errorResponses
 }
 
-function groupBy<T, K>(items: T[], keySelector: (item: T) => K): Map<K, T[]> {
-  const map = new Map<K, T[]>()
+function groupBy<T, K>(items: T[], keySelector: (item: T) => K): Map<K, [T]> {
+  const map = new Map<K, [T]>()
   items.forEach(item => {
     const key = keySelector(item)
     const existing = map.get(key)

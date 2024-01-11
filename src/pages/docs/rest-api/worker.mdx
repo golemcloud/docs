@@ -10,7 +10,7 @@ undefined
 | ----------------------------------- | ------ | --------- |
 | `/v2/templates/workers/{worker_id}` | GET    | Yes       |
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {
@@ -28,7 +28,7 @@ undefined
 | ------------------------------------- | ------ | --------- |
 | `/v2/templates/{template_id}/workers` | POST   | Yes       |
 
-#### Example Request JSON
+**Example Request JSON**
 
 ```json copy
 {
@@ -41,7 +41,7 @@ undefined
 }
 ```
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {
@@ -59,7 +59,7 @@ undefined
 | --------------------------------------------------- | ------ | --------- |
 | `/v2/templates/{template_id}/workers/{worker_name}` | DELETE | Yes       |
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {}
@@ -71,7 +71,7 @@ undefined
 | --------------------------------------------------- | ------ | --------- |
 | `/v2/templates/{template_id}/workers/{worker_name}` | GET    | Yes       |
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {
@@ -97,7 +97,7 @@ undefined
 | ------------------------------------------------------- | ------ | --------- |
 | `/v2/templates/{template_id}/workers/{worker_name}/key` | POST   | Yes       |
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {
@@ -111,7 +111,7 @@ undefined
 | -------------------------------------------------------------------- | ------ | --------- |
 | `/v2/templates/{template_id}/workers/{worker_name}/invoke-and-await` | POST   | Yes       |
 
-#### Query Parameters
+**Query Parameters**
 
 | Name               | Type                                   | Required | Description |
 | ------------------ | -------------------------------------- | -------- | ----------- |
@@ -119,7 +119,7 @@ undefined
 | function           | string                                 | Yes      | -           |
 | calling-convention | #/components/schemas/CallingConvention | No       | -           |
 
-#### Example Request JSON
+**Example Request JSON**
 
 ```json copy
 {
@@ -127,7 +127,7 @@ undefined
 }
 ```
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {
@@ -141,13 +141,13 @@ undefined
 | ---------------------------------------------------------- | ------ | --------- |
 | `/v2/templates/{template_id}/workers/{worker_name}/invoke` | POST   | Yes       |
 
-#### Query Parameters
+**Query Parameters**
 
 | Name     | Type   | Required | Description |
 | -------- | ------ | -------- | ----------- |
 | function | string | Yes      | -           |
 
-#### Example Request JSON
+**Example Request JSON**
 
 ```json copy
 {
@@ -155,7 +155,7 @@ undefined
 }
 ```
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {}
@@ -167,7 +167,7 @@ undefined
 | ------------------------------------------------------------ | ------ | --------- |
 | `/v2/templates/{template_id}/workers/{worker_name}/complete` | POST   | Yes       |
 
-#### Example Request JSON
+**Example Request JSON**
 
 ```json copy
 {
@@ -176,19 +176,25 @@ undefined
 }
 ```
 
+**Example Response JSON**
+
+```json copy
+true
+```
+
 ## undefined
 
 | Path                                                          | Method | Protected |
 | ------------------------------------------------------------- | ------ | --------- |
 | `/v2/templates/{template_id}/workers/{worker_name}/interrupt` | POST   | Yes       |
 
-#### Query Parameters
+**Query Parameters**
 
 | Name                 | Type    | Required | Description |
 | -------------------- | ------- | -------- | ----------- |
 | recovery-immediately | boolean | No       | -           |
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {}
@@ -200,7 +206,7 @@ undefined
 | ---------------------------------------------------------- | ------ | --------- |
 | `/v2/templates/{template_id}/workers/{worker_name}/resume` | POST   | Yes       |
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {}
@@ -208,7 +214,7 @@ undefined
 
 ## Worker API Errors
 
-### Http Status 400
+### Status `400`
 
 ```json copy
 {
@@ -216,7 +222,7 @@ undefined
 }
 ```
 
-### Http Status 401
+### Status `401`
 
 ```json copy
 {
@@ -224,7 +230,7 @@ undefined
 }
 ```
 
-### Http Status 403
+### Status `403`
 
 ```json copy
 {
@@ -232,7 +238,7 @@ undefined
 }
 ```
 
-### Http Status 404
+### Status `404`
 
 ```json copy
 {
@@ -240,7 +246,7 @@ undefined
 }
 ```
 
-### Http Status 409
+### Status `409`
 
 ```json copy
 {
@@ -248,7 +254,7 @@ undefined
 }
 ```
 
-### Http Status 500
+### Status `500`
 
 ```json copy
 {

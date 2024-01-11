@@ -10,14 +10,14 @@ undefined
 | ------------ | ------ | --------- |
 | `/v2/oauth2` | POST   | No        |
 
-#### Query Parameters
+**Query Parameters**
 
 | Name         | Type   | Required | Description |
 | ------------ | ------ | -------- | ----------- |
 | provider     | string | Yes      | -           |
 | access-token | string | Yes      | -           |
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {
@@ -39,7 +39,7 @@ undefined
 | ----------------- | ------ | --------- |
 | `/v2/login/token` | GET    | Yes       |
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {
@@ -56,7 +56,7 @@ undefined
 | ---------------------------- | ------ | --------- |
 | `/login/oauth2/device/start` | POST   | No        |
 
-#### Example Response JSON
+**Example Response JSON**
 
 ```json copy
 {
@@ -73,7 +73,13 @@ undefined
 | ------------------------------- | ------ | --------- |
 | `/login/oauth2/device/complete` | POST   | No        |
 
-#### Example Response JSON
+**Example Request JSON**
+
+```json copy
+"string"
+```
+
+**Example Response JSON**
 
 ```json copy
 {
@@ -91,7 +97,7 @@ undefined
 
 ## Login API Errors
 
-### Http Status 400
+### Status `400`
 
 ```json copy
 {
@@ -99,7 +105,7 @@ undefined
 }
 ```
 
-### Http Status 401
+### Status `401`
 
 ```json copy
 {
@@ -107,7 +113,7 @@ undefined
 }
 ```
 
-### Http Status 500
+### Status `500`
 
 ```json copy
 {
