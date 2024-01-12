@@ -1521,9 +1521,9 @@ paths:
         - `userTemplateId` and protectedTemplateId are implementation details, not used elsewhere on the public API
         - `templateName` is the human-readable name of the template
         - `templateSize` is the WASM binary's size in bytes
-        - `metadata` contains information extracted from the WASM itself:
-        - `exports` is a list of exported functions, including their parameter's and return value's types
-        - `producers` is a list of producer information added by tooling, each consisting of a list of fields associating one or more values to a given key. This contains information about what compilers and other WASM related tools were used to construct the Golem template.
+        - `metadata` contains information extracted from the WASM itself
+        - `metadata.exports` is a list of exported functions, including their parameter's and return value's types
+        - `metadata.producers` is a list of producer information added by tooling, each consisting of a list of fields associating one or more values to a given key. This contains information about what compilers and other WASM related tools were used to construct the Golem template.
       parameters:
         - name: template_id
           schema:
@@ -1653,12 +1653,7 @@ paths:
       tags:
         - Template
       summary: Upload a new template
-      description: |-
-        The request body is encoded as multipart/form-data with the following fields:
-
-        - `field0` with content type application/json containing a TemplateQuery JSON (described below)
-        - `template` with content type application/octet-stream containing the WASM
-        - The template's `projectId` is optional, in case it is missing the default project is used.
+      description: The request body is encoded as multipart/form-data containing metadata and the WASM binary.
       requestBody:
         content:
           multipart/form-data:

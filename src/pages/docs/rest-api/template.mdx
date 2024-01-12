@@ -15,9 +15,9 @@ This endpoint returns a list of all versions for the template id provided as par
 - `userTemplateId` and protectedTemplateId are implementation details, not used elsewhere on the public API
 - `templateName` is the human-readable name of the template
 - `templateSize` is the WASM binary's size in bytes
-- `metadata` contains information extracted from the WASM itself:
-- `exports` is a list of exported functions, including their parameter's and return value's types
-- `producers` is a list of producer information added by tooling, each consisting of a list of fields associating one or more values to a given key. This contains information about what compilers and other WASM related tools were used to construct the Golem template.
+- `metadata` contains information extracted from the WASM itself
+- `metadata.exports` is a list of exported functions, including their parameter's and return value's types
+- `metadata.producers` is a list of producer information added by tooling, each consisting of a list of fields associating one or more values to a given key. This contains information about what compilers and other WASM related tools were used to construct the Golem template.
 
 **Example Response JSON**
 
@@ -109,6 +109,10 @@ This endpoint returns a list of all versions for the template id provided as par
 | ------------------------------------ | ------ | --------- |
 | `/v2/templates/{template_id}/upload` | PUT    | Yes       |
 
+**Request Body**: `WASM Binary File`
+
+> Make sure to include `Content-Type: application/octet-stream` Header
+
 **Example Response JSON**
 
 ```json copy
@@ -197,11 +201,22 @@ This endpoint returns a list of all versions for the template id provided as par
 | --------------- | ------ | --------- |
 | `/v2/templates` | POST   | Yes       |
 
-The request body is encoded as multipart/form-data with the following fields:
+The request body is encoded as multipart/form-data containing metadata and the WASM binary.
 
-- `field0` with content type application/json containing a TemplateQuery JSON (described below)
-- `template` with content type application/octet-stream containing the WASM
-- The template's `projectId` is optional, in case it is missing the default project is used.
+**Request Form**: `multipart/form-data`
+
+> Make sure to include `Content-Type: multipart/form-data` Header
+
+**Field `query`**: JSON
+
+```json copy
+{
+  "projectId": "5a8591dd-4039-49df-9202-96385ba3eff8",
+  "templateName": "string"
+}
+```
+
+**Field `template`**: string binary
 
 **Example Response JSON**
 
@@ -398,6 +413,8 @@ Downloads a specific version of the template's WASM.
 | ------- | ------- | -------- | ----------- |
 | version | integer | No       | -           |
 
+**Response Body:** `WASM Binary File`
+
 ## Get the latest version of a given template
 
 | Path                                 | Method | Protected |
@@ -405,6 +422,12 @@ Downloads a specific version of the template's WASM.
 | `/v2/templates/{template_id}/latest` | GET    | Yes       |
 
 Gets the latest version of a template.
+
+**Example Response JSON**
+
+```json copy
+0
+```
 
 ## Template API Errors
 

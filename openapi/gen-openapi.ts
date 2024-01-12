@@ -118,6 +118,7 @@ function convertItemToMarkdown(
     queryParamsTable,
     "",
     requestBody,
+    "",
     response,
   ].join("\n")
 }
@@ -165,30 +166,28 @@ function makeQueryParamTable(queryParams: OpenAPIV3.ParameterObject[]) {
 
 function makeResponseType(api: OpenAPIV3.Document, operation: OpenAPIV3.OperationObject) {
   const response = (() => {
-    const response = operation.responses["200"]
-    if (!response || !("content" in response)) {
+    const successResponse = operation.responses["200"]
+    if (!successResponse || !("content" in successResponse)) {
       throw new Error("No Success Response")
     }
-    const responseSchema = response.content?.["application/json; charset=utf-8"]?.schema
 
-    if (responseSchema === undefined) {
-      return undefined
-    } else {
-      const sample = OpenAPISampler.sample(responseSchema as JSONSchema7, undefined, api)
-      return sample as Record<string, unknown>
-    }
+    return successResponse
   })()
 
-  if (!response) {
-    return ""
-  } else {
+  const jsonResponse = response.content?.["application/json; charset=utf-8"]?.schema
+  const octetStreamResponse = response.content?.["application/octet-stream"]
+
+  if (jsonResponse !== undefined) {
+    const sample = OpenAPISampler.sample(jsonResponse as JSONSchema7, undefined, api)
     return [
       `**Example Response JSON**`,
       "",
       "```json copy",
-      JSON.stringify(response, null, 2),
+      JSON.stringify(sample, null, 2),
       "```",
     ].join("\n")
+  } else if (octetStreamResponse !== undefined) {
+    return ["**Response Body:**", "`WASM Binary File`"].join(" ")
   }
 }
 
@@ -198,14 +197,12 @@ function makeRequestBody(api: OpenAPIV3.Document, operation: OpenAPIV3.Operation
     return ""
   } else {
     const content = "content" in requestBody ? requestBody?.content : undefined
-    if (!content) {
-      return ""
-    } else {
+    if (!!content) {
       const jsonSchema = content["application/json; charset=utf-8"]?.schema
+      const octetStreamSchema = content["application/octet-stream"]?.schema
+      const formSchema = content["multipart/form-data"]?.schema
 
-      if (jsonSchema === undefined) {
-        return ""
-      } else {
+      if (jsonSchema !== undefined) {
         const sample = OpenAPISampler.sample(jsonSchema as JSONSchema7, undefined, api)
         return [
           `**Example Request JSON**`,
@@ -213,6 +210,48 @@ function makeRequestBody(api: OpenAPIV3.Document, operation: OpenAPIV3.Operation
           JSON.stringify(sample, null, 2),
           "```",
         ].join("\n")
+      } else if (octetStreamSchema !== undefined) {
+        return (
+          [
+            "**Request Body**: `WASM Binary File`",
+            "> Make sure to include `Content-Type: application/octet-stream` Header",
+          ].join("\n") + "\n"
+        )
+      } else if (formSchema !== undefined) {
+        if ("$ref" in formSchema) {
+          throw new Error("Form Schema is a ref")
+        }
+
+        const properties = formSchema.properties
+
+        if (!properties) {
+          throw new Error("No form properties")
+        }
+
+        const propertyString = Object.entries(properties).map(([name, prop]) => {
+          if ("$ref" in prop) {
+            const ref = prop.$ref.replace("#/components/schemas/", "")
+            const component = api.components!.schemas![ref] as OpenAPIV3.SchemaObject
+            if (!component) {
+              throw new Error(`No component ${ref}`)
+            }
+            const example = OpenAPISampler.sample(component as JSONSchema7, undefined, api)
+            return [
+              `**Field \`${name}\`**: JSON`,
+              "```json copy",
+              JSON.stringify(example, null, 2),
+              "```",
+            ].join("\n")
+          } else {
+            return `**Field \`${name}\`**: ${prop.type} ${prop.format}`
+          }
+        })
+
+        return [
+          "**Request Form**: `multipart/form-data`",
+          "> Make sure to include `Content-Type: multipart/form-data` Header",
+          propertyString.join("\n\n"),
+        ].join("\n\n")
       }
     }
   }
