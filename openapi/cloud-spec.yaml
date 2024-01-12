@@ -68,27 +68,25 @@ paths:
               schema:
                 $ref: "#/components/schemas/Account"
         "400":
-          description: |-
-            Invalid request.
-            Returns a list of issues detected in the request.
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: Unauthorized request.
+          description: Unauthorized request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: Account not found.
+          description: Account not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: Internal server error.
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -127,27 +125,25 @@ paths:
               schema:
                 $ref: "#/components/schemas/Account"
         "400":
-          description: |-
-            Invalid request.
-            Returns a list of issues detected in the request.
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: Unauthorized request.
+          description: Unauthorized request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: Account not found.
+          description: Account not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: Internal server error.
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -176,27 +172,25 @@ paths:
               schema:
                 $ref: "#/components/schemas/DeleteAccountResponse"
         "400":
-          description: |-
-            Invalid request.
-            Returns a list of issues detected in the request.
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: Unauthorized request.
+          description: Unauthorized request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: Account not found.
+          description: Account not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: Internal server error.
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -225,27 +219,25 @@ paths:
               schema:
                 $ref: "#/components/schemas/Plan"
         "400":
-          description: |-
-            Invalid request.
-            Returns a list of issues detected in the request.
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: Unauthorized request.
+          description: Unauthorized request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: Account not found.
+          description: Account not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: Internal server error.
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -273,27 +265,25 @@ paths:
               schema:
                 $ref: "#/components/schemas/Account"
         "400":
-          description: |-
-            Invalid request.
-            Returns a list of issues detected in the request.
+          description: Invalid request, returning with a list of issues detected in the request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorsBody"
         "401":
-          description: Unauthorized request.
+          description: Unauthorized request
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "404":
-          description: Account not found.
+          description: Account not found
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
         "500":
-          description: Internal server error.
+          description: Internal server error
           content:
             application/json; charset=utf-8:
               schema:
@@ -2922,7 +2912,6 @@ components:
   schemas:
     Account:
       type: object
-      description: An account with golem cloud
       required:
         - id
         - name

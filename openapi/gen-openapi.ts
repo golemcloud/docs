@@ -21,13 +21,13 @@ async function main() {
   const grouped = groupBy(apiItems, item => {
     const tagId = item.operation.tags?.at(0)
     if (!tagId) {
-      throw new Error("No tag")
+      throw new Error(`Operation Missing Tag: ${JSON.stringify(item)}}`)
     }
 
     const foundTag = tags.find(tag => tag.name === tagId)
 
     if (!foundTag) {
-      throw new Error("Invalid Tag")
+      throw new Error(`Invalid Tag ${tagId}`)
     }
 
     return foundTag
@@ -35,9 +35,9 @@ async function main() {
 
   const markdown = Array.from(grouped.entries())
     .filter(([tag, _]) => tag.name !== "HealthCheck")
-    .map(([tag, items]) => {
-      return [tag, convertToMarkdown(api, tag, items)] as const
-    })
+    .filter(([tag, _]) => tag.name !== "Grant")
+    .filter(([tag, _]) => tag.name !== "AccountSummary")
+    .map(([tag, items]) => [tag, convertToMarkdown(api, tag, items)] as const)
 
   await Promise.all(
     markdown.map(([tag, content]) => {
@@ -58,7 +58,6 @@ type ApiItem = {
 
 function extractApiItems(api: OpenAPIV3.Document): ApiItem[] {
   return Object.entries(api.paths)
-    .filter(([path, _]) => !path.includes("admin"))
     .filter(([_, pathItem]) => pathItem !== undefined)
     .flatMap(([path, pathItem]) =>
       Object.entries(pathItem!).map(([method, operation]) => {
@@ -238,9 +237,9 @@ function makeRequestError(api: OpenAPIV3.Document, operation: OpenAPIV3.Operatio
 
       const jsonRendered = ["`", JSON.stringify(sample), "`"].join("")
 
-      const shortedDesc = desc?.split("\n").join(" ")
+      const shortDesc = desc?.split("\n").join(" ")
 
-      return [status, shortedDesc, jsonRendered]
+      return [status, shortDesc, jsonRendered]
     })
 
   if (errorResponses.length === 0) {

@@ -118,9 +118,9 @@ Create a new account. The response is the created account data.
 
 ## Account API Errors
 
-| Status Code | Description                                                        | Body                    |
-| ----------- | ------------------------------------------------------------------ | ----------------------- |
-| 400         | Invalid request. Returns a list of issues detected in the request. | `{"errors":["string"]}` |
-| 401         | Unauthorized request.                                              | `{"error":"string"}`    |
-| 404         | Account not found.                                                 | `{"error":"string"}`    |
-| 500         | Internal server error.                                             | `{"error":"string"}`    |
+| Status Code | Description                                                              | Body                    |
+| ----------- | ------------------------------------------------------------------------ | ----------------------- |
+| 400         | Invalid request, returning with a list of issues detected in the request | `{"errors":["string"]}` |
+| 401         | Unauthorized request                                                     | `{"error":"string"}`    |
+| 404         | Account not found                                                        | `{"error":"string"}`    |
+| 500         | Internal server error                                                    | `{"error":"string"}`    |
