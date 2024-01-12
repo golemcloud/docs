@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "fix": "eslint --fix . && prettier --log-level silent --write .",
-    "generate": "bun run openapi/gen-openapi.ts && bun run fix"
+    "generateLocal": "bun run openapi/gen-openapi.ts --local && bun run fix",
+    "generateProd": "bun run openapi/gen-openapi.ts --prod && bun run fix"
   },
   "dependencies": {
     "@radix-ui/react-icons": "^1.3.0",

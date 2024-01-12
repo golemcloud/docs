@@ -5,10 +5,41 @@ import { OpenAPIV3 } from "openapi-types"
 import OpenAPISampler from "openapi-sampler"
 
 const SPEC_SRC = "./openapi/cloud-spec.yaml"
+const PROD_SPEC_URL = "https://release.api.golem.cloud/specs"
 const GEN_PATH = "./src/pages/docs/rest-api"
 
+main().catch(e => console.error("Failed to update API Docs", e))
+
+// Two options are available:
+// --production - will generate the docs for the Production Golem API, and update the local yaml file.
+// --local - will generate the docs from local yaml file.
 async function main() {
-  const api = (await SwaggerParser.parse(SPEC_SRC)) as OpenAPIV3.Document
+  const args = process.argv.slice(2)
+
+  if (args.length !== 1 || !["--prod", "--local"].includes(args[0])) {
+    throw new Error("Invalid args: must be --prod or --local")
+  }
+
+  const [mode] = args
+
+  if (mode === "--prod") {
+    console.log("Updating REST API docs from production OpenAPI spec at:", PROD_SPEC_URL)
+    await writeOpenApiDocs(PROD_SPEC_URL)
+    const response = await fetch(PROD_SPEC_URL)
+    if (!response.ok) {
+      throw new Error(`Error fetching data: ${response.status}`)
+    }
+
+    const textContent = await response.text()
+    await writeFile(SPEC_SRC, textContent)
+  } else {
+    console.log("Updating REST API docs from local OpenAPI spec at:", SPEC_SRC)
+    await writeOpenApiDocs(SPEC_SRC)
+  }
+}
+
+async function writeOpenApiDocs(openapiSpec: string) {
+  const api = (await SwaggerParser.parse(openapiSpec)) as OpenAPIV3.Document
 
   const tags = api.tags
 
@@ -313,5 +344,3 @@ function pascalToKebab(str: string) {
 function pascalToSpace(str: string) {
   return str.replace(/([a-z])([A-Z])/g, "$1 $2")
 }
-
-main().catch(e => console.error(e))
