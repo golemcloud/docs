@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prettier --log-level silent --write . && next build",
+    "build": "prettier --check . && next build",
     "start": "next start",
     "lint": "next lint",
     "fix": "eslint --fix . && prettier --log-level silent --write .",
