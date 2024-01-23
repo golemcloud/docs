@@ -3,9 +3,14 @@
     "type": "separator",
     "title": "1- Golem Cloud"
   },
-
-  "cloud-getting-started": "Getting Started",
-  "cloud-docs": "Documentation",
+  "cloud-intro": "Introduction",
+  "cloud-why-golem": "Why Golem?",
+  "cloud-quickstart": "Quickstart",
+  "-- Golem Cloud Docs": {
+    "type": "separator",
+    "title": "Docs"
+  },
+  "cloud-guides": "Guides",
   "cloud-api-reference": "API Reference",
   "cloud-faq": "FAQ",
   "-- Golem OSS": {
