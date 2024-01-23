@@ -1,32 +1,15 @@
 {
-  "-- Getting Started": {
+  "-- Golem Cloud": {
     "type": "separator",
-    "title": "Getting Started"
+    "title": "1- Golem Cloud"
   },
-  "intro": "Introduction",
-  "why-golem": "Why Golem?",
-  "quickstart": "Quickstart",
-  "-- Docs": {
+
+  "cloud-getting-started": "Getting Started",
+  "cloud-docs": "Documentation",
+  "cloud-api-reference": "API Reference",
+  "cloud-faq": "FAQ",
+  "-- Golem OSS": {
     "type": "separator",
-    "title": "Docs"
-  },
-  "building-templates": "Building Templates",
-  "console": {
-    "title": "Management Console"
-  },
-  "promises": "Promises",
-  "template-interface": "Template Interface",
-  "-- API Reference": {
-    "type": "separator",
-    "title": "API Reference"
-  },
-  "golem-cli": "Golem CLI",
-  "rest-api": "REST API",
-  "runtime-api": "Runtime API",
-  "-- Other": {
-    "type": "separator",
-    "title": "Other"
-  },
-  "faq": "FAQ",
-  "release-notes": "Release Notes"
+    "title": "1- Golem OSS"
+  }
 }

@@ -3,6 +3,7 @@ import { DocsThemeConfig } from "nextra-theme-docs"
 import { Footer } from "@/components/footer"
 import { GolemLogo } from "@/components/golem-logo"
 import { useRouter } from "next/router"
+import { TitleComponent } from "@/components/title"
 
 const config: DocsThemeConfig = {
   logo: <GolemLogo />,
@@ -24,6 +25,8 @@ const config: DocsThemeConfig = {
   },
   sidebar: {
     toggleButton: true,
+    defaultMenuCollapseLevel: 1,
+    titleComponent: TitleComponent,
   },
   project: {
     link: "https://github.com/golemcloud/docs",
