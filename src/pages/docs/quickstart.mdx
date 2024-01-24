@@ -29,13 +29,14 @@ cargo install golem-cli
   {/* prettier-ignore */}
   You need to create an account and authenticate yourself before using any Golem Cloud commands. This is easy to do with Github OAuth2. Lets do it right now by using the following command:
 
-  ```bash filename="Terminal" copy
-  golem-cloud-cli account get
-  ```
+```bash filename="Terminal" copy
+golem-cloud-cli account get
+```
 
-  Once you authenticate, Golem Cloud CLI will cache an API token in a local directory named `$HOME/.golem`. This token will allow you to use Golem Cloud CLI without further authentication.
+Once you authenticate, Golem Cloud CLI will cache an API token in a local directory named `$HOME/.golem`. This token will allow you to use Golem Cloud CLI without further authentication.
 
-  We will use `golem-cli` as opposed to `golem-cloud-cli` in all examples unless they are specific to Golem Cloud, but `golem-cloud-cli` supports all commands supported by `golem-cli`.
+We will use `golem-cli` as opposed to `golem-cloud-cli` in all examples unless they are specific to Golem Cloud, but `golem-cloud-cli` supports all commands supported by `golem-cli`.
+
 </Callout>
 
 ### Setting up Golem
@@ -51,9 +52,7 @@ curl -sSL https://raw.githubusercontent.com/golemcloud/golem-services/main/docke
 docker-compose up
 ```
 
-<Callout type="info">
-  If you are using the hosted version of Golem, you can skip this step.
-</Callout>
+<Callout type="info">If you are using the hosted version of Golem, you can skip this step.</Callout>
 
 ### Building an Example
 
