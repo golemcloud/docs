@@ -207,3 +207,34 @@ let value1 = counter1.get_value();
 ```
 
 Note it is a good practice to pass the called worker's **template id** as an environment variable to the caller worker.
+
+6. Compile the worker that uses the generated stub interfaces
+
+```
+cargo component build --release
+```
+
+7. Compose the newly compiled WASM with the stub WASM
+
+This results in a composed WASM that no longer depends on the stub, just the low-level invocation API that Golem provides for each worker.
+Unfortunately `wasm-tools` requires a certain directory structure for the `compose` command to work.
+
+In our example, assuming we are doing a **release** build, and called the generated stub `counters-stub`, we have to create the following directory:
+
+```
+mkdir -pv target/wasm32-wasi/release/rpc:counters-stub
+```
+
+and copy the compiled stub WASM there
+
+```
+cp target/wasm32-wasi/release/counters_stub.wasm target/wasm32-wasi/release/rpc:counters-stub/stub-counters.wasm
+```
+
+Finally use `wasm-tools` to create the composed WASM:
+
+```
+wasm-tools compose -v target/wasm32-wasi/release/caller.wasm -o target/wasm32-wasi/release/caller_composed.wasm
+```
+
+This resulting `caller_composed.wasm` is ready to be used in Golem.
