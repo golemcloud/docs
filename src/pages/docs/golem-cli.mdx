@@ -219,7 +219,7 @@ To get the status and some additional metadata about a template workers you can 
 
 To use this command you need to specify the template name or id. You can filter workers metadata:
 
-- `--filter "propery op value"` - filter examples: `--filter "name = worker-name"`, `--filter "version >= 0"`, `--filter "status = Running"`, `--filter "env.var1 = value"`. Can be used multiple times (AND condition is applied between them)
+- `--filter "propery op value"` - filter examples: `--filter "name = worker-name"`, `--filter "version >= 0"`, `--filter "status = Running"`, `--filter "env.var1 = value"`, `--filter "created_at > 2024-04-01T12:10:00Z"`. Can be used multiple times (AND condition is applied between them)
 
 ### `golem-cli worker connect`
 
