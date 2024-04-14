@@ -98,6 +98,52 @@ Returns metadata about an existing worker:
 }
 ```
 
+## Get metadata of a template workers
+
+| Path                                                | Method | Protected |
+| --------------------------------------------------- | ------ | --------- |
+| `/v2/templates/{template_id}/workers`               | GET    | Yes       |
+
+
+**Query Parameters**
+
+| Name          | Type    | Required | Description                |
+| ------------- | ------- | -------- | -------------------------- |
+| filter        | string  | No       | Filter for worker metadata in form of `property op value`. Filter examples: `name = worker-name`, `version >= 0`, `status = Running`, `env.var1 = value`. Can be used multiple times (AND condition is applied between them)   |
+| count         | integer | No       | Count of listed values, default: 50 |
+| cursor        | integer | No       | Position where to start listing, if not provided, starts from the beginning. It is used to get the next page of results. To get next page, use the cursor returned in the response   |
+| precise       | boolean | No       | Precision in relation to worker status, if true, calculate the most up-to-date status for each worker, default is false |
+
+
+Returns metadata about an existing template workers:
+- `workers` list of workers metadata
+- `cursor`
+
+```json copy
+{
+   "workers":[
+      {
+         "workerId":{
+            "templateId":"196100ac-4eec-4fb6-a7f7-86c8b584771d",
+            "workerName":"string"
+         },
+         "accountId":"string",
+         "args":[
+            "string"
+         ],
+         "env":{
+            "property1":"string",
+            "property2":"string"
+         },
+         "status":"Running",
+         "templateVersion":0,
+         "retryCount":0
+      }
+   ],
+   "cursor":null
+}
+```
+
 ## Get an invocation key
 
 | Path                                                    | Method | Protected |
