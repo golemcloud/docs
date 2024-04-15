@@ -1,0 +1,83 @@
+# Get Workers API
+
+The get workers API allows you to get information about the workers for given template.
+To use the key value API, first make sure to add the contents of the `wit/deps` folders from https://github.com/golemcloud/golem-wit to your own `wit/deps` folder. You can then interact with the key value interface from your own code in whatever language you are working in.
+
+Our WIT file will look like this:
+
+```
+package golem:it;
+
+interface api {
+  use golem:api/host@0.2.0.{
+           template-id,
+           worker-any-filter,
+           worker-metadata
+  };
+  get-idle-workers: func(template-id: template-id) -> list<worker-metadata>;
+}
+
+world workers {
+  import golem:api/host@0.2.0;
+
+  export api;
+}
+```
+
+Now that we have our interface we are ready to implement it. Let's take a look at how we would do that:
+
+```rust
+mod bindings;
+
+use crate::bindings::exports::golem::it::api::Guest;
+use crate::bindings::golem::api::host::*;
+
+struct Component;
+
+impl Guest for Component {
+
+    fn get_idle_workers(
+        template_id: TemplateId
+    ) -> Vec<WorkerMetadata> {
+        println!(
+            "Get idle workers of template: {template_id:?}"
+        );
+        let filter = Some(WorkerAnyFilter {
+            filters: vec![WorkerAllFilter {
+                filters: vec![WorkerPropertyFilter::Status(WorkerStatusFilter {
+                    comparator: FilterComparator::Equal,
+                    value: WorkerStatus::Idle,
+                })],
+            }]
+        });
+        let mut workers: Vec<WorkerMetadata> = Vec::new();
+        let getter = GetWorkers::new(template_id, filter.as_ref(), true);
+        loop {
+            match getter.get_next() {
+                Some(values) => {
+                    workers.extend(values);
+                }
+                None => break,
+            }
+        }
+        workers
+    }
+}
+```
+
+Filter types
+
+| Type                    | Comparator               | Description                    |
+| ----------------------- | ------------------------ | ------------------------------ |
+| worker-name-filter      | string-filter-comparator | Name of worker                 |
+| worker-version-filter   | filter-comparator        | Version of worker              |
+| worker-status-filter    | filter-comparator        | Status of worker               |
+| worker-env-filter       | string-filter-comparator | Environment variable of worker |
+| worker-create-at-filter | filter-comparator        | Creation time of worker        |
+| worker-any-filter       |                          | Or filter combinator           |
+| worker-all-filter       |                          | And filter combinator          |
+
+Comparator
+
+- string-filter-comparator: `equal`, `not-equal`, `like`, `not-like`
+- filter-comparator: `equal`, `not-equal`, `greater-equal`, `greater`, `less-equal`, `less`
