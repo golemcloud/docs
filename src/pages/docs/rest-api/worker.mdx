@@ -123,7 +123,7 @@ Filters
 | env.[key] | StringFilterComparator | Environment variable of worker, example: `env.var1 = value`          |
 | createdAt | FilterComparator       | Creation time of worker, example: `createdAt > 2024-04-01T12:10:00Z` |
 
-Comparator
+Comparators
 
 - StringFilterComparator: `eq|equal|=|==`, `ne|notequal|!=`, `like`, `notlike`
 - FilterComparator: `eq|equal|=|==`, `ne|notequal|!=`, `ge|greaterequal|>=`, `gt|greater|>`, `le|lessequal|<=`, `lt|less|<`
@@ -190,7 +190,7 @@ Filter types
 | Or        |                        | Or filter combinator, example: `{ "type": "Or", "filters": [ ... ] }`                                                            |
 | Not       |                        | Creation time of worker, example: `{ "type": "Not", "filter": { "type": "Version", "comparator": "GreaterEqual", "value": 0 } }` |
 
-Comparator
+Comparators
 
 - StringFilterComparator: `Equal`, `NotEqual`, `Like`, `NotLike`
 - FilterComparator: `Equal`, `NotEqual`, `GreaterEqual`, `Greater`, `LessEqual`, `Less`

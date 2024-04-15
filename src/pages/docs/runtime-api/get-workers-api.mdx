@@ -1,7 +1,8 @@
 # Get Workers API
 
 The get workers API allows you to get information about the workers for given template.
-To use the key value API, first make sure to add the contents of the `wit/deps` folders from https://github.com/golemcloud/golem-wit to your own `wit/deps` folder. You can then interact with the key value interface from your own code in whatever language you are working in.
+
+To use the get workers API, first make sure to add the contents of the `wit/deps` folders from https://github.com/golemcloud/golem-wit to your own `wit/deps` folder. You can then interact with the get workers interface from your own code in whatever language you are working in.
 
 Our WIT file will look like this:
 
@@ -11,7 +12,6 @@ package golem:it;
 interface api {
   use golem:api/host@0.2.0.{
            template-id,
-           worker-any-filter,
            worker-metadata
   };
   get-idle-workers: func(template-id: template-id) -> list<worker-metadata>;
@@ -65,19 +65,31 @@ impl Guest for Component {
 }
 ```
 
+The `get-idle-workers` function is using the `get-workers` golem-wit resource, which is defined as follows:
+
+```
+resource get-workers {
+  constructor(template-id: template-id, filter: option<worker-any-filter>, precise: bool);
+
+  get-next: func() -> option<list<worker-metadata>>;
+}
+```
+
+With `get-workers` resource, our template is able to get workers of provided template with matching filters, `get-next` function will return next chunk of workers, or will return none if there is no more workers.
+
 Filter types
 
-| Type                    | Comparator               | Description                    |
-| ----------------------- | ------------------------ | ------------------------------ |
-| worker-name-filter      | string-filter-comparator | Name of worker                 |
-| worker-version-filter   | filter-comparator        | Version of worker              |
-| worker-status-filter    | filter-comparator        | Status of worker               |
-| worker-env-filter       | string-filter-comparator | Environment variable of worker |
-| worker-create-at-filter | filter-comparator        | Creation time of worker        |
-| worker-any-filter       |                          | Or filter combinator           |
-| worker-all-filter       |                          | And filter combinator          |
+| Type                    | Comparator               | Description                                                                                                                                                       |
+| ----------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| worker-name-filter      | string-filter-comparator | Name of worker, rust example: `WorkerNameFilter { comparator: StringFilterComparator::Equal, value: "worker-name".to_string() }`                                  |
+| worker-version-filter   | filter-comparator        | Version of worker, rust example: `WorkerVersionFilter { comparator: FilterComparator::Greater, value: 0 }`                                                        |
+| worker-status-filter    | filter-comparator        | Status of worker, rust example: `WorkerStatusFilter { comparator: FilterComparator::Equal, value: WorkerStatus::Idle }`                                           |
+| worker-env-filter       | string-filter-comparator | Environment variable of worker, rust example: `WorkerEnvFilter { name: "var1".to_string(), comparator: StringFilterComparator::Equal, value: "val".to_string() }` |
+| worker-create-at-filter | filter-comparator        | Creation time of worker, rust example: `WorkerCreatedAtFilter { comparator: FilterComparator::Greater, value: 1713207300140 }`                                    |
+| worker-any-filter       |                          | Or filter combinator                                                                                                                                              |
+| worker-all-filter       |                          | And filter combinator                                                                                                                                             |
 
-Comparator
+Comparators
 
 - string-filter-comparator: `equal`, `not-equal`, `like`, `not-like`
 - filter-comparator: `equal`, `not-equal`, `greater-equal`, `greater`, `less-equal`, `less`
