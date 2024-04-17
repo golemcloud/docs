@@ -16,6 +16,8 @@ For further guidance on using the expression language in conjunction with the Wo
 
 With that, let's explain the grammer of expression and a few examples and corner cases
 
+For the most representation of the values are making use of WASM syntax.
+
 ### Expression Grammer
 
 <Callout type="info">
@@ -50,13 +52,14 @@ expr             ::= request
 request           ::= "request"
 worker            ::= "worker"
 let_binding       ::= "let" variable '=' expr ';'
-select_field       ::= request_field | expr '.' variable_sequence
+select_field       ::= request_field | worker_field | (record | variable)'.'variable_sequence
+worker_field       := "worker.response" | "worker.response." variable_sequence
 request_field      ::= request_body | request_path | request_header
 request_body      ::= "request.body" | "request.body." variable_sequence
 request_path      ::= "request.path" | "request.path." variable_sequence
 request_header    ::= "request.header." variable_sequence
 variable_sequence ::= variable ('.' variable)*
-select_index      ::= expr ('[' expr ']')+
+select_index      ::= (sequence | variable)('[' expr ']')+
 sequence          ::= '[' expr (',' expr)* ']'
 record            ::= '{' field (',' field)* '}'
 tuple             ::= '(' expr (',' expr)* ')'
@@ -88,4 +91,135 @@ pattern           ::= variable
 ```
 
 </Callout>
+
+
+### Examples
+
+#### Example 1: Simple Expressions
+
+```bash filename="Terminal" copy
+1
+```
+
+```bash filename="Terminal" copy
+'foo'
+```
+
+### Example 2: Record
+
+```bash filename="Terminal" copy
+  {a : "foo", b : "bar"}
+```
+
+```bash filename="Terminal" copy
+  {a : "foo", b : 2}
+```
+
+### Example 3: Sequence
+
+```bash filename="Terminal" copy
+[1, 2, 3]
+```
+
+#### Example 2: Let Binding
+
+```bash filename="Terminal" copy
+let x = request.body.user;
+
+```
+
+#### Example 3: Field Selection
+
+A field can be selected from `worker` or `request` object or any record object.
+Pre-defined field selections are worker.response, request.body, request.path and request.header.
+
+Other than that you can select field from any record object or variable (whose resolution) should be a record object.
+
+
+```bash filename="Terminal" copy
+worker.response
+```
+
+```bash filename="Terminal" copy
+worker.response.user
+```
+
+```bash filename="Terminal" copy
+worker.response.user.name
+```
+
+```
+request.body
+```
+
+```bash filename="Terminal" copy
+request.body.user
+```
+
+```bash filename="Terminal" copy
+request.body.user.name
+```
+
+```bash filename="Terminal" copy
+request.path
+```
+
+```bash filename="Terminal" copy
+request.path.user
+```
+
+```bash filename="Terminal" copy
+request.path.user.name
+```
+
+```bash filename="Terminal" copy
+request.header
+```
+
+```bash filename="Terminal" copy
+request.header.user
+```
+
+```bash filename="Terminal" copy
+request.header.user.name
+```
+
+
+```bash filename="Terminal" copy
+{a : "foo", b : "bar"}.a
+```
+
+#### Example 5: Sequence and Select Index
+
+Say, your worker.response was a sequence value. Then it is valid to do:
+
+```bash filename="Terminal" copy
+
+worker.response[1]
+
+```
+
+Or we can select from a hard coded sequence
+
+```bash filename="Terminal" copy
+[1, 2, 3][0]
+```
+
+```bash filename="Terminal" copy
+
+let x = [1, 2, 3];
+
+x[0]
+
+```
+
+#### Example 6: Tuple
+
+```bash filename="Terminal" copy
+(1, 2, 3)
+```
+
+```bash filename="Terminal" copy
+(1, "foo", worker.response.user, {a : 'b'})
+```
 
