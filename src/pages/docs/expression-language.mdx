@@ -1,0 +1,91 @@
+import { Callout } from "nextra/components"
+
+
+## Expression Language
+
+`Expr` language - a feature in Golem OSS, enables users to write programs capable of manipulating worker responses, which are WebAssembly (WASM) values.
+Currently, the expression language is designed to function seamlessly with the worker-bridge of Golem. More information on the worker-bridge, previously known to be the API gateway can be found here.
+
+## Purpose of Expression Language
+
+Currently, the Worker Bridge allows you to define an OpenAPI specification with HTTP endpoints defined, each having its own worker-binding.
+A worker-binding generally includes the worker ID, the name of function in the worker to be invoked, it's function parameters, and the response mapping, which tells how to change the worker response to the API response.
+The expression language is used in many places in this context. Example: You can utilize the expression language to construct the worker ID, which can be based on the request object, a constant literal, or a combination of both. For example: foo-${request.body.user}.
+
+For further guidance on using the expression language in conjunction with the Worker Bridge, refer to the Worker Bridge documentation.
+
+With that, let's explain the grammer of expression and a few examples and corner cases
+
+### Expression Grammer
+
+<Callout type="info">
+
+```bash filename="Terminal" copy
+expr             ::= request
+                   | let_binding
+                   | worker
+                   | select_field
+                   | select_index
+                   | sequence
+                   | record
+                   | tuple
+                   | literal
+                   | number
+                   | flags
+                   | variable
+                   | boolean
+                   | concat
+                   | multiple
+                   | not
+                   | greater_than
+                   | greater_than_or_equal_to
+                   | less_than_or_equal_to
+                   | equal_to
+                   | less_than
+                   | conditional
+                   | pattern_match
+                   | option
+                   | result
+
+request           ::= "request"
+worker            ::= "worker"
+let_binding       ::= "let" variable '=' expr ';'
+select_field       ::= request_field | expr '.' variable_sequence
+request_field      ::= request_body | request_path | request_header
+request_body      ::= "request.body" | "request.body." variable_sequence
+request_path      ::= "request.path" | "request.path." variable_sequence
+request_header    ::= "request.header." variable_sequence
+variable_sequence ::= variable ('.' variable)*
+select_index      ::= expr ('[' expr ']')+
+sequence          ::= '[' expr (',' expr)* ']'
+record            ::= '{' field (',' field)* '}'
+tuple             ::= '(' expr (',' expr)* ')'
+literal           ::= "'" [a-zA-Z0-9]* "'"
+number            ::= DIGITS
+flags              ::= '{' STRING (',' STRING)* '}'
+variable          ::= [a-zA-Z0-9]+
+boolean           ::= "boolean" '(' BOOLEAN ')'
+concat            ::= "concat" '(' expr* ')'
+multiple          ::= "multiple" '(' expr* ')'
+not               ::= "not" '(' expr ')'
+gt                ::= expr '>' expr
+gt_or_eq_to       ::= expr ">=" expr
+lt                ::= expr '<' expr
+lt_or_eq_to       ::= expr "<=" expr
+eq_to             ::= expr "==" expr
+conditional       ::= "if" expr "then" expr "else" expr
+pattern_match     ::= "match" expr '{' match_arms '}'
+option            ::= "option" '(' expr? ')'
+result            ::= "result" '(' expr ',' expr ')'
+field_list         ::= field (',' field)*
+field              ::= variable ':' expr
+match_arms        ::= match_arm (',' match_arm)*
+match_arm         ::= '(' pattern ',' expr ')'
+pattern           ::= variable
+                      | literal
+                      | '_' // wildcard pattern
+
+```
+
+</Callout>
+
