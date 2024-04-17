@@ -20,7 +20,6 @@ For the most representation of the values are making use of WASM syntax.
 
 ### Expression Grammer
 
-<Callout type="info">
 
 ```bash filename="Terminal" copy
 expr             ::= request
@@ -90,12 +89,9 @@ pattern           ::= variable
 
 ```
 
-</Callout>
-
-
 ### Examples
 
-#### Example 1: Simple Expressions
+#### Simple Expressions
 
 ```bash filename="Terminal" copy
 1
@@ -105,7 +101,7 @@ pattern           ::= variable
 'foo'
 ```
 
-### Example 2: Record
+### Record
 
 ```bash filename="Terminal" copy
   {a : "foo", b : "bar"}
@@ -115,20 +111,20 @@ pattern           ::= variable
   {a : "foo", b : 2}
 ```
 
-### Example 3: Sequence
+### Sequence
 
 ```bash filename="Terminal" copy
 [1, 2, 3]
 ```
 
-#### Example 2: Let Binding
+#### Let Binding
 
 ```bash filename="Terminal" copy
 let x = request.body.user;
 
 ```
 
-#### Example 3: Field Selection
+### Record and Field Selection
 
 A field can be selected from `worker` or `request` object or any record object.
 Pre-defined field selections are worker.response, request.body, request.path and request.header.
@@ -189,7 +185,7 @@ request.header.user.name
 {a : "foo", b : "bar"}.a
 ```
 
-#### Example 5: Sequence and Select Index
+#### Sequence and Select Index
 
 Say, your worker.response was a sequence value. Then it is valid to do:
 
@@ -222,4 +218,3 @@ x[0]
 ```bash filename="Terminal" copy
 (1, "foo", worker.response.user, {a : 'b'})
 ```
-
