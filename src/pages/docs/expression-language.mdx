@@ -430,4 +430,26 @@ and will result in 'a' if the `worker.response` was variant value `bar({a: 1, b:
 
 ```
 
+##### Wild card patterns
 
+In some of the above examples, the binding variables are unused. In this case, we can use `_` as a wildcard pattern to indicate that we don't care about the value.
+
+```bash filename="Terminal" copy
+  match worker.response {
+    bar(_) => 'bar',
+    foo(_) => 'foo'
+  }
+```
+
+#### Let Binding
+
+```bash filename="Terminal" copy
+
+ let a = { age: worker.response.age, city: 'New York', name: request.body.name };
+
+ match worker.response.admin {
+   Admin(_) => 'admin',
+   User(x) => a
+ }
+
+```
