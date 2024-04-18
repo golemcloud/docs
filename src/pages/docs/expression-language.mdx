@@ -1,10 +1,7 @@
-import { Callout } from "nextra/components"
-
-
 ## Expression Language
 
-`Expr` language - a feature in Golem OSS, enables users to write programs capable of manipulating worker responses, which are WebAssembly (WASM) values.
-Currently, the expression language is designed to function seamlessly with the worker-bridge of Golem. More information on the worker-bridge, previously known to be the API gateway can be found here.
+`Expr` language - a feature in `Golem OSS`, enables users to write programs capable of manipulating worker responses, which are WebAssembly (WASM) values.
+Currently, the expression language is designed to function seamlessly with the worker-bridge of `Golem`. More information on the worker-bridge, previously known to be the API gateway can be found here.
 
 ## Purpose of Expression Language
 
@@ -14,11 +11,11 @@ The expression language is used in many places in this context. Example: You can
 
 For further guidance on using the expression language in conjunction with the Worker Bridge, refer to the Worker Bridge documentation.
 
-With that, let's explain the grammer of expression and a few examples and corner cases
+With that, let's explain the grammar of expression and a few examples and corner cases
 
 For the most representation of the values are making use of WASM syntax.
 
-### Expression Grammer
+### Expression Grammar
 
 
 ```bash filename="Terminal" copy
@@ -155,7 +152,7 @@ More explanations on variables can be found in other examples.
 [{a: 'foo'}, {b : 'bar'}]
 ```
 
-This is parsed as a sequence of values. While the values can be of any type, similar to any dynamic langauge, evaluation may fail with error if we mix different types in a sequence.
+This is parsed as a sequence of values. While the values can be of any type, similar to any dynamic language, evaluation may fail with error if we mix different types in a sequence.
 In other words, expression language do expect the values in a sequence to be of the same type.
 
 #### Record
@@ -193,10 +190,10 @@ This is parsed as a tuple of values. Unlike `sequence`, the values in a tuple ca
 
 This is parsed as Flag type in WASM.  The values are separated by comma.
 
-### Selection of Field
+#### Selection of Field
 
 A field can be selected from an `Expr` if the `Expr` is a `Record` type. For example `foo.user`
-is a valid selection given `foo` is a expression variable that gets evaluated to a record.
+is a valid selection given `foo` is an expression variable that gets evaluated to a record.
 
 ```bash filename="Terminal" copy
 { name: 'John', age: 30 }.name
@@ -211,7 +208,7 @@ An index can be selected from an `Expr` if the `Expr` is a `Sequence` type
 ```
 
 A field can be selected from an `Expr` if the `Expr` is a `Sequence` type.
-For example `foo[10]` is valid given `foo` is a expression variable that gets evaluated to a sequence.
+For example `foo[10]` is valid given `foo` is an expression variable that gets evaluated to a sequence.
 
 
 ### Request and selection of Fields
@@ -246,7 +243,7 @@ request.body.user
 ```bash filename="Terminal" copy
 worker
 ```
-One of the fields in `worker` Record is `response`. Therefore to fetch the worker function's response, we can use
+One of the fields in `worker` Record is `response`. Therefore, to fetch the worker function's response, we can use
 the following expression which works in the same way as selecting a field in a record.
 
 ```bash filename="Terminal" copy
@@ -386,7 +383,7 @@ You can bring them in multiple lines as follows:
 
 Say your worker responded with a `variant`.
 A variant statement defines a new type where instances of the type match exactly one of the variants listed for the type.
-This is similar to a "sum" type in algebraic datatypes (or an enum in Rust if you're familiar with it).
+This is similar to a "sum" type in algebraic datatype (or an enum in Rust if you're familiar with it).
 Variants can be thought of as tagged unions as well.
 
 Let's say we have a variant of type as given below responded from the `worker`. The `worker-bridge` is aware of the type
@@ -422,8 +419,8 @@ Example, given the worker response is ok(1), the following match expression will
   }
 ```
 
-The following match expression will result in 'c', if the worker.response was variant value `foo(['a', 'b', 'c'])`,
-and will result in 'a' if the worker.response was variant value `bar({a: 1, b: 'a'})`.
+The following match expression will result in 'c', if the `worker.response` was variant value `foo(['a', 'b', 'c'])`,
+and will result in 'a' if the `worker.response` was variant value `bar({a: 1, b: 'a'})`.
 
 ```bash filename="Terminal" copy
   match worker.response {
