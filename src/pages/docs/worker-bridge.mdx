@@ -1,16 +1,16 @@
 ## Worker Bridge
 
-Worker-Bridge, an integral component of the Golem OSS worker-service, empowers you to define and upload API definitions.
-These definitions allow you to expoes endpoints to users and  specify how incoming requests should be managed by your Golem worker workflow/application.
+Worker-Bridge, an integral component of the `Golem OSS` worker-service, empowers you to define and upload API definitions.
+These definitions allow you to expose endpoints to users and  specify how incoming requests should be managed by your `Golem` worker workflow/application.
 
 Let's dig a bit deeper using an example.
 
-Say you already have a worker running in your Golem OSS (docker environment) or Golem Cloud.  Assuming you have already got the worker running in Golem with shopping-cart example,
-let's say we have to expose an endpoint to get the cart contents for a user.  In order to do this, you would typically write a API definition as given below and simply upload to Golem.
+Say you already have a worker running in your `Golem OSS` (docker environment) or `Golem Cloud`.  Assuming you have already got the worker running in `Golem` with shopping-cart example,
+let's say we have to expose an endpoint to get the cart contents for a user.  In order to do this, you would typically write an API definition as given below and simply upload to `Golem`.
 
 
 At this point, worker-bridge is acting as an API-Gateway, but the major difference here is, it is geared
-to work seamlessly with Golem. In other words, we don't need to specifically write a custom backend service as worker-bridge gives it for free.
+to work seamlessly with `Golem`. In other words, we don't need to specifically write a custom backend service as worker-bridge gives it for free.
 
 
 ```json
@@ -54,7 +54,7 @@ Let's break this down.
 
 Let's break down the binding object.
 
-**type**: Specifies the type of binding. Here, it is set to "wit-worker", indicating that the binding involves a Golem worker. Currently the only supported type is "wit-worker".
+**type**: Specifies the type of binding. Here, it is set to "wit-worker", indicating that the binding involves a Golem worker. Currently, the only supported type is "wit-worker".
 
 **template**: Provides the template ID associated with the worker binding.
 
@@ -84,7 +84,7 @@ Here `localhost:9881` is where worker-service (that consist of worker-bridge fun
 ### Deploy the API Definition
 
 Similar to many API Gateways, it is a separate process to deploy this API definition. This is because, the API definition is not immediately available for use after uploading.
-With deployment you tag a `site`. The `site` can be as simple as `localhost:9881` for you to test it, or if you already have a domain registered (say my-site.com), you can deploy the API definition to `my-site.com`.
+With deployment, you tag a `site`. The `site` can be as simple as `localhost:9881` for you to test it, or if you already have a domain registered (say my-site.com), you can deploy the API definition to `my-site.com`.
 
 Let's create a `deployment.json` as given below. Based on the example above, the apiDefinitionId is `shopping-cart-v1` and version is `0.0.3`.
 The `site` is set to `localhost:9881` because we are testing it locally, and the host in in-coming request will be `localhost:9881`. If you were having a domain registered such as `my-site.com`, you would replace `localhost:9881` with `my-site.com`,
@@ -121,7 +121,7 @@ We recommend taking a quick look at the expression language before reading furth
 
 Since we are using Http protocol, worker-bridge allows you to write a record expression that consist of `status`, `headers` and `body` fields. The `status` field is the HTTP status code, `headers` is a map of HTTP headers, and `body` is the response body.
 
-Usually our worker.response is an Array of WASM values. This is regardless of the domain/use-case. It implies, in shopping cart example, the response is an array of array of objects. Each object in the inner array represents a product in the cart.
+Usually our `worker.response` is an Array of WASM values. This is regardless of the domain/use-case. It implies, in shopping cart example, the response is an `[[...]]`. Each object in the inner array represents a product in the cart.
 That is `worker.response[0]` will fetch the first element in the array, and this element is a sequence of product information.
 In this case, our expression of response can be something like this. Note that we are also injecting some headers in the response using expression language.
 
@@ -154,7 +154,7 @@ Let's write a more complex example, where we need to respond back with certain d
 }
 ```
 
-### Non Empty Function Parameters
+### Non-Empty Function Parameters
 In the above example, we did not pass any parameters to the function. Let's say we need to pass the user-id to the function along with a few other parameters.
 In this case, the functionParams field will contain an array of expressions that evaluate to the parameters to be passed to the function.
 
@@ -182,7 +182,7 @@ In this case, the functionParams field will contain an array of expressions that
 
 ### Manipulating worker.response
 
-There are various ways to manipulate worker.response, and expression language can be used to do this
+There are various ways to manipulate `worker.response`, and expression language can be used to do this
 More examples in this space can be found in the expression language documentation.
 
 For example, we can form a response mapping in the following way
@@ -211,7 +211,7 @@ In this example, we check if the user ID in the request path is 'admin'. If it i
 
 Sometimes, we represent the backend service using OpenAPI spec. Worker-bridge allows you to import OpenAPI spec and convert it to API definition.
 Using extension feature of OpenAPI spec, you can inject the worker-bridge information into the OpenAPI spec. This is a powerful feature that allows you to define the API definition in OpenAPI spec and import it to worker-bridge.
-The advantage of such an approach is reusability of the endpoint definition across your system. For example, you may want to use the same spec to upload to an external API gateway, which you can use for other features.
+The advantage of such an approach is re-usability of the endpoint definition across your system. For example, you may want to use the same spec to upload to an external API gateway, which you can use for other features.
 
 
 
@@ -225,11 +225,6 @@ The advantage of such an approach is reusability of the endpoint definition acro
     "title": "Sample API",
     "version": "1.0.2"
   },
-  "servers": [
-    {
-      "url": "http://169.254.141.101:9006"
-    }
-  ],
   "paths": {
     "/{user-id}/get-cart-contents": {
       "x-golem-worker-bridge": {
@@ -296,7 +291,7 @@ The advantage of such an approach is reusability of the endpoint definition acro
 Here you can see the usual OpenAPI spec integrated with worker-bridge info.
 The extensions of  "x-golem-api-definition-version" and "x-golem-api-definition-id" are used to specify the version and id of the worker-bridge API definition.
 The "x-golem-worker-bridge" object contains the worker-bridge specific information, such as worker-id, function-name, function-params, template-id, and response mapping.
-This will be part of each path object in the OpenAPI spec. In future we will support for x-golem-worker-bridge to be part of each method so that it supports
+This will be part of each path object in the OpenAPI spec. In the future, we will support for x-golem-worker-bridge to be part of each method so that it supports
 different bindings for different methods in the same path.
 
 To import OpenAPI spec,
@@ -319,3 +314,134 @@ As explained above, this registers the API definition with worker-bridge, but it
 curl -X POST http://localhost:9881/v1/api/deployments -H "Content-Type: application/json"  -d @deployment.json
 ```
 
+## Integrating Golem with existing API Gateways
+Note that, while worker-bridge is a powerful tool for defining and managing API endpoints, it is not a full-fledged API Gateway.
+However, it can be used conjunction with existing API Gateways, allowing you to leverage the capabilities of both systems.
+For example, you can use worker-bridge to define and manage the worker bindings for your API endpoints, while using an API Gateway to handle other aspects of API management, such as authentication, rate limiting, and monitoring.
+In this scenario, the API Gateway would route incoming requests to worker-bridge based on the defined endpoints, allowing worker-bridge to handle the request processing and response generation.
+
+Let's say you have registered the API definition with worker-bridge, and deployed with a site.
+Now let's integrate with Tyk API gateway.
+
+Note that Tyk allows user to upload OpenAPI spec similar to worker-bridge. You can upload the same OpenAPI spec with worker-bridge info to Tyk,
+with 1 more extra information which is `servers` block with the value of the URL of `worker-bridge`, that tells the API gateway to route the request to worker-bridge.
+Obviously, it depends on how you installed Tyk. If you installed Tyk in the same network as worker-bridge, you can use the localhost as servers. If you are using a separate docker network with Tyk,
+you will need to give the machine IP address to reach the worker-bridge URL.
+
+
+```json
+
+{
+  "openapi": "3.0.0",
+  "x-golem-api-definition-version": "0.0.3",
+  "x-golem-api-definition-id": "shopping-cart-v1",
+  "info": {
+    "title": "Sample API",
+    "version": "1.0.2"
+  },
+  "servers": [
+    {
+      "url": "http://ip-address-of-your-local-machine:9881"
+    }
+  ],
+  "paths": {
+    "/{user-id}/get-cart-contents": {
+      "x-golem-worker-bridge": {
+        "worker-id": "worker-${request.path.user-id}",
+        "function-name": "golem:it/api/get-cart-contents",
+        "function-params": [],
+        "template-id": "2696abdc-df3a-4771-8215-d6af7aa4c408",
+        "response" : "${ { headers : { ContentType: 'json', userid: 'foo'}, { body: worker.response[0][0] }, { status: 200 } } }"
+      },
+      "get": {
+        "summary": "Get Cart Contents",
+        "description": "Get the contents of a user's cart",
+        "parameters": [
+          {
+            "name": "user-id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content":{
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CartItem"
+                }
+              }
+
+            }
+          },
+          "404": {
+            "description": "Contents not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CartItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  }
+}
+
+```
+
+The difference here is we added the server's block. You can include this servers block from the beginning
+so that it's exactly the same OpenAPI spec which you used to upload to worker-bridge as well as Tyk.
+
+##### Install Tyk
+
+```bash filename="Terminal" copy
+git clone https://github.com/TykTechnologies/tyk-gateway-docker
+cd tyk-gateway-docker
+docker-compose up
+```
+
+##### Registration with Tyk
+
+Let's say we saved the above json as open_api.json
+
+```bash filename="Terminal" copy
+curl -X POST http://localhost:8080/tyk/apis/oas/import --header 'x-tyk-authorization: foo' --header 'Content-Type: text/plain' -d @open_api.json
+
+```
+
+Reload the Tyk API Gateway, otherwise the API is not deployed with Tyk yet, so this is an important step.
+Note that, if you are encountering issues following these steps, please refer to Tyk documentations.
+
+```bash
+curl -H "x-tyk-authorization: foo" -s http://localhost:8080/tyk/reload/group
+
+```
+
+Note that Tyk is now running at 8080, and now requests has to go into 8080 and not worker-bridge
+
+```bash filename="Terminal" copy
+curl -X GET http://localhost:9006/adam/get-cart-contents
+```
+
+## How does worker service know which API definition to pick for a given endpoint?
+When a request comes in, worker-service looks at the host in the request and matches it with the site in the deployment.
+If there is a deployment corresponding to the site, it picks the API definition ID and version from the deployment and gets the API definition,
+to further process the request
