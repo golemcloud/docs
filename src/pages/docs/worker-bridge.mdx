@@ -180,7 +180,7 @@ In this case, the functionParams field will contain an array of expressions that
 }
 ```
 
-### Manipulating worker.response
+### Manipulating `worker.response`
 
 There are various ways to manipulate `worker.response`, and expression language can be used to do this
 More examples in this space can be found in the expression language documentation.
@@ -441,7 +441,9 @@ Note that Tyk is now running at 8080, and now requests has to go into 8080 and n
 curl -X GET http://localhost:9006/adam/get-cart-contents
 ```
 
-## How does worker service know which API definition to pick for a given endpoint?
+#### How does worker service know which API definition to pick for a given endpoint?
+
 When a request comes in, worker-service looks at the host in the request and matches it with the site in the deployment.
 If there is a deployment corresponding to the site, it picks the API definition ID and version from the deployment and gets the API definition,
 to further process the request
+
