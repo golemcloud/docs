@@ -1,6 +1,5 @@
 ## Worker Bridge
 
-
 Worker-Bridge, an integral component of the Golem OSS worker-service, empowers you to define and upload API definitions.
 These definitions allow you to expoes endpoints to users and  specify how incoming requests should be managed by your Golem worker workflow/application.
 
@@ -128,14 +127,53 @@ In this case, our expression of response can be something like this. Note that w
 
 ```bash filename="Terminal" copy
 ...
-{ status: 200, body : worker.response[0], headers: {etag: 1}
+{ status: 200, body : worker.response[0], headers: {etag: '1234567890abcdef'} }
 ```
 
 Now the above expression can be embedded into the response field of API definition. Now we know that it is going to be read as an expression only if we wrap it in `${` code block
 
 ```bash filename="Terminal" copy
 
-"response" : "${{ status: 200, body : worker.response[0], headers: {etag: 1} }}"
+"response" : "${ { status: 200, body : worker.response[0], headers: {etag: '1234567890abcdef'} } }"
 ```
 
+With Golem Cloud UI, you can easily write these expression in dedicated UI blocks making it even easier.
 
+
+Let's write a more complex example, where we need to respond back with certain details of only the first product. In this case, the response mapping will look something like this
+
+```bash filename="Terminal" copy
+{
+  status: 200,
+  body : {
+    name: worker.response[0][0].name,
+    price: worker.response[0][0].price,
+    quantity: worker.response[0][0].quantity
+  }
+  headers: { etag: '1234567890abcdef' }
+}
+```
+
+### Non Empty Function Parameters
+In the above example, we did not pass any parameters to the function. Let's say we need to pass the user-id to the function. In this case, the functionParams field will contain an array of expressions that evaluate to the parameters to be passed to the function.
+
+```bash filename="Terminal" copy
+{
+  "id": "shopping-cart-v1",
+  "version": "0.0.3",
+  "routes": [
+    {
+      "method": "Get",
+      "path": "/{user-id}/get-cart-contents",
+      "binding": {
+        "type": "wit-worker",
+        "template": "2696abdc-df3a-4771-8215-d6af7aa4c408",
+        "workerId": "worker-${request.path.user-id}",
+        "functionName": "golem:it/api/get-cart-contents",
+        "functionParams": [ "${request.path.user-id}" ],
+        "response" : "${worker.response}"
+      }
+    }
+  ]
+}
+```
