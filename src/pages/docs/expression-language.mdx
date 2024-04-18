@@ -194,11 +194,23 @@ This is parsed as Flag type in WASM.  The values are separated by comma.
 
 ### Selection of Field
 
-A field can be selected from an `Expr` if the `Expr` is a `Record` type
+A field can be selected from an `Expr` if the `Expr` is a `Record` type. For example `foo.user`
+is a valid selection given `foo` is a expression variable that gets evaluated to a record.
 
 ```bash filename="Terminal" copy
 { name: 'John', age: 30 }.name
 ```
+
+#### Selection of Index
+
+An index can be selected from an `Expr` if the `Expr` is a `Sequence` type
+
+```bash filename="Terminal" copy
+[1, 2, 3][0]
+```
+
+A field can be selected from an `Expr` if the `Expr` is a `Sequence` type.
+For example `foo[10]` is valid given `foo` is a expression variable that gets evaluated to a sequence.
 
 
 ### Request and selection of Fields
@@ -228,6 +240,31 @@ Then we can use expr language to select the field `user`, as it considers this r
 request.body.user
 ```
 
+#### Worker Response and Selection of Fields
+
+```bash filename="Terminal" copy
+worker
+```
+One of the fields in `worker` Record is `response`. Therefore to fetch the worker function's response, we can use
+the following expression which works in the same way as selecting a field in a record.
+
+```bash filename="Terminal" copy
+
+worker.response
+```
+
+If the worker response is a record, then we can select the field in the response as follows
+
+```bash filename="Terminal" copy
+ {
+  "user": "Alice",
+  "age": 30
+}
+
+```
+
+Then we can use expr language to select the field `user`, as it considers the value of `worker.response` `WASM` Record type, and therefore a valid selection.
+
 #### Result Expr
 `Result` in Expr is WASM Result, which can take the shape of `ok` or `err`.  This is similar to `Result` type in std `Rust`.
 
@@ -256,8 +293,22 @@ More on these details can be found under worker-bridge's documentation
 }
 ```
 
-While it may be hardly used, it is worth knowing it is possible.
 
+#### Option Expr
+
+`Option` in Expr is WASM Option, which can take the shape of `Some` or `None`.  This is similar to `Option` type in std `Rust`.
+
+An `Option` can be `Some` of a value, or `None`.
+
+```bash filename="Terminal" copy
+ some(1)
+```
+
+```bash filename="Terminal" copy
+ none
+```
+
+The syntax is more or less inspired from wasm wave.
 
 #### Comparison Operators
 
@@ -298,6 +349,16 @@ Meaning similar to other dynamic languages like python, they may hold expression
 
 
 #### Pattern Matching
+
+```bash filename="Terminal" copy
+
+match <expr> {
+    <pattern> => <expr>,
+    <pattern> => <expr>
+}
+
+```
+
 
 ```bash filename="Terminal" copy
     match request.user {
