@@ -12,6 +12,8 @@ let's say we have to expose an endpoint to get the cart contents for a user.  In
 At this point, worker-bridge is acting as an API-Gateway, but the major difference here is, it is geared
 to work seamlessly with `Golem`. In other words, we don't need to specifically write a custom backend service as worker-bridge gives it for free.
 
+Here is a simple API definition. You have to replace with the correct template-id and function name once you update your shopping-cart template to golem. Consider the above
+as a simple example.
 
 ```json
 
@@ -35,6 +37,7 @@ to work seamlessly with `Golem`. In other words, we don't need to specifically w
 }
 
 ```
+
 
 Let's break this down.
 
