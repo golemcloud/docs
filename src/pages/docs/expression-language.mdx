@@ -63,11 +63,13 @@ sequence          ::= '[' expr (',' expr)* ']'
 record            ::= '{' field (',' field)* '}'
 tuple             ::= '(' expr (',' expr)* ')'
 literal           ::= "'" [a-zA-Z0-9]* "'"
+variable          ::= [a-zA-Z0-9_]+
 number            ::= DIGITS
 flags              ::= '{' STRING (',' STRING)* '}'
-variable          ::= [a-zA-Z0-9]+
 boolean           ::= "boolean" '(' BOOLEAN ')'
-concat            ::= "concat" '(' expr* ')'
+concat            ::= concat-elem*
+concat-elem       ::= text | '${' variable '}'
+text              ::= '[^${}]*'
 multiple          ::= "multiple" '(' expr* ')'
 not               ::= "not" '(' expr ')'
 gt                ::= expr '>' expr
@@ -77,144 +79,231 @@ lt_or_eq_to       ::= expr "<=" expr
 eq_to             ::= expr "==" expr
 conditional       ::= "if" expr "then" expr "else" expr
 pattern_match     ::= "match" expr '{' match_arms '}'
-option            ::= "option" '(' expr? ')'
-result            ::= "result" '(' expr ',' expr ')'
+match_arms        ::= match_arm (',' match_arm)*
+match_arm         ::= pattern '=>' expr
+pattern           ::= variable | ok | some | none | err | '_'
+option            ::= "some" '(' expr ')' | "none"
+result            ::= "ok" '(' expr ')' | "err" '(' expr ')'
 field_list         ::= field (',' field)*
 field              ::= variable ':' expr
-match_arms        ::= match_arm (',' match_arm)*
-match_arm         ::= '(' pattern ',' expr ')'
 pattern           ::= variable
                       | literal
                       | '_' // wildcard pattern
 
 ```
 
-### Examples
+Here are some examples of each construct
 
-#### Simple Expressions
+
+#### Examples
+
+Note that expressions in the below examples need to be wrapped in code block using `${` `}`. This is to differentiate the expressions from the text.
+As we progress, we may try to avoid the need of it, and being able to write Expr in IDE without code-blocks.
+Example: `${1}` is evaluated as a `Number` while `1` is evaluated as text.
+
+### Numbers
 
 ```bash filename="Terminal" copy
+
 1
 ```
 
+This is a parsed as a number of type u64. Similarly `-1` is parsed as a number of type i64 and `1.1` is parsed as a number of type f64.
+
+#### String
 ```bash filename="Terminal" copy
-'foo'
+
+'Hello'
 ```
 
-### Record
+This is parsed as a string literal. If the strings are not wrapped with quotes, then it is considered as a variable.
+
+#### Boolean
 
 ```bash filename="Terminal" copy
-  {a : "foo", b : "bar"}
+true
 ```
 
+This is parsed as a boolean true. Similarly `false` is parsed as a boolean literal.
+
+#### Variables
+
 ```bash filename="Terminal" copy
-  {a : "foo", b : 2}
+foo
 ```
 
-### Sequence
+This is parsed as an expression variable and evaluating such an expression can fail if the value of this variable is not available in the context of evaluation.
+Usually `variables` are used to refer to the values in the context of evaluation. The context can mostly be `let binding` or `pattern matching` or `request` or `worker` or `response` etc.
+
+More explanations on variables can be found in other examples.
+
+#### Sequence
 
 ```bash filename="Terminal" copy
+# Sequence of numbers
 [1, 2, 3]
 ```
 
-#### Let Binding
-
 ```bash filename="Terminal" copy
-let x = request.body.user;
-
-```
-
-### Record and Field Selection
-
-A field can be selected from `worker` or `request` object or any record object.
-Pre-defined field selections are worker.response, request.body, request.path and request.header.
-
-Other than that you can select field from any record object or variable (whose resolution) should be a record object.
-
-
-```bash filename="Terminal" copy
-worker.response
-```
-
-```bash filename="Terminal" copy
-worker.response.user
-```
-
-```bash filename="Terminal" copy
-worker.response.user.name
-```
-
-```
-request.body
-```
-
-```bash filename="Terminal" copy
-request.body.user
-```
-
-```bash filename="Terminal" copy
-request.body.user.name
-```
-
-```bash filename="Terminal" copy
-request.path
-```
-
-```bash filename="Terminal" copy
-request.path.user
-```
-
-```bash filename="Terminal" copy
-request.path.user.name
-```
-
-```bash filename="Terminal" copy
-request.header
-```
-
-```bash filename="Terminal" copy
-request.header.user
-```
-
-```bash filename="Terminal" copy
-request.header.user.name
+# Sequence of strings
+['foo', 'bar', 'baz']
 ```
 
 
 ```bash filename="Terminal" copy
-{a : "foo", b : "bar"}.a
+# Sequence of record
+[{a: 'foo'}, {b : 'bar'}]
 ```
 
-#### Sequence and Select Index
+This is parsed as a sequence of values. While the values can be of any type, similar to any dynamic langauge, evaluation may fail with error if we mix different types in a sequence.
+In other words, expression language do expect the values in a sequence to be of the same type.
 
-Say, your worker.response was a sequence value. Then it is valid to do:
+#### Record
 
 ```bash filename="Terminal" copy
 
-worker.response[1]
+{ name: 'John', age: 30 }
+{ city: 'New York', population: 8000000 }
+{ country: 'France', capital: 'Paris' }
+{ fruits: ['apple', 'banana', 'orange'], count: 3 }
 
 ```
 
-Or we can select from a hard coded sequence
+This is parsed as a WASM Record. The syntax is inspired from WASM-WAVE. The minor difference here is strings are wrapped with single quotes instead of double quotes.
+Note that keys are not considered as variables. They are considered as literals (even in the absence of single quotes) if they are part of Record.
 
-```bash filename="Terminal" copy
-[1, 2, 3][0]
-```
-
-```bash filename="Terminal" copy
-
-let x = [1, 2, 3];
-
-x[0]
-
-```
-
-#### Example 6: Tuple
+#### Tuple
 
 ```bash filename="Terminal" copy
 (1, 2, 3)
 ```
 
+This is parsed as a tuple of values. Unlike `sequence`, the values in a tuple can be of different types.
+
 ```bash filename="Terminal" copy
-(1, "foo", worker.response.user, {a : 'b'})
+('foo', 1, {a: 'bar'})
 ```
+
+#### Flags
+
+```bash filename="Terminal" copy
+{ Foo, Bar, Baz }
+```
+
+This is parsed as Flag type in WASM.  The values are separated by comma.
+
+### Selection of Field
+
+A field can be selected from an `Expr` if the `Expr` is a `Record` type
+
+```bash filename="Terminal" copy
+{ name: 'John', age: 30 }.name
+```
+
+
+### Request and selection of Fields
+```bash filename="Terminal" copy
+request
+```
+
+To select the body field in request,
+
+```bash filename="Terminal" copy
+
+request.body
+```
+
+Say the request body is a `record` in Json, as given below
+
+```bash filename="Terminal" copy
+{
+  "user": "Alice",
+  "age": 30
+}
+```
+
+Then we can use expr language to select the field `user`, as it considers this request's body as a `WASM` Record type.
+
+```bash filename="Terminal" copy
+request.body.user
+```
+
+#### Result Expr
+`Result` in Expr is WASM Result, which can take the shape of `ok` or `err`.  This is similar to `Result` type in std `Rust`.
+
+A `Result` can be `Ok` of a value, or an `Err` of a value.
+
+```bash filename="Terminal" copy
+ ok(1)
+```
+
+```bash filename="Terminal" copy
+ err('error')
+```
+
+This is again, using the same syntax followed in wasm-wave.
+A worker's response can be at times a `Result` type, where it can either `ok(x)` or `err(y)`
+and if we use expression language to peek at this result, it will be considered as an actual `Result` type.
+
+This can exist anywhere. If needed, user can embed a result in the request body and worker-bridge consider them to be a `Result` within the Record.
+More on these details can be found under worker-bridge's documentation
+
+```bash filename="Terminal" copy
+
+{
+  "user": "ok(Alice)",
+  "age": 30
+}
+```
+
+While it may be hardly used, it is worth knowing it is possible.
+
+
+#### Comparison Operators
+
+```bash filename="Terminal" copy
+5 > 3
+
+```
+The left expression is evaluated as a Number 5, and the right is evaluated as a Number 3.
+The comparison operator `>` is used to compare the two numbers, resulting in `true`.
+
+Similarly, we can use other comparison operators like `>=`, `<=`, `==`, `<` etc.
+Both operands should be a valid expression that points/evaluated to a number or string.
+
+Trying to compare complex values will result in evaluation error. Example : `[1, 2, 3] > [4, 5, 6]` will result in error.
+We will add support for these in Expr language.
+
+
+#### Conditional Statement
+
+
+```bash filename="Terminal" copy
+
+ if request.user.id > 3 then 'higher' else 'lower'
+
+```
+The structure of the conditional statement is `if <condition-expr> then <expr> else <expr>`,
+where `condition-expr` is an expr that should get evaluated to boolean.
+The `left` or `right` can be an any expression, which could be another `if else` itself
+
+```bash filename="Terminal" copy
+
+ if request.user.id > 3 then 'higher' else if request.user.id == 3 then 'equal' else 'lower'
+
+```
+
+If branch and then branch are not type checked as of now.
+Meaning similar to other dynamic languages like python, they may hold expressions that gets evaluated to different types of WASM values.
+
+
+#### Pattern Matching
+
+```bash filename="Terminal" copy
+    match request.user {
+        'Alice' => 'Hello Alice',
+        'Bob' => 'Hello Bob',
+        _ => 'Hello Stranger'
+    }
+```
+
