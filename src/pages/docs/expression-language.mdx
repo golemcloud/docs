@@ -190,6 +190,7 @@ This is parsed as a tuple of values. Unlike `sequence`, the values in a tuple ca
 { Foo, Bar, Baz }
 ```
 
+
 This is parsed as Flag type in WASM.  The values are separated by comma.
 
 ### Selection of Field
@@ -359,12 +360,77 @@ match <expr> {
 
 ```
 
+Here are few examples that gives you an idea of what can be done with the current support of pattern matching.
+This would probably be your go-to construct when you are dealing with complex data structures like `Result` or `Option` or other custom `variant` (WASM Variant)
+that comes out as worker.response.
 
 ```bash filename="Terminal" copy
-    match request.user {
-        'Alice' => 'Hello Alice',
-        'Bob' => 'Hello Bob',
-        _ => 'Hello Stranger'
-    }
+  match worker.response { ok(x) => 'foo', err(msg) => 'error' }
 ```
+
+You can bring them in multiple lines as follows:
+
+```bash filename="Terminal" copy
+  match worker.response {
+    ok(x) => 'foo',
+    err(msg) => 'error'
+  }
+```
+
+```bash filename="Terminal" copy
+  match worker.response {
+    some(x) => 'found',
+    none => 'not found'
+  }
+```
+
+Say your worker responded with a `variant`.
+A variant statement defines a new type where instances of the type match exactly one of the variants listed for the type.
+This is similar to a "sum" type in algebraic datatypes (or an enum in Rust if you're familiar with it).
+Variants can be thought of as tagged unions as well.
+
+Let's say we have a variant of type as given below responded from the `worker`. The `worker-bridge` is aware of the type
+of response from the `worker`, and therefore is visible.
+
+```bash filename="Terminal" copy
+variant my_variant {
+    bar( {a: u32,b: string }),
+    foo(list<string>),
+}
+```
+
+```bash filename="Terminal" copy
+  match worker.response {
+    bar(x) => 'bar',
+    foo(x) => 'foo'
+  }
+```
+
+##### Variables in the context of pattern matching
+
+In all of the above, there exist a variable in the context of pattern.
+Example `x` in `ok(x)` or `msg` in `err(msg)` or `x` in `some(x)` or `x` in `bar(x)` or `x` in `foo(x)`.
+
+These variables are bound to the value that is being matched.
+
+Example, given the worker response is ok(1), the following match expression will result in `2`.
+
+```bash filename="Terminal" copy
+  match worker.response {
+    ok(x) => x + 1,
+    err(msg) => 0
+  }
+```
+
+The following match expression will result in 'c', if the worker.response was variant value `foo(['a', 'b', 'c'])`,
+and will result in 'a' if the worker.response was variant value `bar({a: 1, b: 'a'})`.
+
+```bash filename="Terminal" copy
+  match worker.response {
+    bar(x) => x.b,
+    foo(x) => x[1]
+  }
+
+```
+
 
