@@ -200,6 +200,7 @@ For example, we can form a response mapping in the following way
 match worker.response {
   ok(response) => { status: 200, body : response[0], headers: {etag: '1234567890abcdef'} },
   error(error) => { status: 500, body : { error: error.message }, headers: {} }
+}
 ```
 
 In this example, we are using the `match` expression to handle the response based on whether it is an `ok` or `error` response.
