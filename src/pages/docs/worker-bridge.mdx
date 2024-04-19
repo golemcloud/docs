@@ -29,7 +29,7 @@ Here is a simple API definition. You have to replace with the correct template-i
         "workerId": "worker-${request.path.user-id}",
         "functionName": "golem:it/api/get-cart-contents",
         "functionParams": [],
-        "response" : "${ { body: worker.response } }"
+        "response" : "${ { body: worker.response, status: 200 } }"
       }
     }
   ]
