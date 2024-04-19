@@ -97,7 +97,6 @@ pattern           ::= variable
 
 Here are some examples of each construct
 
-
 #### Examples
 
 Note that Rib expressions in the below examples need to be wrapped in code block using `${` `}`. This is to differentiate between raw text and an actual Rib program.
@@ -114,6 +113,7 @@ Example: `${1}` is evaluated as a `Number` while `1` is evaluated as text.
 This is a parsed as a number of type u64. Similarly `-1` is parsed as a number of type i64 and `1.1` is parsed as a number of type f64.
 
 #### String
+
 ```bash filename="Terminal" copy
 
 'Hello'
@@ -151,7 +151,6 @@ More explanations on variables can be found in other examples.
 # Sequence of strings
 ['foo', 'bar', 'baz']
 ```
-
 
 ```bash filename="Terminal" copy
 # Sequence of record
@@ -193,8 +192,7 @@ This is parsed as a tuple of values. Unlike `sequence`, the values in a tuple ca
 { Foo, Bar, Baz }
 ```
 
-
-This is parsed as Flag type in WASM.  The values are separated by comma.
+This is parsed as Flag type in WASM. The values are separated by comma.
 
 #### Selection of Field
 
@@ -215,8 +213,8 @@ This is selecting an index from a sequence value.
 
 For example `foo[10]` is valid given `foo` is an `Rib` variable that gets evaluated to a sequence.
 
-
 ### Request and selection of Fields
+
 ```bash filename="Terminal" copy
 request
 ```
@@ -248,6 +246,7 @@ request.body.user
 ```bash filename="Terminal" copy
 worker
 ```
+
 One of the fields in `worker` Record is `response`. Therefore, to fetch the worker function's response, we can use
 the following expression which works in the same way as selecting a field in a record.
 
@@ -269,7 +268,8 @@ If the worker response is a record, then we can select the field in the response
 Then we can use expr language to select the field `user`, as it considers the value of `worker.response` `WASM` Record type, and therefore a valid selection.
 
 #### Result
-`Result`in `Rib` is WASM Result, which can take the shape of `ok` or `err`.  This is similar to `Result` type in std `Rust`.
+
+`Result`in `Rib` is WASM Result, which can take the shape of `ok` or `err`. This is similar to `Result` type in std `Rust`.
 
 A `Result` can be `Ok` of a value, or an `Err` of a value.
 
@@ -296,10 +296,9 @@ More on these details can be found under worker-bridge's documentation
 }
 ```
 
-
 #### Option Expr
 
-`Option` in corresponding to WASM , which can take the shape of `Some` or `None`.  This is similar to `Option` type in std `Rust`.
+`Option` in corresponding to WASM , which can take the shape of `Some` or `None`. This is similar to `Option` type in std `Rust`.
 
 An `Option` can be `Some` of a value, or `None`.
 
@@ -319,6 +318,7 @@ The syntax is inspired from wasm wave.
 5 > 3
 
 ```
+
 The left side rib expression is evaluated as a Number 5, and the right side rib expression is evaluated as a Number 3.
 The comparison operator `>` is used to compare the two numbers, resulting in `true`.
 
@@ -328,15 +328,14 @@ Both operands should be a valid Rib code that points/evaluated to a number or st
 Trying to compare complex values will result in evaluation error. Example : `[1, 2, 3] > [4, 5, 6]` will result in error.
 We will add support for these in Expr language.
 
-
 #### Conditional Statement
-
 
 ```bash filename="Terminal" copy
 
  if request.user.id > 3 then 'higher' else 'lower'
 
 ```
+
 The structure of the conditional statement is `if <condition> then <then-rib-expr> else <else-rib-expr>`,
 where `condition-expr` is an expr that should get evaluated to boolean.
 The `then-rib-expr` or `else-rib-expr` can be an any valid rib code, which could be another `if else` itself
@@ -349,7 +348,6 @@ The `then-rib-expr` or `else-rib-expr` can be an any valid rib code, which could
 
 If branch and then branch are not type checked as of now.
 Meaning similar to other dynamic languages like python, they may get evaluated to different types of WASM values.
-
 
 #### Pattern Matching
 
