@@ -90,12 +90,12 @@ With deployment, you tag a `site`. The `site` can be as simple as `localhost:900
 
 Let's create a `deployment.json` as given below. Based on the example above, the apiDefinitionId is `shopping-cart-v1` and version is `0.0.3`.
 The `site` is set to `localhost:9006`. This is because we are going to be hitting the endpoint (defined in API definition) from localhost. Worker-service exposes port `9006` to receive these custom requests. 
-`9881` which you used until now is meant for only management endpoints (registering API definition, deploying API definition etc).
+`9881` which you used until now is meant for only management endpoints (registering API definition, deploying API definition etc.).
 
 You can see these configurations here: https://github.com/golemcloud/golem/blob/main/docker-examples/.env
 
 If you were having a domain registered such as `my-site.com`, you would replace `localhost:9006` with `my-site.com`,
-that in turn redirects to `localhost:9006`, or wherever the worker-service is running (may be in AWS).
+that in turn redirects to `localhost:9006`, or wherever the worker-service is running (perhaps AWS).
 
 
 ```json
@@ -108,7 +108,9 @@ that in turn redirects to `localhost:9006`, or wherever the worker-service is ru
 ```
 
 ```bash filename="Terminal" copy
+
 curl -X PUT http://localhost:9881/v1/api/deployments -H "Content-Type: application/json"  -d @deployment.json
+
 ```
 
 ### Start using the API
@@ -118,6 +120,7 @@ By this time, your API is deployed, ready to be used. You can use any REST clien
 ```bash filename="Terminal" copy
 
 curl -X GET http://localhost:9006/123/get-cart-contents
+
 ```
 
 Now worker-bridge identifies the user to be `123` and evaluates the worker-id expr to be `worker-123`. It then forwards the request to the worker with id `worker-123` and invokes the function `golem:it/api/get-cart-contents` with empty parameters,
@@ -222,7 +225,7 @@ In this example, we check if the user ID in the request path is 'admin'. If it i
 Worker-bridge allows you to import API definition in OpenAPI spec format. This is because, users may have already written an OpenAPI spec for their endpoints for various purposes. By adding extra details of worker-bridge into the same 
 spec, we can use it as an API definition. Internally it gets converted to the worker-bridge's native format of API definition, discussed in the beginning of this documentation. 
 
-The main advantage of this feature is the re-usability of the same endpoint definitions across your system. For example, you can use the same file now to both register with worker-bridge as well as upload the same to an another external API gateway. More on this below.
+The main advantage of this feature is the re-usability of the same endpoint definitions across your system. For example, you can use the same file now to register with worker-bridge and register with another external API gateway. More on this below.
 
 
 
