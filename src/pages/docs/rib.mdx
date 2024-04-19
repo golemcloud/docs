@@ -1,4 +1,4 @@
-## Rib
+# Rib
 
 `Rib`- is a feature in `Golem OSS`, that enables users to write programs capable of manipulating worker responses, which are WebAssembly (WASM) values.
 Currently, Rib language is designed to function seamlessly with the worker-bridge of `Golem`. Refer to worker-bridge documentation, where we extensively use `Rib`.
@@ -458,5 +458,16 @@ In some of the above examples, the binding variables are unused. In this case, w
    Admin(_) => 'admin',
    User(x) => a
  }
+
+```
+
+Or even as simple as:
+
+```bash filename="Terminal" copy
+
+  let x = { a : 1 };
+  let y = { b : 2 };
+  let z = x.a > y.b;
+  z
 
 ```
