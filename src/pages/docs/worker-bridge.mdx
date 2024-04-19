@@ -92,8 +92,11 @@ Let's create a `deployment.json` as given below. Based on the example above, the
 The `site` is set to `localhost:9006`. This is because we are going to be hitting the endpoint (defined in API definition) from localhost. Worker-service exposes port `9006` to receive these custom requests. 
 `9881` which you used until now is meant for only management endpoints (registering API definition, deploying API definition etc).
 
+You can see these configurations here: https://github.com/golemcloud/golem/blob/main/docker-examples/.env
+
 If you were having a domain registered such as `my-site.com`, you would replace `localhost:9006` with `my-site.com`,
 that in turn redirects to `localhost:9006`, or wherever the worker-service is running (may be in AWS).
+
 
 ```json
 
