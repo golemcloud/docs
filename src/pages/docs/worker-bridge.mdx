@@ -212,9 +212,10 @@ In this example, we check if the user ID in the request path is 'admin'. If it i
 
 ### Support to import OpenAPI spec
 
-Sometimes, we represent the backend service using OpenAPI spec. Worker-bridge allows you to import OpenAPI spec and convert it to API definition.
-Using extension feature of OpenAPI spec, you can inject the worker-bridge information into the OpenAPI spec. This is a powerful feature that allows you to define the API definition in OpenAPI spec and import it to worker-bridge.
-The advantage of such an approach is re-usability of the endpoint definition across your system. For example, you may want to use the same spec to upload to an external API gateway, which you can use for other features.
+Worker-bridge allows you to import API definition in OpenAPI spec format. This is because, users may have already written an OpenAPI spec for their endpoints for various purposes. By adding extra details of worker-bridge into the same 
+spec, we can use it as an API definition. Internally it gets converted to the worker-bridge's native format of API definition, discussed in the beginning of this documentation. 
+
+The main advantage of this feature is the re-usability of the same endpoint definitions across your system. For example, you can use the same file now to both register with worker-bridge as well as upload the same to an another external API gateway. More on this below.
 
 
 
