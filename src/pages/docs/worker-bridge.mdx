@@ -29,7 +29,7 @@ Here is a simple API definition. You have to replace with the correct template-i
         "workerId": "worker-${request.path.user-id}",
         "functionName": "golem:it/api/get-cart-contents",
         "functionParams": [],
-        "response" : "${worker.response}"
+        "response" : "${ { body: worker.response } }"
       }
     }
   ]
@@ -69,7 +69,7 @@ You would still use the same expression if `user-id` is a query parameter. Simil
 **functionParams**: Specifies any parameters that should be passed to the function when it is invoked. In this case, it is an empty array []. If you need to pass any parameters, you can specify them here using an array of expressions. More examples on this down below.
 
 **response**: The `response` field is an expression and can be used to manipulate the response before sending it back to the client. For example, you can extract specific fields from the worker response, transform the data, or add additional information.
-In this example, it simply uses `${worker.response}` to include the response as is. Depending on the protocol used, (HTTP, gRPC, etc.), the response can be formatted accordingly. More examples on this down below.
+In this example, it simply uses the record expression `{ body : worker.response }` to map the response to http response body. Depending on the protocol used, (HTTP, gRPC, etc.), the response can be formatted accordingly. More examples on this down below.
 
 
 ### Upload Golem Worker Binding
