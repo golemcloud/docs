@@ -81,23 +81,26 @@ The support for Golem-CLI is yet to be released. For now, you can use the REST e
 curl -X POST http://localhost:9881/v1/api/definitions -H "Content-Type: application/json"  -d @worker_service_api_definition.json
 ```
 
-Here `localhost:9881` is where worker-service (that consist of worker-bridge functionality) is running. The docker-compose example (explained in quick-start) currently exposes the port 9881 for worker-service.
+Here `localhost:9881` is where worker-service (that consist of worker-bridge functionality) is running, ready to accept these API management requests. The docker-compose example (explained in quick-start) currently exposes the port 9881 for worker-service.
 
 ### Deploy the API Definition
 
 Similar to many API Gateways, it is a separate process to deploy this API definition. This is because, the API definition is not immediately available for use after uploading.
-With deployment, you tag a `site`. The `site` can be as simple as `localhost:9881` for you to test it, or if you already have a domain registered (say my-site.com), you can deploy the API definition to `my-site.com`.
+With deployment, you tag a `site`. The `site` can be as simple as `localhost:9006` for you to test it, or if you already have a domain registered (say my-site.com), you can deploy the API definition to `my-site.com`.
 
 Let's create a `deployment.json` as given below. Based on the example above, the apiDefinitionId is `shopping-cart-v1` and version is `0.0.3`.
-The `site` is set to `localhost:9881` because we are testing it locally, and the host in in-coming request will be `localhost:9881`. If you were having a domain registered such as `my-site.com`, you would replace `localhost:9881` with `my-site.com`,
-that in turn redirects to `localhost:9881`, or wherever the worker-service is running.
+The `site` is set to `localhost:9006`. This is because we are going to be hitting the endpoint (defined in API definition) from localhost. Worker-service exposes port `9006` to receive these custom requests. 
+`9881` which you used until now is meant for only management endpoints (registering API definition, deploying API definition etc).
+
+If you were having a domain registered such as `my-site.com`, you would replace `localhost:9006` with `my-site.com`,
+that in turn redirects to `localhost:9006`, or wherever the worker-service is running (may be in AWS).
 
 ```json
 
 {
   "apiDefinitionId": "shopping-cart-v1",
   "version": "0.0.3",
-  "site": "localhost:9881"
+  "site": "localhost:9006"
 }
 ```
 
@@ -107,10 +110,11 @@ curl -X PUT http://localhost:9881/v1/api/deployments -H "Content-Type: applicati
 
 ### Start using the API
 
-At this point, we are ready to use the API. You can use any REST client to make a GET request to the cart content endpoint
+By this time, your API is deployed, ready to be used. You can use any REST client to make a GET request to the cart content endpoint
 
 ```bash filename="Terminal" copy
-curl -X GET http://localhost:9881/123/get-cart-contents
+
+curl -X GET http://localhost:9006/123/get-cart-contents
 ```
 
 Now worker-bridge identifies the user to be `123` and evaluates the worker-id expr to be `worker-123`. It then forwards the request to the worker with id `worker-123` and invokes the function `golem:it/api/get-cart-contents` with empty parameters,
@@ -309,7 +313,7 @@ As explained above, this registers the API definition with worker-bridge, but it
 {
   "apiDefinitionId": "shopping-cart-v1",
   "version": "0.0.3",
-  "site": "localhost:9881"
+  "site": "localhost:9006"
 }
 ```
 
