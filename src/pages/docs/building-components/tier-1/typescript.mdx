@@ -108,10 +108,10 @@ world demo  {
 This will create typescript definitions for your WIT file, and add a `main.ts` file.
 
 ```bash copy
-jco transpile wit --no-namespaced-exports --stub --name main -o src && rm src/main.js && mv src/main.d.ts src/main.ts
+npx jco transpile wit --no-namespaced-exports --stub --name main -o src && rm src/main.js && mv src/main.d.ts src/main.ts
 ```
 
-This will generate typescript types in the `src/interfaces` directory.
+This will generate Typescript types in the `src/interfaces` directory.
 
 ### Implement your component
 
