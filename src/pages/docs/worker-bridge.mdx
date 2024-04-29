@@ -102,7 +102,7 @@ that in turn redirects to `localhost:9006`, or wherever the worker-service is ru
 
 ```bash filename="Terminal" copy
 
-curl -X PUT http://localhost:9881/v1/api/deployments -H "Content-Type: application/json"  -d @deployment.json
+curl -X POST http://localhost:9881/v1/api/deployments/deploy -H "Content-Type: application/json"  -d @deployment.json
 
 ```
 
@@ -312,7 +312,7 @@ As explained above, this registers the API definition with worker-bridge, but it
 ```
 
 ```bash filename="Terminal" copy
-curl -X PUT http://localhost:9881/v1/api/deployments -H "Content-Type: application/json"  -d @deployment.json
+curl -X POST http://localhost:9881/v1/api/deployments/deploy -H "Content-Type: application/json"  -d @deployment.json
 ```
 
 ## Integrating Golem with existing API Gateways
