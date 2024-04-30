@@ -14,9 +14,10 @@
   "console": {
     "title": "Management Console"
   },
-  "promises": "Promises",
+  "updating-components": "Updating components",
   "rpc": "Worker to Worker communication",
   "transaction-api": "Transactions",
+  "promises": "Promises",
   "component-interface": "Component Interface",
   "faq": "FAQ",
   "technical-details": "Technical details",

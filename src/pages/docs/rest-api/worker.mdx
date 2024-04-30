@@ -365,6 +365,27 @@ Returns metadata about an existing component workers:
 {}
 ```
 
+## Update a worker
+
+| Path                                                         | Method | Protected |
+| ------------------------------------------------------------ | ------ | --------- |
+| `/v2/components/{component_id}/workers/{worker_name}/update` | POST   | Yes       |
+
+**Example Request JSON**
+
+```json copy
+{
+  "mode": "Automatic",
+  "targetVersion": 5
+}
+```
+
+**Example Response JSON**
+
+```json copy
+{}
+```
+
 ## Worker API Errors
 
 | Status Code | Description                                                              | Body                                                          |
