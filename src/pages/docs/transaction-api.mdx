@@ -21,10 +21,11 @@ The `use_persistence_level` (returning a guard object that restores it on drop) 
 
 The following persistence levels are available:
 
-| Level | Description |
-| `PersistenceLevel::PersistNothing` | Nothing is persisted; all operations will be repeated during the worker's recovery |
+| Level                                        | Description                                                                                     |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `PersistenceLevel::PersistNothing`           | Nothing is persisted; all operations will be repeated during the worker's recovery              |
 | `PersistenceLevel::PersistRemoteSideEffects` | All operations that affects remote entities such as HTTP requests, RPC calls etc. are persisted |
-| `PersistenceLevel::Smart` | Let Golem decide |
+| `PersistenceLevel::Smart`                    | Let Golem decide                                                                                |
 
 #### Temporarily change the retry policy
 
@@ -204,10 +205,11 @@ The `get-oplog-persistence-level` function returns the worker's current oplog pe
 
 There are three persistence levels:
 
-| Level | Description |
-| `persist-nothing` | Nothing is persisted; all operations will be repeated during the worker's recovery |
+| Level                         | Description                                                                                     |
+| ----------------------------- | ----------------------------------------------------------------------------------------------- |
+| `persist-nothing`             | Nothing is persisted; all operations will be repeated during the worker's recovery              |
 | `persist-remote-side-effects` | All operations that affects remote entities such as HTTP requests, RPC calls etc. are persisted |
-| `smart` | Let Golem decide |
+| `smart`                       | Let Golem decide                                                                                |
 
 Disabling persistence for a region of the program can be used to make sure some operations are always repeated no matter how many times the worker gets loaded. An example could be registering or logging that the worker is loaded in memory to an external service.
 
