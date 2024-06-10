@@ -117,8 +117,7 @@ that in turn redirects to `localhost:9006`, or wherever the worker-service is ru
 
 ```json
 {
-  "apiDefinitionId": "shopping-cart-v1",
-  "version": "0.0.3",
+  "apiDefinitions": [{"id": "shopping-cart-v1", "version": "0.0.3"}],
   "site": "localhost:9006"
 }
 ```
@@ -144,23 +143,20 @@ and simply get the worker-response (which is a WASM value) and converts it to `J
 
 ### Response Mapping
 
-In the above example, we simply used `${worker.response}` to include the response as is. However, you can perform more complex transformations on the response before sending it back to the client.
-We recommend taking a quick look at the expression language before reading further.
-
 Since we are using Http protocol, worker-bridge allows you to write a record expression that consist of `status`, `headers` and `body` fields. The `status` field is the HTTP status code, `headers` is a map of HTTP headers, and `body` is the response body.
 
 Here is an example of a response mapping:
 
 ```bash filename="Terminal" copy
 ...
-{ status: 200, body : worker.response, headers: {etag: '1234567890abcdef'} }
+{ status: 200, body : golem:it/api/get-cart-contents(), headers: {etag: '1234567890abcdef'} }
 ```
 
 Now the above expression can be embedded into the response field of API definition. Now we know that it is going to be read as an expression only if we wrap it in `${` code block
 
 ```bash filename="Terminal" copy
 
-"response" : "${ { status: 200, body : worker.response, headers: {etag: '1234567890abcdef'} } }"
+"response" : "${ { status: 200, body : golem:it/api/get-cart-contents(), headers: {etag: '1234567890abcdef'} } }"
 ```
 
 With Golem Cloud UI, you can easily write these expression in dedicated UI blocks making it even easier.
@@ -168,12 +164,13 @@ With Golem Cloud UI, you can easily write these expression in dedicated UI block
 Let's write a more complex example, where we need to respond back with certain details of only the first product. In this case, the response mapping will look something like this
 
 ```bash filename="Terminal" copy
+let worker_response = golem:it/api/get-cart-contents();
 {
   status: 200,
   body : {
-    name: worker.response[0].name,
-    price: worker.response[0].price,
-    quantity: worker.response[0].quantity
+    name: worker_response[0].name,
+    price: worker_response[0].price,
+    quantity: worker_response[0].quantity
   }
   headers: { etag: '1234567890abcdef' }
 }
@@ -196,24 +193,22 @@ In this case, the functionParams field will contain an array of expressions that
         "type": "wit-worker",
         "componentId": "2696abdc-df3a-4771-8215-d6af7aa4c408",
         "workerName": "worker-${request.path.user-id}",
-        "functionName": "golem:it/api/get-cart-contents",
-        "functionParams": ["${request.path.user-id}", "${1}", "hardcoded"],
-        "response": "${worker.response}"
+        "response": "${ golem:it/api/get-cart-contents(request.path.user-id, 1, "hardcoded") }"
       }
     }
   ]
 }
 ```
 
-### Manipulating `worker.response`
+### Manipulating worker rspose
 
-There are various ways to manipulate `worker.response`, and expression language can be used to do this
-More examples in this space can be found in the expression language documentation.
+Rib expression language can be used to do any manipulations on top of the worker response as explained before.
+More examples in this space can be found in the Rib expression language documentation.
 
 For example, we can form a response mapping in the following way
 
 ```bash filename="Terminal" copy
-match worker.response {
+match worker_response {
   ok(response) => { status: 200, body : response, headers: {etag: '1234567890abcdef'} },
   error(error) => { status: 500, body : { error: error.message }, headers: {} }
 }
@@ -253,10 +248,8 @@ The main advantage of this feature is the re-usability of the same endpoint defi
     "/{user-id}/get-cart-contents": {
       "x-golem-worker-bridge": {
         "worker-name": "worker-${request.path.user-id}",
-        "function-name": "golem:it/api/get-cart-contents",
-        "function-params": [],
         "component-id": "2696abdc-df3a-4771-8215-d6af7aa4c408",
-        "response": "${ { headers : { ContentType: 'json', userid: 'foo'}, { body: worker.response }, { status: 200 } } }"
+        "response": "${ { headers : { ContentType: 'json', userid: 'foo'}, { body: golem:it/api/get-cart-contents() }, { status: 200 } } }"
       },
       "get": {
         "summary": "Get Cart Contents",
@@ -326,8 +319,7 @@ As explained above, this registers the API definition with worker-bridge, but it
 
 ```json
 {
-  "apiDefinitionId": "shopping-cart-v1",
-  "version": "0.0.3",
+  "apiDefinitions": [{"id": "shopping-cart-v1", "version": "0.0.3"}],
   "site": "localhost:9006"
 }
 ```
@@ -369,10 +361,8 @@ you will need to give the machine IP address to reach the worker-bridge URL.
     "/{user-id}/get-cart-contents": {
       "x-golem-worker-bridge": {
         "worker-name": "worker-${request.path.user-id}",
-        "function-name": "golem:it/api/get-cart-contents",
-        "function-params": [],
         "component-id": "2696abdc-df3a-4771-8215-d6af7aa4c408",
-        "response": "${ { headers : { ContentType: 'json', userid: 'foo'}, { body: worker.response[0] }, { status: 200 } } }"
+        "response": "${ { headers : { ContentType: 'json', userid: 'foo'}, { body: golem:it/api/get-cart-contents() }, { status: 200 } } }"
       },
       "get": {
         "summary": "Get Cart Contents",
