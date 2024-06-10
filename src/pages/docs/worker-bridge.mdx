@@ -25,9 +25,7 @@ Here is a simple API definition. You have to replace with the correct component-
         "type": "wit-worker",
         "componentId": "2696abdc-df3a-4771-8215-d6af7aa4c408",
         "workerName": "worker-${request.path.user-id}",
-        "functionName": "golem:it/api/get-cart-contents",
-        "functionParams": [],
-        "response": "${ { body: worker.response, status: 200 } }"
+        "response": "${ { body: golem:it/api/get-cart-contents(), status: 200 } }"
       }
     }
   ]
@@ -60,12 +58,37 @@ Let's break down the binding object.
 Refer to expression language details on various possibilities. In this example `${request.path.user-id}`, indicating that the worker name is determined based on the user-id path parameter of the incoming request.
 You would still use the same expression if `user-id` is a query parameter. Similarly, you can refer to the header values using `${request.header.user-id}`. In our example we are using path parameter and not headers or body.
 
-**functionName**: Specifies the name of the function within the Golem worker that should be invoked to handle the request. Here, it is set to "golem:it/api/get-cart-contents".
+**response**: The `response` field is an expression in which you  before sending it back to the client. For example, you can extract specific fields from the worker response, transform the data, or add additional information.
+In fact you can write the `Rib` expression in this response field. Refer Rib documetation for more information
 
-**functionParams**: Specifies any parameters that should be passed to the function when it is invoked. In this case, it is an empty array []. If you need to pass any parameters, you can specify them here using an array of expressions. More examples on this down below.
+```rust
 
-**response**: The `response` field is an expression and can be used to manipulate the response before sending it back to the client. For example, you can extract specific fields from the worker response, transform the data, or add additional information.
-In this example, it simply uses the record expression `{ body : worker.response, status: 200 }` to map the response to http response body. Depending on the protocol used, (HTTP, gRPC, etc.), the response can be formatted accordingly. More examples on this down below. `body` and `status` are mandatory in this record expression for http.
+let worker_response = golem:it/api/get-cart-contents();
+
+let extracted_data = match worker_response {
+  ok(value) => value,
+  err(msg) => msg
+};
+
+let status_code = match worker_response {
+  ok(value) => 200,
+  err(msg) => 500
+};
+
+{ body: extracted_data, status: status_code }
+
+```
+
+You can also choose to not do any transformation and simply call the worker function and leave it to the reasonable defaults.
+Note that the last statement is the final outcome of the expression. In the above example, it is a wasm record in Rib Syntax (in-fact, it follows the WASM WAVE syntax)
+
+```rust
+
+golem:it/api/get-cart-contents()
+
+```
+
+In this case, whatever the worker response will be piped as it is as an http response body (defaulting to application/json content type) with a status code 200 in case of successful response from the worker,
 
 ### Upload Golem Worker Binding
 
