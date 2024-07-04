@@ -242,8 +242,10 @@ request.body.user
 ```
 
 #### Worker Response and Selection of Fields
+
 This is again available only if you use Rib along with worker-bridge of Golem. It points to the response from the worker.
 However, mostly you wouldn't need this as Rib allows you to call the worker's function and assign it to a variable.
+
 ```bash filename="Terminal" copy
 worker
 ```
@@ -427,7 +429,7 @@ Example, given the worker response is ok(1), the following match expression will
   }
 ```
 
-The following match expression will result in 'c', if the worker response  was variant value `foo(['a', 'b', 'c'])`,
+The following match expression will result in 'c', if the worker response was variant value `foo(['a', 'b', 'c'])`,
 and will result in 'a' if the `worker.response` was variant value `bar({a: 1, b: 'a'})`.
 
 ```bash filename="Terminal" copy

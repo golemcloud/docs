@@ -13,7 +13,6 @@ to work seamlessly with `Golem`. In other words, we don't need to specifically w
 
 Before we begin, let's assume you uploaded a shopping-cart component and it list the following functions. We are using golem-cli in all these examples now on:
 
-
 ```
  golem-cli component list
 [
@@ -50,12 +49,11 @@ Here is a simple API definition that allows you to expose get-cart-contents in t
         "type": "wit-worker",
         "componentId": "499e5682-e29f-419c-ab68-e3a8f42c022c",
         "workerName": "my-worker-${request.path.user-id}",
-        "response" : "${let result = golem:it/api.{get-cart-contents}(); {status: 200, body: result}}"
+        "response": "${let result = golem:it/api.{get-cart-contents}(); {status: 200, body: result}}"
       }
     }
   ]
 }
-
 ```
 
 Before we upload and deploy this API definition, let's break this down.
@@ -80,7 +78,7 @@ Let's break down the binding object.
 
 **componentId**: Provides the component ID associated with the worker binding. As you can see the the golem-worker
 
-**workerName**: Specifies the Name of the Golem worker responsible for handling the request. Here it is `my-worker-${request.path.user-id}`. The value that is  wrapped in code block (starting with `${` and ending with `}`) will be a Rib expression. Here `request.path.user-id` is a valid Rib expression where it selects the field `path` from the `request` block, and further selects `user-id` from it.
+**workerName**: Specifies the Name of the Golem worker responsible for handling the request. Here it is `my-worker-${request.path.user-id}`. The value that is wrapped in code block (starting with `${` and ending with `}`) will be a Rib expression. Here `request.path.user-id` is a valid Rib expression where it selects the field `path` from the `request` block, and further selects `user-id` from it.
 
 Note that anything wrapped in this block is an `Rib Expression` which gets evaluated at runtime and in this case, it gets evaluated to actual user-id which is then concatenated with the text "my-worker-". If you pass complex Rib expressions to be concatenated with a worker-id (for example: It is evaluated to a WASM record) then you will get a response back saying invalid worker-name.
 
@@ -91,6 +89,7 @@ let result = golem:it/api.{get-cart-contents}();
 {status: 200, body: result}
 
 ```
+
 The first line is about calling the worker-function and assigning its reuslt to the variable `result`. The last line is WASM record where you are mapping to the response. Here body is `result` itself.
 That means, we are not manipulating the result returned by the function, and simply forward it as response body. Status is 200. There are various possibilities here to manipulate the data using Rib
 language, such as selecting only a particular field from the result of the function invocation. Say for example, the result is a WASM `result` which can be `ok` or `err`. In this case you
@@ -114,7 +113,6 @@ let response_body = match result {
 ```
 
 The result of the Rib expression is whatever the result of the last line/expression in the above Rib program, similar to many programming languages.
-
 
 ### Upload API definition
 
@@ -167,7 +165,6 @@ Here `localhost:9881` is where worker-service (that consist of worker-bridge fun
 
 ### Deploy the API Definition
 
-
 Using golem-cli, deploying the API definition is straight forward.
 
 ```bash filename="Terminal" copy
@@ -196,15 +193,12 @@ The above command returns the following:
 Here we deploy the definition and now the endpoints should be available at `host` `localhost:9006`. If you were following docker examples to spin up Golem, then the port has to be 9006.
 Refer to `.env` in docker-examples folder in Golem OSS.
 
-
 You can test the deployment now, by trying to call the endpoint defined in the API definition.
-
 
 ```
 curl -H "Accept: application/json" -X GET http://localhost:9006/afsal/get-cart-contents
 []
 ```
-
 
 Alternatively you can use REST APIs to deploy the API definition.
 
@@ -312,6 +306,7 @@ let result = golem:it/api.{checkout}();
 {status: 200, body: match result { success(resp) => resp.order-id, error(msg) => msg }}
 
 ```
+
 This can also be written as the following for more readability:
 
 ```
@@ -324,7 +319,6 @@ let body =  match result { success(resp) => resp.order-id, error(msg) => msg };
 
 Here we manipulate the result from worker function using a match expression. More details on match expression is explained under `Rib` documentation.
 It matches on `success` and `error` variants because the result type of golem:it/api.{checkout} is a variant which can be either success or error.
-
 
 ### Looking up data from the request body and path
 
@@ -382,7 +376,6 @@ curl -H "Accept: application/json" -X POST http://localhost:9006/afsal/checkout
 
 Note that there is currently no way to express unit in `Rib` as Rib is mostly WASM-WAVE syntax. This is why for certain endpoints we simply returned `[]`.
 You can also prefer to return an empty string `""`.
-
 
 ### Support to import OpenAPI spec
 
@@ -457,6 +450,7 @@ The main advantage of this feature is the re-usability of the same endpoint defi
   }
 }
 ```
+
 To import OpenAPI spec using Golem CLI,
 
 ```bash filename="Terminal" copy
@@ -470,7 +464,6 @@ Alternatively, you can use REST API endpoint
 ```bash filename="Terminal" copy
 curl -X POST http://localhost:9881/v1/api/definitions/oas -H "Content-Type: application/json"  -d @openapi_spec.json
 ```
-
 
 ## Integrating Golem with existing API Gateways
 
