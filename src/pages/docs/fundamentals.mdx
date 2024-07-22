@@ -3,7 +3,8 @@
 Golem is a serverless computing platform that helps you build and deploy reliable distributed
 systems with simple code.
 
-In this section, you will learn key terms and architecture that will help you quickly understand Golem.
+In this section, you will learn some key terms and architecture that will help you better 
+understand Golem.
 
 ## Key Terms
 
@@ -15,8 +16,15 @@ In this section, you will learn key terms and architecture that will help you qu
   file system, and environment variables. Workers are created from external events like requests or by other workers.
 - **Invocations**. In Golem, the fundamental unit of work is an invocation of a function on a worker that is part of
   its typed public API. Functions may require typed parameters as input and may return typed values as output.
+- **High-Reliability**. Highly reliable systems must execute critical logic uninterrupted, even through faults, 
+  updates, and cloud flakiness. Golem provides transparent high-reliability, regardless of language or technology stack.
+- **WIT**. WIT is a standard of WASM, similar to Protobuf, which allows developers to export a typed public API from 
+components. Through Worker Gateway, Golem lets you build HTTP or gRPC APIs atop these typed public APIs.
 
 ## Golem Architecture
+
+Golem is architected as a series of independent and modular components, ranging from command-line tools to core systems 
+responsible for deployment and execution.
 
 - **CLI**. _Golem CLI_ is a command-line interface to Golem, which has the ability to create and manage components
   and workers, perform invocations, and even connect to live workers for diagnostics and troubleshooting.
