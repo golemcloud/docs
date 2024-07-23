@@ -20,7 +20,8 @@
     "nextra": "^2.13.2",
     "nextra-theme-docs": "^2.13.2",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "shiki": "^0.14.3"
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
