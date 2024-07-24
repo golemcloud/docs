@@ -1,0 +1,30 @@
+import { Callout } from "nextra/components"
+import { Steps } from "nextra/components"
+
+# Building Golem Components in Python
+
+Building Golem components written in Python as it is described on the [Building Components page](pages/python-language-guide/building-components) involves two steps:
+
+<Steps>
+### Generate the Python bindings from the WIT files
+
+The `bindings` subcommand of the `componentize-py` tool generates the module containing the generated bindings:
+
+```shell
+$ componentize-py bindings bindings
+```
+
+### Package the Python code into a WASM component
+
+The `componentize` subcommand of the `componentize-py` tool packages the Python code and the Python interpreter into a single WebAssembly component:
+
+```shell
+$ componentize-py componentize --help main -o py_example.wasm
+```
+
+<Callout type="info">
+  Note that the `componentize-py` tool respects the `VIRTUAL_ENV` environment variable, so make sure
+  to activate the virtualenv if there are any Python dependencies used by your component.
+</Callout>
+
+</Steps>

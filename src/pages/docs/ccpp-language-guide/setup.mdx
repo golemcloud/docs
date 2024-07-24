@@ -1,9 +1,11 @@
 import { Callout } from "nextra/components"
 import { Steps } from "nextra/components"
 
-# Install WebAssembly tooling
+# Setup development environment for C/C++
 
-To write **Golem components** in C or C++, first a couple of common WebAssembly tools need to be installed.
+To write **Golem components** in C or C++, a couple of common WebAssembly tools need to be installed, as well as the latest version of the **WASM SDK**.
+
+## Install WebAssembly tooling
 
 First of all, to install `wasm-tools` via `cargo`, you need to install the latest stable version of Rust. The recommended way to do so is using [https://rustup.rs](https://rustup.rs/):
 
@@ -69,7 +71,7 @@ wit-bindgen-cli 0.26.0
   correct version is installed with the commands described above.
 </Callout>
 
-# Install WASM SDK 23.0
+## Install WASM SDK 23.0
 
 Download and extract [WASI SDK 23.0](https://github.com/WebAssembly/wasi-sdk/releases/tag/wasi-sdk-23) somewhere - in the examples we assume it is put in `~/wasi-sdk-23.0`.
 
