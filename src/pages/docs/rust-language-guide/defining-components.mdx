@@ -28,7 +28,7 @@ $ golem-cli list-examples --language rust
 Then to create a new project based on one of these examples, run:
 
 ```shell
-$ golem-cli new helloworld --example rust-actor-minimal --component-name example --package-name 'golem:demo'
+$ golem-cli new --example rust-actor-minimal --component-name example --package-name 'golem:demo'
 ```
 
 The command will create a new Golem project in the `example` directory, and print short, language-specific instructions on how to build the project.
@@ -222,14 +222,14 @@ The following table shows an example of each `WIT` data type and its correspondi
 | `u8`, `u16`, `u32`, `u64`                      | `u8`, `u16`, `u32`, `u64`                                                                               |
 | `f32`, `f64`                                   | `f32`, `f64`                                                                                            |
 | `char`                                         | `char`                                                                                                  |
-| `str`                                          | `String`                                                                                                |
+| `string`                                       | `String`                                                                                                |
 | `list<str>`                                    | `Vec<String>`                                                                                           |
 | `option<u64>`                                  | `Option<u64>`                                                                                           |
-| `result<s32, str>`                             | `Result<i32, String>`                                                                                   |
-| `result<_, str>`                               | `Result<(), String>`                                                                                    |
+| `result<s32, string>`                          | `Result<i32, String>`                                                                                   |
+| `result<_, string>`                            | `Result<(), String>`                                                                                    |
 | `result`                                       | `Result<(), ()>`                                                                                        |
-| `tuple<u64, str, char>`                        | `(u64, String, char)`                                                                                   |
-| `record user { id: u64, name: str }`           | `struct User { id: u64, name: String }`                                                                 |
+| `tuple<u64, string, char>`                     | `(u64, String, char)`                                                                                   |
+| `record user { id: u64, name: string }`        | `struct User { id: u64, name: String }`                                                                 |
 | `variant color { red, green, blue, rgb(u32) }` | `enum Color { Red, Green, Blue, Rgb(u32) }`                                                             |
 | `enum color { red, green, blue }`              | `enum Color { Red, Green, Blue }`                                                                       |
 | `flags access { read, write, lst }`            | `bitflags! { pub struct Access: u8 { const READ = 1 << 0; const WRITE = 1 << 1; const LST = 1 << 2; }}` |
@@ -246,7 +246,7 @@ In general Golem supports three different ways of doing this:
 
 ### Command line arguments
 
-The command line arguments associated with the Goelm worker can be accessed in Rust using the standard `env::args()` function:
+The command line arguments associated with the Golem worker can be accessed in Rust using the standard `env::args()` function:
 
 ```rust
 for arg in std::env::args() {

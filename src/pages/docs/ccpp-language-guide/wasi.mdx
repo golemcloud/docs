@@ -1,10 +1,10 @@
 import { Callout } from "nextra/components"
 
-# Using WASI interfaces from Rust
+# Using WASI interfaces from C/C++
 
 Golem implements and exports a subset of the [WASI](https://wasi.dev) interfaces, as well as its own **runtime interfaces**.
 
-The [Golem Rust SDK](https://crates.io/crates/golem-rust) provides idiomatic wrappers on a subset of these interfaces, and the Rust standard library is implemented on by another subset, but it is also possible to use the generated bindings directly.
+The previous sections already introduced how to use a subset of these interfaces to [control durability settings](/docs/ccpp-language-guide/durability), [make HTTP requests](/docs/ccpp-language-guide/http), and [control retries](/docs/ccpp-language-guide/retries) or [use promises](/docs/ccpp-language-guide/promises).
 
 ## WIT specifications
 
@@ -29,16 +29,9 @@ The following table lists all packages provided by Golem:
 | `wasi:random`     | Interface for generating random numbers                                                     |
 | `wasi:sockets`    | Interface for working with TCP and UDP sockets (currently not supporting durable execution) |
 
-## Bindings
-
-It is possible to manually add these `WIT` specifications to a Rust component using `cargo-component`, but it is recommended to use the `golem-rust` and `golem-wasm-rpc` libraries instead.
-
-- `golem-rust` reexports all the bindings generated for the above listed interfaces
-- `golem-wasm-rpc` contains the bindings and the higher level implementation of the `golem:rpc` interface
-
 ## Additional Golem runtime APIs
 
-This section describes Golem-specific functionalities which are available through the Golem runtime API but does not have an idiomatic Rust wrapper in the `golem-rust` library yet.
+This section describes some additional Golem-specific functionalities which are available through the Golem runtime API.
 
 ### Generate an idempotency key
 
@@ -46,19 +39,11 @@ Golem provides a function to generate an idempotency key (an UUID) which can be 
 
 It is guaranteed that this idempotency key will always be the same (per occurrence) even if the worker is restarted due to a crash.
 
-First add the `uuid` crate to the `Cargo.toml` file:
+To generate the idempotency key:
 
-```toml
-[dependencies]
-uuid = "1.8.0"
-```
-
-Then generate the idempotency key:
-
-```rust
-use golem_rust::generate_idempotency_key;
-
-let key: uuid::Uuid = generate_idempotency_key().into();
+```c
+golem_api_host_uuid_t key;
+golem_api_host_generate_idempotency_key(&key);
 ```
 
 ### Get worker metadata
@@ -107,44 +92,17 @@ Worker enumeration is a feature of Golem available both through the public HTTP 
   application logic.
 </Callout>
 
-The following example demonstrates how to enumerate workers API:
-
-```rust
-use golem_rust::bindings::golem::api::host::*;
-
-let filter = Some(WorkerAnyFilter {
-    filters: vec![WorkerAllFilter {
-        filters: vec![WorkerPropertyFilter::Status(WorkerStatusFilter {
-            comparator: FilterComparator::Equal,
-            value: WorkerStatus::Idle,
-        })],
-    }]
-});
-let mut workers: Vec<WorkerMetadata> = Vec::new();
-let getter = GetWorkers::new(component_id, &filter, true);
-loop {
-    match getter.get_next() {
-        Some(values) => {
-            workers.extend(values);
-        }
-        None => break,
-    }
-}
-```
-
-The third parameter of the `GetWorkers::new` constructor enables `precise` mode. In this mode Golem will calculate the latest metadata for each returned worker, otherwise it uses only the last cached values.
-
 ### Update a worker
 
 To trigger update for a given worker from one component version to another, use the `update_worker` function:
 
-```rust
-use golem_rust::bindings::golem::api::host::{update_worker, UpdateMode};
-
-update_worker(worker_id, target_version, UpdateMode::Automatic);
+```c
+golem_api_host_worker_id_t worker_id;
+// .. set up worker_id ..
+golem_api_host_update_worker(&worker_id, target_version, GOLEM_API_HOST_UPDATE_MODE_AUTOMATIC);
 ```
 
-To learn more about updating workers, see [the updating workers page](docs/rust-language-guide/updating).
+To learn more about updating workers, see [the updating workers page](docs/ccpp-language-guide/updating).
 
 ### The WASI Key-Value store interface
 

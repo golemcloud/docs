@@ -1,4 +1,4 @@
-# Control the retry policy from Rust
+# Control the retry policy from C/C++
 
 ### Using Golem's retry mechanism
 
@@ -6,45 +6,31 @@ Golem applies a retry mechanism to all workers. In case of a failure, Golem will
 
 If the maximum number of retries is reached, the worker will be marked as failed and no further invocations will be possible on it.
 
-This mechanism is automatic and applied to all kind of failures. To rely on it, just let the Rust code panic.
+This mechanism is automatic and applied to all kind of failures. To rely on it, just let the C code fail (for example by calling `abort()`).
 
 ### Customizing the retry policy
 
 The retry policy which controls the maximum number of retries and the exponential backoff is a global configuration of the Golem servers, but it can be customized for each worker.
 
-For Rust we need to use the `golem-rust` crate to do so.
-First add it to the dependencies in your `Cargo.toml`:
+Once the `golem:api/host@0.2.0` interface is imported in the WIT file (see the [previous page for more information](docs/ccpp-language-guide/durability)), the retry policy can be controlled with the `golem_api_host_get_retry_policy` and `golem_api_host_set_retry_policy` functions.
 
-```toml
-[dependencies]
-golem-rust = { version = "0.3.0" }
-golem-rust-macro = { version = "0.3.0" }
-```
+```c
+golem_api_host_retry_policy_t previous;
+golem_api_host_get_retry_policy(&previous);
 
-Then use the `use_retry_policy` or `with_retry_policy` functions to temporarily change the retry policy, either until the returned guard is dropped (the `use_` variant) or for the provided closure (the `with_` variant).
+golem_api_host_retry_policy_t current;
+current.max_attempts = 10;
+current.min_delay = 1000000000; // 1s
+current.max_delay = 1000000000; // 1s
+current.multiplier = 1.0;
+golem_api_host_get_retry_policy(&current);
 
-```rust
-let _guard = use_retry_policy(RetryPolicy {
-            max_attempts: 10,
-            min_delay: 1000000000, // 1s
-            max_delay: 1000000000, // 1s
-            multiplier: 1,
-        });
 // ...
 
-// or
-
-with_retry_policy(RetryPolicy {
-            max_attempts: 10,
-            min_delay: 1000000000, // 1s
-            max_delay: 1000000000, // 1s
-            multiplier: 1,
-        }, || {
-    // ...
-});
+golem_api_host_get_retry_policy(&previous);
 ```
 
-The `RetryPolicy` type itself is originatd from Golem's WIT definition in the following way:
+The `golem_api_host_retry_policy_t` type itself is originatd from Golem's WIT definition in the following way:
 
 ```wit
 /// Configures how the executor retries failures
