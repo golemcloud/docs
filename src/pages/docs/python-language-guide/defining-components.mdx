@@ -6,7 +6,7 @@ import { Callout } from "nextra/components"
 
 Using Golem's **command line interface** provides a set of predefined, Golem-specific **examples** to choose from as a starting point.
 
-To see the available exampels for Rust, run:
+To see the available examples for Python, run:
 
 ```shell
 $ golem-cli list-examples --language python
@@ -25,13 +25,21 @@ $ golem-cli new --example python-minimal-actor --component-name py-example --pac
 
 The command will create a new Golem project in the `py-example` directory, and print short, language-specific instructions on how to build the project.
 
+## Limitations
+
+<Callout type="warning">
+Currently all imports must happen initialization-time, so every module used must be listed in the beginning of the main module.
+
+This limitation is being tracked as [issue
+#23](https://github.com/bytecodealliance/componentize-py/issues/23).
+
+</Callout>
+
 ## Specification-first approach
 
 Golem and the `componentize-py` toolchain currently requires defining the component's interface using the **WebAssembly Interface Type (WIT)** format. See [the official documentation of this format](https://component-model.bytecodealliance.org/design/wit.html) for reference.
 
 Each new project generated with `golem-cli` contains a `wit` directory with at least one `.wit` file defining a `world`. This world can contain **exports** (exported functions and interfaces) and these exports will be the compiled Golem component's public API.
-
-The first time a component is compiled (see the [Building Components page](docs/python-language-guide/building-components) for details), a couple of Python files are get generated in the `bindings` directory. This module contains the base classes and imported functions and data types defined in the `WIT` file(s).
 
 To **implement** the specification written in WIT, the Python code must implement some of these abstract classes.
 
@@ -55,8 +63,8 @@ To implement this function in Python, the following steps must be taken:
 Let's see in code:
 
 ```python
-# import the module
-from bindings import py_example
+# import the binding module - it's name corresponds with the WIT world's name
+import py_example
 
 # implement the exported function as a method in Python
 class PyExample(py_example.PyExample):
@@ -92,7 +100,8 @@ world py-example {
 This is equivalent to having the two exported functions directly exported from the `world` section, so the implementation in Python is once again requires to implement the two exported functions as an implementation of an abstract class:
 
 ```python
-from bindings.py_example import exports
+import py_example
+from py_example import exports
 
 state: int = 0
 
@@ -147,7 +156,8 @@ To implement the above defined WIT resource in Python a few new steps must be ta
 Let's see in code:
 
 ```python filename="main.py"
-from bindings.py_example import exports
+import py_example
+from py_example import exports
 
 class Api(exports.Api):
     pass
@@ -155,7 +165,9 @@ class Api(exports.Api):
 ```
 
 ```python filename="api.py"
-from bindings.py_example.exports import api
+import py_example
+import py_example.exports
+from py_example.exports import api
 
 class Counter(api.Counter):
     def __init__(self, name: str):

@@ -55,7 +55,7 @@ golem_api_host_set_oplog_persistence_level(&previous);
 
 Golem assumes that HTTP requests are idempotent by default. This means that in case of a failure, if the system cannot determine whether the request successfully reached the target or not, it will be retried. This behavior can be changed using the `golem_api_host_set_idempotence_mode` function:
 
-```rust
+```c
 bool idempotence_mode = golem_api_host_get_idempotence_mode();
 golem_api_host_set_idempotence_mode(false);
 // ...
@@ -70,7 +70,7 @@ By default side effects are persisted and retried one by one. It is possible to 
 
 To define an atomic region, use the `golem_api_host_mark_begin_operation` and `golem_api_host_mark_end_operation` functions:
 
-```rust
+```c
 golem_api_host_oplog_index_t begin = golem_api_host_mark_begin_operation();
 // ...
 golem_api_host_mark_end_operation(begin);

@@ -1,10 +1,10 @@
 import { Callout } from "nextra/components"
 
-# Using WASI interfaces from C/C++
+# Using WASI interfaces from Python
 
 Golem implements and exports a subset of the [WASI](https://wasi.dev) interfaces, as well as its own **runtime interfaces**.
 
-The previous sections already introduced how to use a subset of these interfaces to [control durability settings](/docs/ccpp-language-guide/durability), [make HTTP requests](/docs/ccpp-language-guide/http), and [control retries](/docs/ccpp-language-guide/retries) or [use promises](/docs/ccpp-language-guide/promises).
+The previous sections already introduced how to use a subset of these interfaces to [control durability settings](/docs/python-language-guide/durability), [make HTTP requests](/docs/python-language-guide/http), and [control retries](/docs/python-language-guide/retries) or [use promises](/docs/python-language-guide/promises).
 
 ## WIT specifications
 
@@ -41,9 +41,8 @@ It is guaranteed that this idempotency key will always be the same (per occurren
 
 To generate the idempotency key:
 
-```c
-golem_api_host_uuid_t key;
-golem_api_host_generate_idempotency_key(&key);
+```python
+key = generate_idempotency_key();
 ```
 
 ### Get worker metadata
@@ -81,7 +80,7 @@ enum worker-status {
 There are two exported functions to query worker metadata:
 
 - `get_self_metadata` returns the metadata for the current worker
-- `get_worker_metadata` returns the metadata for a specific worker given by it's `golem_api_host_worker_id_t`
+- `get_worker_metadata` returns the metadata for a specific worker given by it's `WorkerId`
 
 ### Enumerate workers
 
@@ -94,12 +93,10 @@ Worker enumeration is a feature of Golem available both through the public HTTP 
 
 ### Update a worker
 
-To trigger update for a given worker from one component version to another, use the `golem_api_host_update_worker` function:
+To trigger update for a given worker from one component version to another, use the `update_worker` function:
 
-```c
-golem_api_host_worker_id_t worker_id;
-// .. set up worker_id ..
-golem_api_host_update_worker(&worker_id, target_version, GOLEM_API_HOST_UPDATE_MODE_AUTOMATIC);
+```python
+update_worker(worker_id, target_version, UpdateMode_Automatic())
 ```
 
 To learn more about updating workers, see [the updating workers page](docs/ccpp-language-guide/updating).
