@@ -1,0 +1,9 @@
+import { Callout } from "nextra/components"
+
+# Working with Golem Promises in Go
+
+Golem **promises** provide a way for Golem workers to wait on an external condition. The worker creates the promise and somehow sends its identifier to the external system responsible for **completing** the promise. Then the worker can **await** the promise, being suspended until the external system completes the promise using Golem's REST API.
+
+It is also possible to complete a promise from within a Golem worker using the Golem SDK.
+
+When a promise is completed, an arbitrary byte array can be attached to it as a payload - this data is returned to the awaiting worker when is continues execution.

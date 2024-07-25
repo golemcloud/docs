@@ -57,7 +57,7 @@ world example {
 
 To implement this function in Rust, the following steps must be taken:
 
-- make dure the generated `bindings` module is imported
+- make sure the generated `bindings` module is imported
 - define an empty struct representing our component
 - implement the generated `Guest` trait for this struct
 - call the `export!` macro
@@ -65,7 +65,7 @@ To implement this function in Rust, the following steps must be taken:
 Let's see in code:
 
 ```rust
-// make dure the generated `bindings` module is imported
+// make sure the generated `bindings` module is imported
 #[allow(warnings)]
 mod bindings;
 
@@ -223,7 +223,7 @@ The following table shows an example of each `WIT` data type and its correspondi
 | `f32`, `f64`                                   | `f32`, `f64`                                                                                            |
 | `char`                                         | `char`                                                                                                  |
 | `string`                                       | `String`                                                                                                |
-| `list<str>`                                    | `Vec<String>`                                                                                           |
+| `list<string>`                                 | `Vec<String>`                                                                                           |
 | `option<u64>`                                  | `Option<u64>`                                                                                           |
 | `result<s32, string>`                          | `Result<i32, String>`                                                                                   |
 | `result<_, string>`                            | `Result<(), String>`                                                                                    |
