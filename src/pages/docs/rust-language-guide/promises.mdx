@@ -15,8 +15,8 @@ In Rust the easiest way to work with promises is to use the `golem-rust` library
 To use the Golem Rust library, add the following dependency to your component's `Cargo.toml`:
 
 ```toml
-golem-rust = { version = "0.3.0" }
-golem-rust-macro = { version = "0.3.0" }
+golem-rust = { version = "0.4.0" }
+golem-rust-macro = { version = "0.4.0" }
 ```
 
 ### Creating a promise
@@ -60,6 +60,9 @@ pub struct ComponentId {
 <Callout type="info">
   Note that although this `Uuid` is a generated type from the `WIT` specification, the `golem-rust`
   crate provides `From` and `Into` implementations to convert it to the `uuid` crate's `Uuid` type.
+
+There are also `From` and `Into` implementations to convert `ComponentId` to `Uuid`, and `Display` and `FromStr` implementations for all the ID types.
+
 </Callout>
 
 ### Deleting a promise
@@ -82,6 +85,13 @@ let payload = await_promise(&promise_id);
 
 The resulting `payload` is a `Vec<u8>` containig the data attached to the promise on completion.
 
+There is a helper function that immediately deserializes the payload with `serde_json`:
+
+```rust
+use golem_rust::await_promise_json;
+let payload: ExamplePayload = await_promise_json(&promise_id)?;
+```
+
 ### Completing a promise from within a worker
 
 To complete a promise from within a worker, use the `complete_promise` function:
@@ -91,7 +101,14 @@ use golem_rust::bindings::golem::api::host::complete_promise;
 complete_promise(&promise_id, &payload);
 ```
 
-where `&payload` has the type `&[u8]`
+where `&payload` has the type `&[u8]`.
+
+There is a helper function that serializes the payload with `serde_json`:
+
+```rust
+use golem_rust::complete_promise_json;
+complete_promise_json(&promise_id, &ExamplePayload { field: "value" })?;
+```
 
 ### Completing a promise from an external source
 
