@@ -28,11 +28,11 @@ world example {
 
 ### Creating a promise
 
-To create a promise simply call the `golem_api_host_golem_create_promise` function:
+To create a promise simply call the `golem_api_host_create_promise` function:
 
 ```c
 golem_api_host_promise_id_t promise_id;
-golem_api_host_golem_create_promise(&promise_id);
+golem_api_host_create_promise(&promise_id);
 ```
 
 The returned value, `golem_api_host_promise_id_t`, is defined as the following:
@@ -70,7 +70,7 @@ If a promise is no longer used, it has to be deleted with
 ```c
 golem_api_host_promise_id_t promise_id;
 // .. set up promise_id ..
-golem_api_host_golem_delete_promise(&promise_id);
+golem_api_host_delete_promise(&promise_id);
 ```
 
 <Callout type="warning">
@@ -80,26 +80,26 @@ golem_api_host_golem_delete_promise(&promise_id);
 
 ### Awaiting a promise
 
-To await a promise, use the `golem_api_host_golem_await_promise` function:
+To await a promise, use the `golem_api_host_await_promise` function:
 
 ```c
 golem_api_host_promise_id_t promise_id;
 // .. set up promise_id ..
 example_list_u8_t payload; // will be filled by the call
-golem_api_host_golem_await_promise(&promise_id, &payload);
+golem_api_host_await_promise(&promise_id, &payload);
 ```
 
 The resulting `payload` is a struct containing a `len` length and a pointer to `len` number of bytes, containig the data attached to the promise on completion.
 
 ### Completing a promise from within a worker
 
-To complete a promise from within a worker, use the `golem_api_host_golem_complete_promise` function:
+To complete a promise from within a worker, use the `golem_api_host_complete_promise` function:
 
 ```c
 golem_api_host_promise_id_t promise_id;
 example_list_u8_t payload;
 // .. set up promise_id and payload ..
-golem_api_host_golem_complete_promise(&promise_id, &payload);
+golem_api_host_complete_promise(&promise_id, &payload);
 ```
 
 ### Completing a promise from an external source

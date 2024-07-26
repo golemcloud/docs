@@ -28,12 +28,12 @@ world example {
 
 ### Creating a promise
 
-To create a promise simply call the `golem_create_promise` function:
+To create a promise simply call the `create_promise` function:
 
 ```python
-from py_example.imports.host import golem_create_promise
+from py_example.imports.host import create_promise
 
-promise_id = golem_create_promise()
+promise_id = create_promise()
 ```
 
 The returned value, `PromiseId`, is defined as the following:
@@ -77,25 +77,25 @@ class PromiseId:
 If a promise is no longer used, it has to be deleted with
 
 ```python
-golem_delete_promise(promise_id);
+delete_promise(promise_id);
 ```
 
 ### Awaiting a promise
 
-To await a promise, use the `golem_await_promise` function:
+To await a promise, use the `await_promise` function:
 
 ```python
-payload = golem_await_promise(promise_id)
+payload = await_promise(promise_id)
 ```
 
 The resulting `payload` is a byte array (`bytes`) containig the data attached to the promise on completion.
 
 ### Completing a promise from within a worker
 
-To complete a promise from within a worker, use the `golem_complete_promise` function:
+To complete a promise from within a worker, use the `complete_promise` function:
 
 ```python
-golem_complete_promise(promise_id, str.encode("hello world"))
+complete_promise(promise_id, str.encode("hello world"))
 ```
 
 ### Completing a promise from an external source

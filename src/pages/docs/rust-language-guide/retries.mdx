@@ -28,7 +28,7 @@ let _guard = use_retry_policy(RetryPolicy {
             max_attempts: 10,
             min_delay: 1000000000, // 1s
             max_delay: 1000000000, // 1s
-            multiplier: 1,
+            multiplier: 1.0,
         });
 // ...
 
@@ -38,7 +38,7 @@ with_retry_policy(RetryPolicy {
             max_attempts: 10,
             min_delay: 1000000000, // 1s
             max_delay: 1000000000, // 1s
-            multiplier: 1,
+            multiplier: 1.0,
         }, || {
     // ...
 });
@@ -56,6 +56,6 @@ record retry-policy {
     /// The maximum delay between retries
     max-delay: duration,
     /// Multiplier applied to the delay on each retry to implement exponential backoff
-    multiplier: u32
+    multiplier: f64
 }
 ```

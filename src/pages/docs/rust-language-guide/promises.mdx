@@ -21,12 +21,12 @@ golem-rust-macro = { version = "0.3.0" }
 
 ### Creating a promise
 
-To create a promise simply call the `golem_create_promise` function:
+To create a promise simply call the `create_promise` function:
 
 ```rust
-use golem_rust::bindings::golem::api::host::golem_create_promise;
+use golem_rust::bindings::golem::api::host::create_promise;
 
-let promise_id = golem_create_promise();
+let promise_id = create_promise();
 ```
 
 The returned value is a `PromiseId`, defined as the following:
@@ -67,28 +67,28 @@ pub struct ComponentId {
 If a promise is no longer used, it can be deleted with
 
 ```rust
-use golem_rust::bindings::golem::api::host::golem_delete_promise;
-golem_delete_promise(&promise_id);
+use golem_rust::bindings::golem::api::host::delete_promise;
+delete_promise(&promise_id);
 ```
 
 ### Awaiting a promise
 
-To await a promise, use the `golem_await_promise` function:
+To await a promise, use the `await_promise` function:
 
 ```rust
-use golem_rust::bindings::golem::api::host::golem_await_promise;
-let payload = golem_await_promise(&promise_id);
+use golem_rust::bindings::golem::api::host::await_promise;
+let payload = await_promise(&promise_id);
 ```
 
 The resulting `payload` is a `Vec<u8>` containig the data attached to the promise on completion.
 
 ### Completing a promise from within a worker
 
-To complete a promise from within a worker, use the `golem_complete_promise` function:
+To complete a promise from within a worker, use the `complete_promise` function:
 
 ```rust
-use golem_rust::bindings::golem::api::host::golem_complete_promise;
-golem_complete_promise(&promise_id, &payload);
+use golem_rust::bindings::golem::api::host::complete_promise;
+complete_promise(&promise_id, &payload);
 ```
 
 where `&payload` has the type `&[u8]`

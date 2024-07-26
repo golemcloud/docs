@@ -42,6 +42,6 @@ record retry-policy {
     /// The maximum delay between retries
     max-delay: duration,
     /// Multiplier applied to the delay on each retry to implement exponential backoff
-    multiplier: u32
+    multiplier: f64
 }
 ```
