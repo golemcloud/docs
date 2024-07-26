@@ -63,7 +63,7 @@ select_index      ::= (sequence | variable)('[' rib-expr ']')+
 sequence          ::= '[' rib-expr (',' rib-expr)* ']'
 record            ::= '{' field (',' field)* '}'
 tuple             ::= '(' rib-expr (',' rib-expr)* ')'
-literal           ::= "'" [a-zA-Z0-9]* "'"
+literal           ::= '"' [a-zA-Z0-9]* '"'
 variable          ::= [a-zA-Z0-9_]+
 number            ::= DIGITS
 flags              ::= '{' STRING (',' STRING)* '}'
@@ -113,7 +113,7 @@ This is a parsed as a number of type u64. Similarly `-1` is parsed as a number o
 
 ```bash filename="Terminal" copy
 
-'Hello'
+"Hello"
 ```
 
 This is parsed as a string literal. If the strings are not wrapped with quotes, then it is considered as a variable.
@@ -146,12 +146,12 @@ More explanations on variables can be found in other examples.
 
 ```bash filename="Terminal" copy
 # Sequence of strings
-['foo', 'bar', 'baz']
+["foo", "bar", "baz"]
 ```
 
 ```bash filename="Terminal" copy
 # Sequence of record
-[{a: 'foo'}, {b : 'bar'}]
+[{a: "foo"}, {b : "bar"}]
 ```
 
 This is parsed as a sequence of values. While the values can be of any type, similar to any dynamic language, evaluation may fail with error if we mix different types in a sequence.
@@ -161,10 +161,10 @@ In other words, `Rib` evaluator do expect the values in a sequence to be of the 
 
 ```bash filename="Terminal" copy
 
-{ name: 'John', age: 30 }
-{ city: 'New York', population: 8000000 }
-{ country: 'France', capital: 'Paris' }
-{ fruits: ['apple', 'banana', 'orange'], count: 3 }
+{ name: "John", age: 30 }
+{ city: "New York", population: 8000000 }
+{ country: "France", capital: "Paris" }
+{ fruits: ["apple"", "banana"", "orange""], count: 3 }
 
 ```
 
@@ -180,7 +180,7 @@ Note that keys are not considered as variables. They are considered as literals 
 This is parsed as a tuple of values. Unlike `sequence`, the values in a tuple can be of different types.
 
 ```bash filename="Terminal" copy
-('foo', 1, {a: 'bar'})
+("foo", 1, {a: "bar"})
 ```
 
 #### Flags
@@ -197,7 +197,7 @@ A field can be selected from an `Rib` expression if it is a `Record` type. For e
 is a valid selection given `foo` is a variable that gets evaluated to a record value.
 
 ```bash filename="Terminal" copy
-{ name: 'John', age: 30 }.name
+{ name: "John", age: 30 }.name
 ```
 
 #### Selection of Index
@@ -281,7 +281,7 @@ A `Result` can be `Ok` of a value, or an `Err` of a value.
 ```
 
 ```bash filename="Terminal" copy
- err('error')
+ err("error")
 ```
 
 This is again, using the same syntax followed in wasm-wave.
@@ -335,7 +335,7 @@ We will add support for these in Expr language.
 
 ```bash filename="Terminal" copy
 
- if request.user.id > 3 then 'higher' else 'lower'
+ if request.user.id > 3 then "higher" else "lower"
 
 ```
 
@@ -345,7 +345,7 @@ The `then-rib-expr` or `else-rib-expr` can be an any valid rib code, which could
 
 ```bash filename="Terminal" copy
 
- if request.user.id > 3 then 'higher' else if request.user.id == 3 then 'equal' else 'lower'
+ if request.user.id > 3 then "higher" else if request.user.id == 3 then "equal" else "lower"
 
 ```
 
@@ -368,22 +368,22 @@ This would probably be your go-to construct when you are dealing with complex da
 that comes out as worker.response.
 
 ```bash filename="Terminal" copy
-  match worker.response { ok(x) => 'foo', err(msg) => 'error' }
+  match worker.response { ok(x) => "foo", err(msg) => "error" }
 ```
 
 You can bring them in multiple lines as follows:
 
 ```bash filename="Terminal" copy
   match worker.response {
-    ok(x) => 'foo',
-    err(msg) => 'error'
+    ok(x) => "foo",
+    err(msg) => "error"
   }
 ```
 
 ```bash filename="Terminal" copy
   match worker.response {
-    some(x) => 'found',
-    none => 'not found'
+    some(x) => "found",
+    none => "not found"
   }
 ```
 
@@ -406,8 +406,8 @@ Note that Rib doesn't allow you to define types as above. The above type is just
 
 ```bash filename="Terminal" copy
   match worker.response {
-    bar(x) => 'bar',
-    foo(x) => 'foo'
+    bar(x) => "bar",
+    foo(x) => "foo"
   }
 ```
 
@@ -429,8 +429,8 @@ Example, given the worker response is ok(1), the following match expression will
   }
 ```
 
-The following match expression will result in 'c', if the worker response was variant value `foo(['a', 'b', 'c'])`,
-and will result in 'a' if the `worker.response` was variant value `bar({a: 1, b: 'a'})`.
+The following match expression will result in "c", if the worker response was variant value `foo(["a", "b", "c"])`,
+and will result in "a" if the `worker.response` was variant value `bar({a: 1, b: "a"})`.
 
 ```bash filename="Terminal" copy
   let result = my-worker-function();
@@ -450,8 +450,8 @@ In some of the above examples, the binding variables are unused. In this case, w
 
 ```bash filename="Terminal" copy
   match worker.response {
-    bar(_) => 'bar',
-    foo(_) => 'foo'
+    bar(_) => "bar",
+    foo(_) => "foo"
   }
 ```
 
@@ -459,10 +459,10 @@ In some of the above examples, the binding variables are unused. In this case, w
 
 ```bash filename="Terminal" copy
 
- let a = { age: worker.response.age, city: 'New York', name: request.body.name };
+ let a = { age: worker.response.age, city: "New York", name: request.body.name };
 
  match worker.response.admin {
-   Admin(_) => 'admin',
+   Admin(_) => "admin",
    User(x) => a
  }
 
