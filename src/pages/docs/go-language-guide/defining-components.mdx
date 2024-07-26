@@ -17,10 +17,10 @@ $ golem-cli list-examples --language go
   [golem-examples](http://github.com/golemcloud/golem-examples).
 </Callout>
 
-Then to create a new project based on one of these examples, run:
+Then to create a new project based the default go example, run:
 
 ```shell
-$ golem-cli new --example go-actor-full --component-name go-example --package-name 'golem:demo'
+$ golem-cli new --language go --package-name 'golem:demo' go-example
 ```
 
 The command will create a new Golem project in the `go-example` directory, and print short, language-specific instructions on how to build the project.
