@@ -1,0 +1,75 @@
+import { Callout } from "nextra/components"
+import { Card, Cards } from "nextra/components"
+
+# Reliability
+
+The Golem platform makes it simple to build and deploy highly-
+reliable distributed systems.
+
+In this section, you will learn how Golem defines _reliability_,
+exactly what guarantees you can expect from deploying your 
+software on Golem, and how you can tune these guarantees to 
+meet the specific needs of your applications.
+
+## Essential Concepts
+
+In any distributed system, there are two technical measures that 
+are essential to the development of reliable distributed systems:
+
+ * **Resiliency**. _Resiliency_ is a measure of the system's ability 
+ to correctly identify and correctly respond to failures of other 
+ systems that the system interacts with.
+ * **Robustness**. _Robustness_ is a measure of the system's ability 
+to both prevent, as well as identify and correctly respond to, failures 
+of the system itself.
+
+In the following two sections, we will explore different faucets of 
+both resiliency and robustness.
+
+### Resiliency
+
+Every modern cloud system interacts with numerous other systems through
+network protocols. Many of these systems maintain state, while others 
+offer computational processing capabilities (such as a video transcoding 
+service or a model execution service).
+
+Because other systems are unconstrained, they may fail for any 
+reason at all. However, broadly speaking, the failure scenarios can 
+be categorized as follows:
+
+ * **Network Failures**. 
+ * **Internal Failures**. 
+ * **Load Failures**. 
+ * **Maintenance Failures**. 
+ * **Versioning Failures**. 
+ * **Authorization Failures**. 
+
+Not all types of failures are survivable. For example, an authorization 
+failure is likely to result from invalid or expired credentials, and 
+cannot be resolved from within the system itself.
+
+That said, most failures in external systems are transient: most network 
+failures resolve themselves; internal failures either have 
+transient causes or are due to bugs that can be fixed; load failures 
+are resolved by time or auto-scaling; and so on.
+
+Highly resilient systems continue to function even in the presence of 
+transient failures. They do so by applying specialized retry policies, 
+which often combine exponential falloff with random jitter. Other 
+patterns, such as circuit breaker and bulkhead, can also be used to 
+improve the resiliency of a distributed system.
+
+### Robustness
+
+
+
+### Reliability
+
+_Reliability_ is a measure of a system's resiliency *and* robustness. 
+This means that reliable software is adept at preventing, identifying,
+and responding to both external and internal failures.
+
+# Golem's Reliability Guarantees
+
+
+# Tuning Guarantees
