@@ -7,109 +7,107 @@ The Golem platform makes it simple to build and deploy highly-
 reliable distributed systems.
 
 In this section, you will learn how Golem defines _reliability_,
-exactly what guarantees you can expect from deploying your 
-software on Golem, and how you can tune these guarantees to 
+exactly what guarantees you can expect from deploying your
+software on Golem, and how you can tune these guarantees to
 meet the specific needs of your applications.
 
 ## Essential Concepts
 
-In any distributed system, there are two technical measures that 
+In any distributed system, there are two technical measures that
 are essential to the development of reliable distributed systems:
 
- * **Resiliency**. _Resiliency_ is a measure of the system's ability 
-   to correctly identify and respond to failures of other systems that 
-   the system interacts with.
- * **Robustness**. _Robustness_ is a measure of the system's ability 
-   to both prevent, as well as identify and correctly respond to, 
-   failures of the system itself.
+- **Resiliency**. _Resiliency_ is a measure of the system's ability
+  to correctly identify and respond to failures of other systems that
+  the system interacts with.
+- **Robustness**. _Robustness_ is a measure of the system's ability
+  to both prevent, as well as identify and correctly respond to,
+  failures of the system itself.
 
-In the following two sections, we will explore different faucets of 
+In the following two sections, we will explore different faucets of
 both resiliency and robustness.
 
 ### Resiliency
 
 Every modern cloud system interacts with numerous other systems through
-network protocols. Many of these systems maintain state, while others 
-offer computational processing capabilities (such as a video transcoding 
+network protocols. Many of these systems maintain state, while others
+offer computational processing capabilities (such as a video transcoding
 service or a model execution service).
 
-Because other systems are unconstrained, they may fail for any 
-reason at all. However, broadly speaking, the failure scenarios can 
+Because other systems are unconstrained, they may fail for any
+reason at all. However, broadly speaking, the failure scenarios can
 be categorized as follows:
 
- * **Network Failures**. Network failures occur when connectivity 
-   between systems is disrupted, degraded, or unstable, preventing 
-   reliable communication.
- * **Internal Failures**.  Internal failures arise from bugs, crashes,
-   or other malfunctions within the system itself, causing incorrect 
-   behavior or complete non-responsiveness.
- * **Load Failures**. Load failures happen when a system is overwhelmed 
-   by requests or processing demands, leading to degraded performance 
-   or total unavailability.
- * **Maintenance Failures**. Maintenance failures result from planned 
-   or unplanned system updates, migrations, or other maintenance 
-   activities that cause downtime or unexpected behavior.
- * **Versioning Failures**. Versioning failures stem from 
-   incompatibilities between different versions of interacting systems 
-   or APIs, leading to errors or unpredictable outcomes.
- * **Authorization Failures**. Authorization failures occur due to 
-   invalid or expired credentials, insufficient permissions, or other 
-   issues preventing legitimate access to required resources.
+- **Network Failures**. Network failures occur when connectivity
+  between systems is disrupted, degraded, or unstable, preventing
+  reliable communication.
+- **Internal Failures**. Internal failures arise from bugs, crashes,
+  or other malfunctions within the system itself, causing incorrect
+  behavior or complete non-responsiveness.
+- **Load Failures**. Load failures happen when a system is overwhelmed
+  by requests or processing demands, leading to degraded performance
+  or total unavailability.
+- **Maintenance Failures**. Maintenance failures result from planned
+  or unplanned system updates, migrations, or other maintenance
+  activities that cause downtime or unexpected behavior.
+- **Versioning Failures**. Versioning failures stem from
+  incompatibilities between different versions of interacting systems
+  or APIs, leading to errors or unpredictable outcomes.
+- **Authorization Failures**. Authorization failures occur due to
+  invalid or expired credentials, insufficient permissions, or other
+  issues preventing legitimate access to required resources.
 
-Not all types of failures are survivable. For example, an authorization 
-failure is likely to result from invalid or expired credentials, and 
+Not all types of failures are survivable. For example, an authorization
+failure is likely to result from invalid or expired credentials, and
 cannot be resolved from within the system itself.
 
-That said, most failures in external systems are transient: network 
-failures resolve themselves; internal failures either have 
-transient causes or are due to fixable bugs; load failures are resolved 
+That said, most failures in external systems are transient: network
+failures resolve themselves; internal failures either have
+transient causes or are due to fixable bugs; load failures are resolved
 by waiting until a period of reduced load or by auto-scaling.
 
-Highly resilient systems continue to function even in the presence of 
-transient failures. They do so by applying specialized retry policies, 
-which often combine exponential falloff with random jitter. Other 
-patterns, such as circuit breaker and bulkhead, are also deployed to 
+Highly resilient systems continue to function even in the presence of
+transient failures. They do so by applying specialized retry policies,
+which often combine exponential falloff with random jitter. Other
+patterns, such as circuit breaker and bulkhead, are also deployed to
 improve the resiliency of distributed systems.
 
 ### Robustness
 
-Whereas resilient systems can adeptly deal with transient failures in 
-the external systems they interact with, robust systems both prevent 
+Whereas resilient systems can adeptly deal with transient failures in
+the external systems they interact with, robust systems both prevent
 and correctly respond to internal failures.
 
-The concept of robustness applies both to *running processes*, such as 
-a web server or request handler, and to the *infrastructure* where the 
-processes are running, which includes the operating system and even 
+The concept of robustness applies both to _running processes_, such as
+a web server or request handler, and to the _infrastructure_ where the
+processes are running, which includes the operating system and even
 the machine on which the system executes.
 
 Internal failure scenarios can be placed into a hierarchy, indicating
 whether they are closer to business logic or closer to infrastructure,
 and broadly characterized as follows:
 
- * **Defect Failures**. Defect failures occur because of defects in 
-   the software, such as a failure to handle a null pointer, a 
-   buffer overflow, or a division by zero.
- * **Domain Failures**. Domain failures occur when software does not 
-   handle failure scenarios that are anticipated and specified by the 
-   business, such as failure to prompt the user to correct an invalid 
-   postal code during payment processing.
- * **Unrecoverable Failures**. Unrecoverable failures occur when 
-   the software does not have the ability to recover from some failure, 
-   such as when database access fails due to incorrect configuration.
- * **OS Faults**. Operating system faults occur when the operating 
-   system itself interferes with the ability of a process to run to 
-   completion, such as the infamous blue screen of death in Windows.
- * **Hardware Faults**. Hardware faults occur when critical hardware 
-   components fail, such as the failure of RAM, CPU, or network. 
-  
+- **Defect Failures**. Defect failures occur because of defects in
+  the software, such as a failure to handle a null pointer, a
+  buffer overflow, or a division by zero.
+- **Domain Failures**. Domain failures occur when software does not
+  handle failure scenarios that are anticipated and specified by the
+  business, such as failure to prompt the user to correct an invalid
+  postal code during payment processing.
+- **Unrecoverable Failures**. Unrecoverable failures occur when
+  the software does not have the ability to recover from some failure,
+  such as when database access fails due to incorrect configuration.
+- **OS Faults**. Operating system faults occur when the operating
+  system itself interferes with the ability of a process to run to
+  completion, such as the infamous blue screen of death in Windows.
+- **Hardware Faults**. Hardware faults occur when critical hardware
+  components fail, such as the failure of RAM, CPU, or network.
 
 ### Reliability
 
-_Reliability_ is a measure of a system's resiliency *and* robustness. 
-Reliable software is adept at preventing, identifying, and responding to 
+_Reliability_ is a measure of a system's resiliency _and_ robustness.
+Reliable software is adept at preventing, identifying, and responding to
 both external and internal failures.
 
 # Golem's Reliability Guarantees
-
 
 # Tuning Guarantees
