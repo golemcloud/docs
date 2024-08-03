@@ -1,0 +1,59 @@
+import { Callout } from "nextra/components"
+import { Card, Cards } from "nextra/components"
+
+# Components
+
+Golem is a durable computing platform that makes it simple to build and deploy 
+highly reliable distributed systems.
+
+Golem provides transparent durability to applications by completely taking over 
+code execution. Rather than executing machine code, which would result in 
+highly degraded performance, Golem executes code that has been compiled to 
+WebAssembly.
+
+WebAssembly (WASM) is a binary instruction set for a stack-based virtual machine 
+that can be run on almost every platform and device. WASM is designed to be a 
+portable, cross-language target for compilers and interpreters.
+
+Golem has a custom executor that executes WASM code durably, by performing 
+real-time state replication across multiple nodes. Combined with supervision 
+and automatic recovery, this allows Golem to execute code transactionally, 
+impervious to faults, restarts, and updates.
+
+The WASM standard by itself does not provide any built-in I/O capabilities or 
+ystem interfaces, making it insufficient for real-world applications. To 
+address this fundamental gap, Golem adopts and fully supports the WebAssembly 
+component model.
+
+The component model serves as the foundation for WASI (WebAssembly System 
+Interface), which provides crucial OS-like functionality to WASM modules. WASI 
+defines a standardized set of system interfaces, allowing WebAssembly programs 
+to perform essential operations such as file I/O, network access, and time m
+anagement.
+
+For Golem, this means that components can interact with the underlying system 
+in a consistent and portable manner, regardless of the host environment.
+
+Languages that support WASM use WASI (through the component model) to provide 
+the functionality baked into their standard libraries, which are in turn used 
+to build libraries and frameworks that developers use to build applications.
+
+By embracing the component model and WASI, Golem enables your WASM-based 
+applications to benefit from the full capabilities of the underlying system, 
+while also ensuring security and portability.
+
+As an added benefit, the component model also facilitates cross-language 
+interoperability, further extending Golem's flexibility as a development 
+platform, and enabling polyglot development without having to go through 
+bulky and slow protocols like HTTP or gRPC.
+
+In this document, we will focus on the Golem-specific aspects of the component 
+model, and provide instructions for working with components on Golem.
+
+<Callout type="info">
+  A full introduction to WASM, WASI, and the component model is beyond the scope 
+  of this document. For detailed information, you can refer to the official  
+  [WebAssembly Component Model](https://component-model.bytecodealliance.org/) and
+  [WASI](https://wasi.dev/) resources.
+</Callout>
+
