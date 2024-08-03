@@ -169,10 +169,49 @@ looking at how each of them improves different faucets of reliability.
 
 ## Resiliency
 
+As discussed in [Components](concepts-components.mdx), all components deployed 
+on Golem ultimately derive their capability to interact with external systems 
+from _WASI_, which is the Posix-like interface provided by the WASM component 
+model.
+
+WASI provides facilities to interact with file systems, sockets, time, and other
+system resources in a portable and secure manner.
+
+Because Golem provides a custom implementation of WASI, it has direct insight 
+into the interactions between components and the underlying system. This allows 
+Golem to detect a variety of transient failure scenarios and automatically 
+apply resiliency strategies, such as retries, to ensure that the system remains 
+resilient to these failures.
+
+Golem automatically applies retry strategies to the following types of failures:
+
+ - TODO: 
+
+In the case of errors which are not resolved on their own, Golem will 
+eventually give up and mark the worker as failed. This is to prevent the 
+system from getting stuck in an infinite loop of retries.
+
+These workers can be detected using worker enumeration.
+
+### Limitations 
+
+Golem does not have awareness into transient errors that are expressed in protocol-
+agnostic ways. For example, if an HTTP response contains a 200 status code, but 
+the body contains a transient error, then Golem will not be able to detect this
+error and attempt recovery.
+
+You should be aware of this limitation when designing your applications, and
+consider implementing your own retry strategies for such cases.
+
+### Tuning
+
+Currently, customizing the retry strategy cannot be done without forking the Golem 
+source code. However, configuration-based retry strategies are on the roadmap.
+
 ## Robustness
+
+
 
 ## Fault-Tolerance
 
 ## High-Availability
-
-# Tuning Golem Guarantees
