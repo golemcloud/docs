@@ -57,3 +57,51 @@ model, and provide instructions for working with components on Golem.
   [WASI](https://wasi.dev/) resources.
 </Callout>
 
+## Basics 
+
+WASM components have a well-defined structure, which facilitates their execution 
+in a host environment, as well as their interaction with other components.
+
+The high-level structure of a WASM component is as follows:
+
+ - **Code**. The code section of a WASM component contains the WebAssembly 
+   bytecode that implements the component's functionality.
+ - **Data**. The data section of a WASM component contains all static data 
+   that the component requires at runtime, such as constant strings.
+ - **Imports**. The import section of a WASM component contains a list of 
+   imports that the component requires from other components or the host 
+   environment.
+ - **Exports**. The export section of a WASM component contains a list of 
+   exports that the component provides to other components or the host 
+   environment. 
+
+In order to be executed, a WASM component must be provided with all of its 
+dependencies, which are defined in the import section. The host environment 
+then provides the actual implementations for these imports.
+
+Typically, these dependencies are WASI imports, which define the low-level, 
+OS-like functionality that the component requires to function. For example, 
+a component that needs to read from a file might import a WASI import for 
+file I/O.
+
+<Callout type="info">
+  Developers of WASM components do not typically have to know about or 
+  interact with WASI directly, because the standard library for their 
+  language of choice will be implemented in terms of WASI. In turn, 
+  frameworks and libraries that developers use are implemented in terms 
+  of the standard library, hiding WASI details from developers.
+</Callout>
+
+WASM components bear some similarities to machine-code executables, but they 
+are much richer. 
+
+A machine-code executable interacts directly with the operating system, and 
+has only a single entry point, the main function. WASM components, on the other 
+hand, must be passed capabilities explicitly from the host environment, and 
+they can export many different functions, which can be called by the host 
+environment or by other components.
+
+Thus, conceptually, WASM components are much closer to libraries, such as 
+shared libraries that can be used by multiple executables, rather than 
+executables themselves.
+
