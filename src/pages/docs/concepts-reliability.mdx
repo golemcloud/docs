@@ -1,115 +1,178 @@
 import { Callout } from "nextra/components"
 import { Card, Cards } from "nextra/components"
 
-# Reliability
+## Reliability
 
-The Golem platform makes it simple to build and deploy highly-
-reliable distributed systems.
+Golem is a durable computing platform that makes it simple to build and
+deploy highly reliabile distributed systems.
 
-In this section, you will learn how Golem defines _reliability_,
-exactly what guarantees you can expect from deploying your 
-software on Golem, and how you can tune these guarantees to 
-meet the specific needs of your applications.
+When developing for Golem, you normally don't need to worry about most of  
+the complexity of ensuring reliable execution. Golem takes care of the heavy
+lifting for you, ensuring that your applications are resilient, robust,
+fault-tolerant, and highly available.
+
+However, when evaluating Golem for your use case, it is essential to understand
+exactly what guarantees Golem provides, what you need to handle on your own,
+and how you can tune Golem to meet your specific requirements.
+
+In this section, we'll explore all of these aspects in detail, starting with
+the essential concepts of reliability in distributed systems.
 
 ## Essential Concepts
 
-In any distributed system, there are two technical measures that 
-are essential to the development of reliable distributed systems:
+In the field of distributed systems, several technical concepts are crucial to
+the development of reliable solutions:
 
- * **Resiliency**. _Resiliency_ is a measure of the system's ability 
-   to correctly identify and respond to failures of other systems that 
-   the system interacts with.
- * **Robustness**. _Robustness_ is a measure of the system's ability 
-   to both prevent, as well as identify and correctly respond to, 
-   failures of the system itself.
+1. **Resiliency**: The system's ability to correctly identify and respond to
+   failures in external dependencies.
+2. **Robustness**: The system's capacity to prevent, identify, and correctly
+   respond to internal failures.
+3. **Fault-Tolerance**: The system's ability to continue functioning correctly
+   even when experiencing one or more faults.
+4. **High-Availability**: The system's capability to remain available and
+   responsive under various conditions, including partial failures or high stress.
 
-In the following two sections, we will explore different faucets of 
-both resiliency and robustness.
+Let's explore each of these concepts in detail to understand how they
+contribute to overall system reliability.
 
 ### Resiliency
 
-Every modern cloud system interacts with numerous other systems through
-network protocols. Many of these systems maintain state, while others 
-offer computational processing capabilities (such as a video transcoding 
-service or a model execution service).
+Resiliency is the ability of a system to continue functioning correctly even in
+the presence of failures in the systems it interacts with.
 
-Because other systems are unconstrained, they may fail for any 
-reason at all. However, broadly speaking, the failure scenarios can 
-be categorized as follows:
+Modern systems interact with numerous remote components through network
+protocols. These external systems can fail in various ways, presenting
+challenges for maintaining overall system reliability.
 
- * **Network Failures**. Network failures occur when connectivity 
-   between systems is disrupted, degraded, or unstable, preventing 
-   reliable communication.
- * **Internal Failures**.  Internal failures arise from bugs, crashes,
-   or other malfunctions within the system itself, causing incorrect 
-   behavior or complete non-responsiveness.
- * **Load Failures**. Load failures happen when a system is overwhelmed 
-   by requests or processing demands, leading to degraded performance 
-   or total unavailability.
- * **Maintenance Failures**. Maintenance failures result from planned 
-   or unplanned system updates, migrations, or other maintenance 
-   activities that cause downtime or unexpected behavior.
- * **Versioning Failures**. Versioning failures stem from 
-   incompatibilities between different versions of interacting systems 
-   or APIs, leading to errors or unpredictable outcomes.
- * **Authorization Failures**. Authorization failures occur due to 
-   invalid or expired credentials, insufficient permissions, or other 
-   issues preventing legitimate access to required resources.
+Common types of external failures include:
 
-Not all types of failures are survivable. For example, an authorization 
-failure is likely to result from invalid or expired credentials, and 
-cannot be resolved from within the system itself.
+- **Network Failures**: Disruptions in connectivity, degraded performance, or
+  unstable connections preventing reliable communication.
+- **Internal Failures in Remote Systems**: Bugs, crashes, or other malfunctions
+  within external systems causing incorrect behavior or non-responsiveness.
+- **Load-Related Failures**: Overwhelmed systems leading to degraded performance
+  or total unavailability.
+- **Maintenance-Related Downtime**: Planned or unplanned system updates,
+  migrations, or other maintenance activities causing temporary unavailability.
+- **API Versioning Incompatibilities**: Mismatches between different versions of
+  interacting systems or APIs leading to errors or unpredictable outcomes.
+- **Authorization and Authentication Issues**: Invalid credentials,
+  insufficient permissions, or other access-related problems.
 
-That said, most failures in external systems are transient: network 
-failures resolve themselves; internal failures either have 
-transient causes or are due to fixable bugs; load failures are resolved 
-by waiting until a period of reduced load or by auto-scaling.
+Highly resilient systems employ various strategies to handle these external
+failures:
 
-Highly resilient systems continue to function even in the presence of 
-transient failures. They do so by applying specialized retry policies, 
-which often combine exponential falloff with random jitter. Other 
-patterns, such as circuit breaker and bulkhead, are also deployed to 
-improve the resiliency of distributed systems.
+1. **Intelligent Retry Mechanisms**: Implementing advanced retry policies,
+   often combining exponential backoff with random jitter to handle transient
+   failures gracefully.
+2. **Circuit Breaker Pattern**: Temporarily disabling calls to failing services
+   to prevent cascading failures.
+3. **Bulkhead Pattern**: Isolating components to ensure that failures in one
+   part of the system don't bring down the entire application.
 
 ### Robustness
 
-Whereas resilient systems can adeptly deal with transient failures in 
-the external systems they interact with, robust systems both prevent 
-and correctly respond to internal failures.
+Robustness is the ability of a system to both prevent, as well as identify and
+correctly respond to, failures of the system itself.
 
-The concept of robustness applies both to *running processes*, such as 
-a web server or request handler, and to the *infrastructure* where the 
-processes are running, which includes the operating system and even 
-the machine on which the system executes.
+Internal failure scenarios can be categorized into a hierarchy, ranging from
+business logic issues to infrastructure problems:
 
-Internal failure scenarios can be placed into a hierarchy, indicating
-whether they are closer to business logic or closer to infrastructure,
-and broadly characterized as follows:
+- **Defect Failures**: Errors due to software defects, such as null pointer
+  exceptions, buffer overflows, or division by zero.
+- **Domain Failures**: Failures to handle scenarios anticipated and specified
+  by the business logic.
+- **Unrecoverable Failures**: Situations where the software cannot recover,
+  such as database access failures due to incorrect configuration.
+- **OS Faults**: Operating system interference with process execution.
+- **Hardware Faults**: Failures in critical hardware components like RAM,
+  CPU, or network interfaces.
 
- * **Defect Failures**. Defect failures occur because of defects in 
-   the software, such as a failure to handle a null pointer, a 
-   buffer overflow, or a division by zero.
- * **Domain Failures**. Domain failures occur when software does not 
-   handle failure scenarios that are anticipated and specified by the 
-   business, such as failure to prompt the user to correct an invalid 
-   postal code during payment processing.
- * **Unrecoverable Failures**. Unrecoverable failures occur when 
-   the software does not have the ability to recover from some failure, 
-   such as when database access fails due to incorrect configuration.
- * **OS Faults**. Operating system faults occur when the operating 
-   system itself interferes with the ability of a process to run to 
-   completion, such as the infamous blue screen of death in Windows.
- * **Hardware Faults**. Hardware faults occur when critical hardware 
-   components fail, such as the failure of RAM, CPU, or network. 
-  
+Strategies for improving robustness include:
 
-### Reliability
+1. **Comprehensive Error Handling**: Implementing thorough error handling
+   covering various failure scenarios.
+2. **Graceful Degradation**: Allowing systems to continue operating with
+   reduced functionality rather than complete shutdown when encountering
+   non-critical failures.
+3. **Rapid Failure Detection**: Quickly identifying and reporting internal
+   failures to enable fast resolution.
 
-_Reliability_ is a measure of a system's resiliency *and* robustness. 
-Reliable software is adept at preventing, identifying, and responding to 
-both external and internal failures.
+### Fault-Tolerance
 
-# Golem's Reliability Guarantees
+Fault-tolerant systems are designed to continue functioning correctly even in
+the presence of one or more faults. Fault-tolerance can be considered a
+specific type of robustness, focusing on a system's ability to handle systemic
+issues.
 
+Strategies for fault-tolerant systems include:
 
-# Tuning Guarantees
+1. **Replication**: Duplicating critical components across multiple nodes to
+   ensure continued operation if some nodes fail.
+2. **State Management**: Implementing robust state management tools to allow
+   systems to recover gracefully from failures without data loss.
+3. **Failover Mechanisms**: Automatically redirecting traffic to healthy nodes
+   in case of node failures.
+
+### High-Availability
+
+High-availability systems are designed to be accessible and responsive to their
+intended workloads, even under conditions of partial failure or stress.
+
+Strategies for achieving high availability include:
+
+1. **Load Balancing**: Distributing traffic across multiple instances to
+   prevent any single point of failure.
+2. **Auto-Scaling**: Automatically adjusting resources based on demand to
+   ensure optimal performance during peak times.
+3. **Geographic Distribution**: Deploying across multiple geographic regions
+   to reduce latency and improve resilience against regional outages.
+
+## Reliability: Bringing It All Together
+
+Reliability is a comprehensive term that encompasses all of the preceding
+concepts. A _highly reliable_ system is one that is:
+
+- Resilient to external failures
+- Robust in handling internal failures
+- Fault-tolerant to systemic issues
+- Highly available under various conditions
+
+By addressing each of these aspects, developers can create distributed systems
+that ensure data integrity, maintain consistent performance, and provide a
+seamless experience for end-users, even in the face of various challenges and
+failure scenarios.
+
+# High-Reliability with Golem
+
+With any programming language, tech stack, or SDK, Golem automatically provides
+you with a high degree of built-in reliability.
+
+These guarantees are summarized as follows:
+
+- **Transactional execution**. Golem ensures that your workers execute
+  transactionally. Once they begin execution, they will complete execution,
+  even if there are software or hardware faults, restarts, or updates.
+- **Durable state**. Golem ensures that the state of your workers is durable.
+  If a worker is recovered after a failure, it will resume with the same state
+  as before the failure.
+- **Reliable internal communication**. Golem ensures that communication
+  between workers is delivered reliably. If a message is sent, it will
+  eventually be delivered, with exactly-once semantics; even if there are
+  network partitions, faults, or other failures.
+- **Resilient external communication**. Golem automatically applies retry
+  strategies and other techniques to ensure that transient failures of
+  external systems do not affect reliability.
+
+In the following sections, we will explore these guarantees in more detail,
+looking at how each of them improves different faucets of reliability.
+
+## Resiliency
+
+## Robustness
+
+## Fault-Tolerance
+
+## High-Availability
+
+# Tuning Golem Guarantees
