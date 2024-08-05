@@ -10,7 +10,7 @@
     "type": "separator",
     "title": "Concepts"
   },
-  "concepts-execution": "Execution",
+  "concepts-reliability": "Reliability",
   "concepts-components": "Components",
   "concepts-workers": "Workers",
   "concepts-invocations": "Invocations",

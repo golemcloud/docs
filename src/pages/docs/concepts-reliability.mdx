@@ -185,7 +185,7 @@ resilient to these failures.
 
 Golem automatically applies retry strategies to the following types of failures:
 
- - TODO: 
+ - HTTP Request Failures
 
 In the case of errors which are not resolved on their own, Golem will 
 eventually give up and mark the worker as failed. This is to prevent the 
@@ -270,10 +270,23 @@ times without causing any side effects.
 
 ## High-Availability
 
+Golem is designed to to be highly-available with respect to the creation and 
+execution of new workers in the Golem cluster.
+
+This is accomplished by supporting large cluster sizes that can evenly 
+distribute workloads any number of nodes, and by automatically rebalancing
+workloads across the cluster when nodes are added or removed.
+
+However, because Golem allows and encourages communication with specific,
+stateful workers, there are limitations around the availability of specific
+workers in the cluster.
+
+The following sections overview these limitations.
+
 ### Limitations 
 
-The availability of workers in a Golem cluster is affected by several different 
-factors, including all of the following:
+The availability of specific workers in a Golem cluster is affected by several 
+different factors, including all of the following:
 
  - **Cluster Size**. The number of worker executor nodes in the cluster. 
     If the cluster is too small, then it may not be able to handle the 
@@ -291,8 +304,51 @@ factors, including all of the following:
 
 ### Tuning
 
-The primary way to improve availability in Golem is to increase the size of the 
-Golem executor cluster. This will allow Golem to distribute workloads across
-more nodes, reducing the likelihood of any single node becoming a bottleneck.
+Though not supported currently, it is very likely Golem will increase the 
+availability of specific high-priority workers by supporting instant-failover.
 
 ## Conclusion
+
+Throughout this document, we've explored the crucial aspects of reliability in 
+distributed systems and how Golem addresses these challenges. We began by 
+examining the four pillars of reliability: resiliency, robustness, fault-
+tolerance, and high availability. These concepts form the foundation for 
+creating dependable systems that can withstand various failure scenarios and 
+maintain consistent performance.
+
+Golem provides a robust set of built-in reliability guarantees that 
+significantly simplify the development of highly reliable distributed systems. 
+These include transactional execution, durable state management, reliable 
+internal communication, and resilient external communication.
+
+By automatically handling many complex reliability concerns, Golem allows 
+developers to focus on their core business logic rather than intricate failure 
+handling mechanisms. While Golem offers substantial reliability features, it's 
+essential to understand its current limitations. These include the potential 
+for at-least-once semantics in certain external system interactions and 
+limitations in the availability of specific workers during cluster changes. 
+However, Golem's team is actively working on addressing these areas, with 
+plans for customizable retry strategies and improved worker availability on 
+the horizon.
+
+For developers leveraging Golem, a deep understanding of these reliability 
+concepts and Golem's capabilities is crucial. This knowledge allows you to make 
+informed decisions about system design, identify areas where additional 
+reliability measures may be necessary, and fully utilize Golem's built-in 
+features to create robust distributed applications.
+
+As distributed systems continue to grow in complexity and importance, platforms 
+like Golem evolve to meet these challenges. Future releases promise to bring 
+even more advanced reliability features, such as automatic idempotency key 
+generation and instant failover for high-priority workers, further enhancing 
+Golem's ability to support mission-critical applications.
+
+In conclusion, Golem provides a powerful foundation for building highly reliable 
+distributed systems. By abstracting away many of the complexities associated with 
+fault-tolerance and high availability, it enables developers to create resilient 
+applications that can withstand the unpredictable nature of distributed 
+environments. 
+
+As you embark on your journey with Golem, remember that reliability is not just a 
+feature, but a fundamental aspect of system design that Golem helps you achieve 
+with greater ease and confidence.
