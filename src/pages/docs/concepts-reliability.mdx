@@ -1,7 +1,7 @@
 import { Callout } from "nextra/components"
 import { Card, Cards } from "nextra/components"
 
-## Reliability
+# Reliability
 
 Golem is a durable computing platform that makes it simple to build and
 deploy highly reliabile distributed systems.
@@ -203,15 +203,96 @@ error and attempt recovery.
 You should be aware of this limitation when designing your applications, and
 consider implementing your own retry strategies for such cases.
 
-### Tuning
+### Customization
 
-Currently, customizing the retry strategy cannot be done without forking the Golem 
-source code. However, configuration-based retry strategies are on the roadmap.
-
-## Robustness
-
-
+Currently, you cannot customize the retry strategy without forking the Golem 
+code base and incorporating your modifications directly in the worker executor. 
+However, configurable retry strategies are on the roadmap for future releases.
 
 ## Fault-Tolerance
 
+Golem's fault-tolerance guarantees are focused on ensuring that your workers
+are executed transactionally and that their state is durable, regardless of 
+software or hardware faults, restarts, or updates.
+
+In order to more precisely define the scope of these guarantees, we need to
+introduce some terminology:
+
+ - **Failure Event**. A _failure event_ is any event that causes a worker to 
+   interrupt execution, but excluding all internal errors in the worker itself.
+   This includes operating system faults, hardware faults, disruptions 
+   (termination through the container orchestrator), restarts, and updates.
+ - **Supervision**. _Supervision_ is the process by which Golem detects failure 
+   events and takes action to recover interrupted workers. 
+ - **Recovery**. _Recovery_ is the process by which Golem restores the state of 
+   a worker to its state before the failure event, and resumes execution.
+
+### Limitations
+
+Golem's fault-tolerant guarantees are extensive, and they enable you to build 
+highly reliable distributed systems without having to think about most failure 
+scenarios. However, you should be aware of the following limitation:
+
+ - **Execution Semantics**. For external systems (those not executed by Golem), 
+   Golem generally guarantees only _at-least once semantics_ with respect to 
+   the last external request made before the failure event.
+
+The following sections discuss these limitations in more depth and what you can
+do to mitigate them.
+
+#### Execution Semantics
+
+All local code, as well as all communication between workers, is executed with 
+exactly-once semantics. All local code executed strictly inside Golem, 
+including worker-to-worker communication, is guaranteed to have exactly-once 
+semantics. This means that during recovery, the state of the worker is restored 
+to the exact state it was in before the failure event, and no operations
+performed by your worker are repeated.
+
+However, for remote operations, such as invoking an HTTP API, Golem cannot
+generally guarantee exactly-once semantics. This is because a failure event 
+may occur after the request has been sent, but before the response has been
+received. In this scenario, during the recovery, the request must be retried, 
+leading to the remote system receiving the request multiple times.
+
+To mitigate this issue, you should consider using HTTP APIs that support the 
+[The Idempotency-Key HTTP Header Field](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/). 
+This header allows you to provide a unique key for each request, which the
+remote system can use to ensure that the request is idempotent.
+
+In a future release, Golem will automatically generate idempotency keys for 
+each request. For now, however, you can use the language-specific Golem SDK 
+to generate an idempotency key, which you can then pass to the remote system.
+
+Idempotency keys guarantee exactly-once semantics for requests that support
+them, ensuring that the remote system can safely process the request multiple
+times without causing any side effects.
+
 ## High-Availability
+
+### Limitations 
+
+The availability of workers in a Golem cluster is affected by several different 
+factors, including all of the following:
+
+ - **Cluster Size**. The number of worker executor nodes in the cluster. 
+    If the cluster is too small, then it may not be able to handle the 
+    workload, leading to degraded performance or unavailability.
+ - **Cluster Resizing**. Cluster resizing requires rebalancing the workload 
+    across the new set of nodes. This process may take some time, during which 
+    availability of specific workers being relocated may be degraded.
+ - **Worker Executor Node Health**. If the node running a shard of workers goes 
+    down, then those workers will be unavailable until the node is recovered. 
+    This process may take anywhere from a few seconds to a few minutes, 
+    depending on how quickly the failure is detected and the number of workers 
+    in the shard.
+ - **Shard Manager Health**. If the shard manager goes down, there are scenarios 
+    where this can negatively impact availability.
+
+### Tuning
+
+The primary way to improve availability in Golem is to increase the size of the 
+Golem executor cluster. This will allow Golem to distribute workloads across
+more nodes, reducing the likelihood of any single node becoming a bottleneck.
+
+## Conclusion
