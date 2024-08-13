@@ -1,7 +1,7 @@
 import { Callout } from "nextra/components"
 import { Card, Cards } from "nextra/components"
 
-# Reliability
+# Introduction
 
 Golem is a durable computing platform that makes it simple to build and
 deploy highly reliabile distributed systems.
@@ -18,7 +18,7 @@ and how you can tune Golem to meet your specific requirements.
 In this section, we'll explore all of these aspects in detail, starting with
 the essential concepts of reliability in distributed systems.
 
-## Essential Concepts
+# Essential Concepts
 
 In the field of distributed systems, several technical concepts are crucial to
 the development of reliable solutions:
@@ -35,7 +35,7 @@ the development of reliable solutions:
 Let's explore each of these concepts in detail to understand how they
 contribute to overall system reliability.
 
-### Resiliency
+## Resiliency
 
 Resiliency is the ability of a system to continue functioning correctly even in
 the presence of failures in the systems it interacts with.
@@ -70,7 +70,7 @@ failures:
 3. **Bulkhead Pattern**: Isolating components to ensure that failures in one
    part of the system don't bring down the entire application.
 
-### Robustness
+## Robustness
 
 Robustness is the ability of a system to both prevent, as well as identify and
 correctly respond to, failures of the system itself.
@@ -98,7 +98,7 @@ Strategies for improving robustness include:
 3. **Rapid Failure Detection**: Quickly identifying and reporting internal
    failures to enable fast resolution.
 
-### Fault-Tolerance
+## Fault-Tolerance
 
 Fault-tolerant systems are designed to continue functioning correctly even in
 the presence of one or more faults. Fault-tolerance can be considered a
@@ -114,7 +114,7 @@ Strategies for fault-tolerant systems include:
 3. **Failover Mechanisms**: Automatically redirecting traffic to healthy nodes
    in case of node failures.
 
-### High-Availability
+## High-Availability
 
 High-availability systems are designed to be accessible and responsive to their
 intended workloads, even under conditions of partial failure or stress.
@@ -128,7 +128,7 @@ Strategies for achieving high availability include:
 3. **Geographic Distribution**: Deploying across multiple geographic regions
    to reduce latency and improve resilience against regional outages.
 
-## Reliability: Bringing It All Together
+# Reliability: Bringing It All Together
 
 Reliability is a comprehensive term that encompasses all of the preceding
 concepts. A _highly reliable_ system is one that is:
@@ -317,7 +317,7 @@ different factors, including all of the following:
 Though not supported currently, it is very likely Golem will increase the
 availability of specific high-priority workers by supporting instant-failover.
 
-## Conclusion
+# Conclusion
 
 Throughout this document, we've explored the crucial aspects of reliability in
 distributed systems and how Golem addresses these challenges. We began by
