@@ -4,14 +4,17 @@ import { Callout } from "nextra/components"
 
 Golem CLI is a command-line interface for interacting with Golem. Golem CLI allows users to upload their components, launch new workers based on these components and call functions on running workers.
 
+## Select appropriate binary
+
+There are 3 different Golem CLI binaries with the same commands.
+
+- Universal `golem-cli` that supports both open sourse and hosted versions of Golem.
+- Open source specific `golem-cli` without support for the hosted version of Golem.
+- `golem-cloud-cli` without support for the open source version of Golem.
+
 <Callout type="info">
-  The Golem CLI is used to interact with your own deployment using the open source version of Golem.
-  The Golem Cloud CLI is used to interact with the hosted Golem Cloud service.
-  {/* prettier-ignore */}
-  The Golem Cloud CLI includes all the functionality of the Golem CLI, but also includes additional
-  functionality specific to the Golem Cloud service. For these examples we will use `golem-cli`
-  unless referring to functionality specific to Golem Cloud but you should use `golem-cloud-cli`
-  instead if you are using Golem Cloud.
+  The universla Golem CLI includes all the functionality of the open source specific Golem CLI and
+  Golem Cloud CLI. For these examples we will use universal `golem-cli` unless specified otherwise.
 </Callout>
 
 ## The main functions of the CLI are:
@@ -21,6 +24,7 @@ Golem CLI is a command-line interface for interacting with Golem. Golem CLI allo
 - launching new workers based on these components
 - invoking functions on workers
 - connecting to workers to see their logs
+- CLI profile configuration
 
 ## Secondary functions of the tool are:
 
@@ -30,6 +34,87 @@ Golem CLI is a command-line interface for interacting with Golem. Golem CLI allo
 - managing (transferring) ownership of projects
 
 <Callout type="info">These functions are specific to Golem Cloud.</Callout>
+
+## CLI profile configuration
+
+### Interactive profile configuration
+
+To create default profile use the following command:
+
+```bash filename="Terminal" copy
+golem-cli init
+```
+
+There are 2 main options: `Golem` - for the standalone open source installation and `Golem Cloud` - for the hosted version of Golem.
+
+Additional `Golem Default` option is pre-configurad profile for default docker compose installation. You can use this option if you are running golem locally via docker compose with default `.env` file.
+
+You can also creade a named profile this way:
+
+```bash filename="Terminal" copy
+golem-cli profile init my-profile-name
+```
+
+### Non-interact profile configuration
+
+You can manage profiles via `profile` command.
+
+This allows you to switch between your open source Golem installation and the hosted version of Golem.
+
+#### Profile creation
+
+<Callout type="info">You can skip profile creation if you are using `golem-cloud-cli`.</Callout>
+
+Creating a profile (with the name `Cloud`) for the hosted version of Golem:
+
+```bash
+$ golem-cli profile add --set-active golem-cloud Cloud
+Profile created
+```
+
+<Callout type="info">
+  Profile creation is the only commad that is incompatible across different CLI binaries.
+  {/* prettier-ignore */}
+  You have to specify profile type (`golem` or `golem-cloud`) only for the universal `golem-cli`.
+</Callout>
+
+Creating a profile (with the name `Cloud`) for the hosted version of Golem using `golem-cloud-cli`:
+
+```bash
+$ golem-cloud-cli profile add --set-active Cloud
+Profile created
+```
+
+Creating a profile (with the name `OSS`) for the open source version of Golem:
+
+```bash
+$ golem-cli profile add golem OSS --component-url http://localhost:9881
+Profile created
+```
+
+Creating a profile (with the name `OSS`) for the open source version of Golem using open source specific `golem-cli`:
+
+```bash
+$ golem-cli profile add OSS --component-url http://localhost:9881
+Profile created
+```
+
+#### Switching profile
+
+Get profiles list:
+
+```bash
+$ golem-cli profile list
+ * Cloud
+   OSS
+```
+
+Change active profile:
+
+```
+$ golem-cli profile switch OSS
+Active profile updated
+```
 
 ## Registration
 
@@ -42,7 +127,7 @@ A new user can launch the binary and create a new account on Golem Cloud by sign
 1. Users runs any Golem CLI command that requires an account, initiating authentication.
 
    ```bash
-   golem-cloud-cli account get
+   golem-cli account get
     >>
     >>  Application requests to perform OAuth2
     >>  authorization.
@@ -75,6 +160,23 @@ A new user can launch the binary and create a new account on Golem Cloud by sign
 ## Getting help
 
 To obtain help for using the CLI, use `--help`. Similarly, use `--help` option after a subcommand to get subcommand documentation.
+
+## Output format
+
+There are 3 output formats supported:
+
+- `text` - human readable. Default.
+- `json`
+- `yaml`
+
+Most of commands support output format configuration.
+
+You can specify output format via `-F` (`--format`) option or via CLI profile configuration.
+You can specify default format while creating your profile, you can also change it via the following command:
+
+```bash filename="Terminal" copy
+golem-cli profile config format FORMAT
+```
 
 ## Creating a new component
 
@@ -119,10 +221,10 @@ Required parameters:
 
 Optionally you can also organise your components into separate **projects**. If not specified, each new component is added to the **default project** of your account.
 
-If needed, you can select an already created project (read below for information about how to create one) by either its ID or its name:
+If needed, you can select an already created project (read below for information about how to create one) by either its name or Golem URI:
 
 - `--project-name NAME`
-- `--project-id UUID`
+- `--project urn:project:UUID`
 
 Once the component is successfully uploaded the CLI will print its **metadata**. The metadata contains all the detected **exported functions** with their type signature. See the [Component Interface](/docs/component-interface) page for more information about types and how they are mapped to JSON structures.
 
@@ -142,11 +244,11 @@ You need to give a **unique name** to your worker (unique **per component**). If
 
 - `--worker-name NAME`
 
-You also have to specify which **component** to create the worker based on. This can be done by name or by the component's ID (an UUID you get when you execute `component add`).
+You also have to specify which **component** to create the worker based on. This can be done by name or by the component's URI (an URN you get when you execute `component add`).
 
 Either specify:
 
-- `--component-id UUID` if you know the identifier of the component
+- `--component URI` if you know the URN of the component
 
 Or:
 
@@ -154,10 +256,10 @@ Or:
 
 <Callout type="info">Projects are specific to Golem Cloud.</Callout>
 
-Note that component names are only unique within a project. If you have multiple **projects** with components you also have to specify which project you mean, either by its name or its ID:
+Note that component names are only unique within a project. If you have multiple **projects** with components you also have to specify which project you mean, either by its name or its URI:
 
 - `--project-name NAME`
-- OR `--project-id UUID`
+- OR `--project URI`
 
 Optionally you can also specify a list of **environment variables** and a list of **command line arguments** which are static during the worker's lifetime and accessible through standard library functions of your chosen guest language:
 
@@ -172,11 +274,21 @@ The `worker invoke-and-await` command executes an **exported function** of a **w
 
 This is the primary command to execute something in **Golem** if you are also interested in its result value. Alternatively you can use `worker invoke` to just trigger the execution of a function without waiting for it. This is useful for long-running functions where you don't want to block until they finish running.
 
-When invoking a function you have to specify the component your worker is based on (as worker names are only unique within a component's scope!). This can be done in multiple ways, as described above.
+When invoking a function you have to specify the worker name or worker URI.
 
 Either specify:
 
-- `--component-id UUID` if you know the identifier of the component
+- `--worker URI` if you know the URN - you can get it as part of worker metadata.
+
+Or:
+
+- `--worker-name NAME` if you only know its name.
+
+When using worker name you have to specify the component your worker is based on (as worker names are only unique within a component's scope!). This can be done in multiple ways, as described above.
+
+Either specify:
+
+- `--component URI` if you know the URN of the component
 
 Or:
 
@@ -184,26 +296,28 @@ Or:
 
 <Callout type="info">Projects are specific to Golem Cloud.</Callout>
 
-Note that component names are only unique within a project. If you have multiple **projects** with components you also have to specify which project you mean, either by its name or its ID:
+Note that component names are only unique within a project. If you have multiple **projects** with components you also have to specify which project you mean, either by its name or its URI:
 
 - `--project-name NAME`
-- OR `--project-id UUID`
+- OR `--project URI`
 
-You also have to specify the worker **name**:
-
-- `--worker-name NAME` which is the name you gave the worker in the `worker add` command. If the worker does not exist, it will be created with default parameters (empty environment variables and command line arguments).
+If the worker does not exist, it will be created with default parameters (empty environment variables and command line arguments).
 
 And the function to be called with all its parameters:
 
 - `--function NAME` the fully qualified name of the exported function
+
+You can specify parameters either as JSON array:
+
 - `--parameters JSON_ARR` a JSON array with all the parameters to be passed to the exported function. If the function does not expect any parameters it should be an empty array (`[]`)
+  Or as separate parameters in WAVE format:
+- `--arg '"str"' --arg '[1, 2, 3]'`
 
 See the [Component Interface](/docs/component-interface) page for more information about what a fully qualified exported function name is, and how to encode the different types in JSON.
 
-There are two more optional parameters to this command:
+There is one more optional parameters to this command:
 
 - `--idempotency-key KEY` associates an idempotency key. The idempotency key can be an arbitrary, client-generated string and Golem guarantees to only execute an invocation with a given idempotency key once.
-- `--use-stdio` switches the call into **stdio mode**. This is useful for **tier 2 languages** (see [Building Components](/docs/building-components) to learn more about tiers) where you cannot define your program's interface with a WIT file. In stdio mode the JSON you provide in `--parameters` is passed directly to the component's `run` (or `main`) function through the standard input, and the result of the call is the program's standard output.
 
 ## Observing workers
 
@@ -305,3 +419,67 @@ Account command allows users to get or update account details.
 | golem-cloud-cli account get                                                                 | Get current account details. Can also be used to troubleshoot login issues. |
 | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | golem-cloud-cli account update [--account-name &lt;text&gt;] [--account-email &lt;text&gt;] | Updates account name and/or email.                                          |
+
+### Golem resources
+
+There are multiple types of Golem Resources:
+
+- Component
+- Worker
+- Worker function
+- API definition
+- API deployment
+
+There are also some Golem Cloud specific resources:
+
+<Callout type="info">Golem Cloud specific resources.</Callout>
+
+- Account
+- Project
+- Token
+- Certificate
+- Domain
+- Project policy
+
+#### Golem resource URI
+
+Each Golem resource can be identifyed using Golem URI.
+
+There are 2 kinds of URI: URN and URL. In Golem CLI URN and URL can be used whenever user has to identify the resource.
+If you want to invoke worker function you can identify worker via `--worker URI` instead of worker name and component name.
+If you want to update component you can identify component via `--component URI` instead of component name and project name.
+
+##### Golem resource URL
+
+Golem resource URL supposed to be human readable and can be constructed by user.
+
+Some examples of Golem resource URLs:
+
+- `component:///component-name` - component with name `component-name`
+- `worker:///component-name/worker-name` - worker with name `worker-name` of component `component-name`
+- `api-definition:///definition-id/version` - API definition with name and version
+- `api-deployment:///subdomain.host`
+
+##### Golem resource URN
+
+Golem resource URN is not supposed to be human readable and user should not try to cunstruct a `URN`.
+User can get resource URN as part of resource metadata. Resource creation command and resource search command should return resource URN together with resource description.
+
+Unlike URL, resource URN requires no additional actions to resolve resource location, so it might be slightly more efficient to use URN to identify resource.
+
+Worker URN is the same URN that should be used for worker RPC calls.
+
+Some examples of Golem resource URNs:
+
+- `urn:component:c201c162-fd68-4750-9e7b-9aee8993beff`
+- `urn:worker:c201c162-fd68-4750-9e7b-9aee8993beff/worker_name`
+
+##### Getting Golem resource metadata
+
+Having Golem resource URI you can get resource metagata using the following command:
+
+```bash
+golem-cli get URI
+```
+
+This command returns resource metadata in resource type cpecific format. i.e. `golem-cli get component:///component-name` is similar to `golem-cli component get --component-name component-name`.

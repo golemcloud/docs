@@ -3,7 +3,7 @@ import { Card, Cards } from "nextra/components"
 
 # Introduction
 
-Golem is a durable computing platform that makes it simple to build and deploy 
+Golem is a durable computing platform that makes it simple to build and deploy
 highly reliable distributed systems.
 
 Golem provides transparent durability to applications by taking over 
@@ -15,14 +15,14 @@ WebAssembly (_WASM_) is a binary instruction set for a stack-based virtual
 machine that can be run on any platform and device. WASM is designed to be 
 a portable, cross-language target for compilers and interpreters.
 
-Golem has a custom executor that executes WASM code durably, by performing 
-real-time state replication across multiple nodes. Combined with supervision 
-and automatic recovery, this allows Golem to execute code transactionally, 
+Golem has a custom executor that executes WASM code durably, by performing
+real-time state replication across multiple nodes. Combined with supervision
+and automatic recovery, this allows Golem to execute code transactionally,
 impervious to faults, restarts, and updates.
 
-The WASM standard by itself does not provide any built-in I/O capabilities or 
-ystem interfaces, making it insufficient for real-world applications. To 
-address this fundamental gap, Golem adopts and fully supports the WebAssembly 
+The WASM standard by itself does not provide any built-in I/O capabilities or
+ystem interfaces, making it insufficient for real-world applications. To
+address this fundamental gap, Golem adopts and fully supports the WebAssembly
 component model.
 
 The component model serves as the foundation for WASI (WebAssembly System 
@@ -31,35 +31,34 @@ defines a standardized set of system interfaces, allowing WebAssembly programs
 to perform essential operations such as file I/O, network access, and time 
 management.
 
-For Golem, this means that components can interact with the underlying system 
+For Golem, this means that components can interact with the underlying system
 in a consistent and portable manner, regardless of the host environment.
 
 Languages that support WASM use WASI (through the component model) to provide 
 the functionality built into their standard libraries, which are in turn used 
 to build libraries and frameworks that developers use to build applications.
 
-By embracing the component model and WASI, Golem enables your WASM-based 
-applications to benefit from the full capabilities of the underlying system, 
+By embracing the component model and WASI, Golem enables your WASM-based
+applications to benefit from the full capabilities of the underlying system,
 while also ensuring security and portability.
 
-As an added benefit, the component model also facilitates cross-language 
-interoperability, further extending Golem's flexibility as a development 
-platform, and enabling polyglot development without having to go through 
+As an added benefit, the component model also facilitates cross-language
+interoperability, further extending Golem's flexibility as a development
+platform, and enabling polyglot development without having to go through
 bulky and slow protocols like HTTP or gRPC.
 
 In this document, we will focus on the Golem-specific aspects of the component 
 model, and provide high-level overview of working with components.
 
 <Callout type="info">
-  A full introduction to WASM, WASI, and the component model is beyond the scope 
-  of this document. For detailed information, you can refer to the official  
-  [WebAssembly Component Model](https://component-model.bytecodealliance.org/) and
-  [WASI](https://wasi.dev/) resources.
+  A full introduction to WASM, WASI, and the component model is beyond the scope of this document.
+  For detailed information, you can refer to the official [WebAssembly Component
+  Model](https://component-model.bytecodealliance.org/) and [WASI](https://wasi.dev/) resources.
 </Callout>
 
 # Basics 
 
-WASM components have a well-defined structure, which facilitates their execution 
+WASM components have a well-defined structure, which facilitates their execution
 in a host environment, as well as their interaction with other components.
 
 The high-level structure of a WASM component is as follows:
@@ -75,13 +74,13 @@ The high-level structure of a WASM component is as follows:
    exports that the component provides to other components or to the host 
    environment. 
 
-In order to be executed, a WASM component must be provided with all of its 
-dependencies, which are defined in the import section. The host environment 
+In order to be executed, a WASM component must be provided with all of its
+dependencies, which are defined in the import section. The host environment
 then provides the actual implementations for these imports.
 
-Typically, these dependencies are WASI imports, which define the low-level, 
-OS-like functionality that the component requires to function. For example, 
-a component that needs to read from a file might import a WASI import for 
+Typically, these dependencies are WASI imports, which define the low-level,
+OS-like functionality that the component requires to function. For example,
+a component that needs to read from a file might import a WASI import for
 file I/O.
 
 <Callout type="info">
@@ -95,10 +94,10 @@ file I/O.
 WASM components bear some similarities to machine-code executables, but they 
 are much richer:
 
-A machine-code executable interacts directly with the operating system, and 
-has only a single entry point, the main function. WASM components, on the other 
-hand, must be passed capabilities explicitly from the host environment, and 
-they can export many different functions, which can be called by the host 
+A machine-code executable interacts directly with the operating system, and
+has only a single entry point, the main function. WASM components, on the other
+hand, must be passed capabilities explicitly from the host environment, and
+they can export many different functions, which can be called by the host
 environment or by other components.
 
 Thus, conceptually, WASM components are much closer to _libraries_, such as 

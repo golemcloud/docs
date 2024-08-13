@@ -18,24 +18,35 @@ rustup install stable
 rustup default stable
 ```
 
-Then you can install `golem-cli` with the following command:
+#### Recommended CLI version
+
+You can install universal version of `golem-cli` with the following command:
+
+```bash filename="Terminal" copy
+cargo install --features universal golem-cloud-cli
+```
+
+The comman above installs both universal `golem-cli` (with support for cloud and open source version) and cloud specific `golem-cloud-cli`.
+
+#### Alternative CLI versions
+
+You can install cloud specific `golem-cloud-cli` withour universal `golem-cli` with the following command:
+
+```bash filename="Terminal" copy
+cargo install golem-cloud-cli
+```
+
+You can install open sorcce specific `golem-cli` without cloud profiles support with the following command:
 
 ```bash filename="Terminal" copy
 cargo install golem-cli
 ```
 
 <Callout type="info">
-  If you want to try out the hosted version of Golem you can [register for the Developer Mode preview](https://golem.cloud/sign-up). You will then be provided with a link to download the Golem Cloud CLI.
+  Open source specific `golem-cli` and universal `golem-cli` can not be installed at the same time.
   {/* prettier-ignore */}
-  You need to create an account and authenticate yourself before using any Golem Cloud commands. This is easy to do with Github OAuth2. Lets do it right now by using the following command:
 
-```bash filename="Terminal" copy
-golem-cloud-cli account get
-```
-
-Once you authenticate, Golem Cloud CLI will cache an API token in a local directory named `$HOME/.golem`. This token will allow you to use Golem Cloud CLI without further authentication.
-
-We will use `golem-cli` as opposed to `golem-cloud-cli` in all examples unless they are specific to Golem Cloud, but `golem-cloud-cli` supports all commands supported by `golem-cli`.
+We will use universal `golem-cli` in all examples, but `golem-cloud-cli` supports all commands supported by universal `golem-cli`.
 
 </Callout>
 
@@ -62,6 +73,24 @@ That said, the example docker-compose file along with .env file should be enough
 If you are running into any port conflicts you can modify the `.env` file that was downloaded as part of the above curl command.
 
 <Callout type="info">If you are using the hosted version of Golem, you can skip this step.</Callout>
+
+### Creating CLI profile
+
+To specify Golem service location run the following command:
+
+```bash filename="Terminal" copy
+golem-cli init
+```
+
+This command starts an iteractive configuration process. For non-interactive options - see [Golem CLI](/docs/golem-cli) page.
+
+On the first step you'll see 3 options:
+
+- Golem Default. Use this options for default local docker compose installation.
+- Golem. Use this option in case of a customised Golem installation, i.e. a custom `GOLEM_ROUTER_PORT` in `.env` file.
+- Golem Cloud. Use this option for a hosted version of Golem.
+
+If you can't see `Golem Cloud` option - you are using an open source specific version of `golem-cli` instead of universal `golem-cli`.
 
 ### Building an Example
 
