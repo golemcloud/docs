@@ -1,0 +1,89 @@
+import { Callout } from "nextra/components"
+import { Card, Cards } from "nextra/components"
+
+# Introduction 
+
+Golem is a durable computing platform that makes it simple to build and deploy
+highly reliable distributed systems.
+
+In server-based programming, the fundamental unit of work is the _server_, which 
+accepts incoming connections, and handles requests by generating responses. 
+
+In Golem, which is a serverless computing platform, the fundamental unit of 
+work is the _worker_. A worker is a _running instance_ of a component, with a 
+unique identity, which allows addressing specific workers. 
+
+Workers are similar to _lambdas_ or _functions_ in other serverless computing 
+platforms, but they are far more powerful and expressive.
+
+<Callout type="info">
+  The relationship between a component and a worker is the same as the 
+  relationship between an executable and a process: processes are 
+  running instances of executables. While the executable contains 
+  mostly code, which awaits execution, a process contains both code, 
+  as well as state, which captures work-in-progress.
+</Callout>
+
+In the next section, core elements of workers are discussed in more detail.
+
+# Worker Essentials
+
+The fundamental elements of every worker include:
+
+ - **Identity**. Every worker has a unique identity, which allows addressing 
+   specific workers.
+ - **State**. Every worker has state, including memory, environment variables, 
+   and file system.
+ - **API**. Every worker has a public API, defined by its component.
+
+These elements are discussed in the sections that follow.
+
+## Identity
+
+Every worker has a globally unique identity, which is formed from the 
+following elements:
+
+ - **Component ID**. Every component deployed on Golem has a globally 
+   unique identity (UUID), which is assigned by Golem when a new component 
+   is uploaded to Golem.
+ - **Worker Name**. The worker name can be chosen by you for each worker. 
+   If you do not need to address workers specifically, you can also use 
+   a UUID for the worker name. The only constraint is that worker names 
+   must be unique within the scope of a component.
+
+The unique identity of workers allows them to be addressed individually, 
+which unlocks many powerful patterns for building distributed systems.
+
+## State
+
+Workers are inherently stateful, in the same way that any running process 
+is stateful.
+
+Workers have the following stateful elements:
+
+ - **Memory**. A worker has in-memory state, such as global variables, stack, 
+   and so on, which constantly changes over the life of the worker.
+ - **Environment Variables**. A worker has environment variables, which it 
+   inherits from component settings, and which may change over time.
+ - **File System**. A worker has a file system, which it inherits from 
+   component settings, but which may evolve over the life of the worker.
+ - **Status**. The status of the worker, managed by Golem, is one of the 
+   following: running, idle, suspended, interrupted, retrying, failed, or exited.
+
+State also includes something called the _instruction pointer_, which
+is not accessible in most programming languages, but which tracks
+which location in the code the CPU is currently executing.
+
+## API 
+
+Workers are running instances of components. Because components have a 
+public API, which is defined by WIT, workers inherit this API.
+
+To perform work, such as handling a request, you _invoke_ a worker's 
+public API. This process is referred to as _invocation_, and you can 
+learn more in the section on [invocation](#concepts-invocation).
+
+
+
+
+
