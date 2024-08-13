@@ -237,23 +237,23 @@ scenarios. However, you should be aware of the following limitation:
   Golem generally guarantees only _at-least once semantics_ with respect to
   the last external request made before the failure event.
 
-The following sections discuss these limitations in more depth and what you can
-do to mitigate them.
+The following section discusses this limitation in more depth and what you can
+do to mitigate it.
 
-#### Execution Semantics
+### Execution Semantics
 
 All local code, as well as all communication between workers, is executed with
 exactly-once semantics. All local code executed strictly inside Golem,
 including worker-to-worker communication, is guaranteed to have exactly-once
 semantics. This means that during recovery, the state of the worker is restored
 to the exact state it was in before the failure event, and no operations
-performed by your worker are repeated.
+performed by the worker are repeated.
 
 However, for remote operations, such as invoking an HTTP API, Golem cannot
 generally guarantee exactly-once semantics. This is because a failure event
-may occur after the request has been sent, but before the response has been
+may occur after a request has been sent, but before the response has been
 received. In this scenario, during the recovery, the request must be retried,
-leading to the remote system receiving the request multiple times.
+which may lead to the remote system processing the same request multiple times.
 
 To mitigate this issue, you should consider using HTTP APIs that support the
 [The Idempotency-Key HTTP Header Field](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/).
@@ -263,6 +263,16 @@ remote system can use to ensure that the request is idempotent.
 In a future release, Golem will automatically generate idempotency keys for
 each request. For now, however, you can use the language-specific Golem SDK
 to generate an idempotency key, which you can then pass to the remote system.
+
+<Callout type="warning">
+  It is recommended to use the Golem SDK to generate idempotency keys, rather
+  than generating them yourself, to ensure that Golem transactionally 
+  _commits_ the key to durable persistence right away. If you generate a 
+  random idempotency key yourself, without also using the Golem SDK to 
+  manually perform a commit, then there is a small but nonzero chance that 
+  a failure event could happen after the HTTP API is invoked, but before 
+  the idempotency key is committed to durable persistence.
+</Callout>
 
 Idempotency keys guarantee exactly-once semantics for requests that support
 them, ensuring that the remote system can safely process the request multiple
