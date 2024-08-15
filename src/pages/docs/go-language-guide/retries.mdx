@@ -25,7 +25,7 @@ import (
 golemhost.SetRetryPolicy(golemhost.RetryPolicy{
 	MaxAttempts: 10,
 	MinDelay:    100 * time.Millisecond,
-	MaxDelay:    5 * time.Seconds,
+	MaxDelay:    5 * time.Second,
 	Multiplier:  3,
 })
 
@@ -35,9 +35,10 @@ result, err = golemhost.WithRetryPolicy(
 	golemhost.RetryPolicy{
 		MaxAttempts: 4,
 		MinDelay:    300 * time.Millisecond,
-		MaxDelay:    3 * time.Seconds,
+		MaxDelay:    3 * time.Second,
 		Multiplier:  2,
-	}, func() (string, error) {
+	},
+	func() (string, error) {
 		return "golem", nil
 	},
 )
