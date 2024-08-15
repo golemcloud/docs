@@ -11,12 +11,17 @@
     "type": "separator",
     "title": "Golem SDK"
   },
+  "golem-js-sdk": "Setting up the Golem JS SDK",
+  "http": "HTTP client",
   "durability": "Durability",
   "retries": "Retries",
   "transactions": "Transactions",
   "promises": "Promises",
+  "updating": "Updating Workers",
+  "wasi": "WASI",
   "-- worker-to-worker-communication": {
     "type": "separator",
     "title": "Worker to Worker Communication"
-  }
+  },
+  "rpc": "Worker to Worker Communication"
 }
