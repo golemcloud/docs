@@ -71,15 +71,11 @@
     "type": "separator",
     "title": "References"
   },
-  "rest-api": {
-    "title": "REST API",
-    "href": "#"
-  },
   "rib": "Rib",
   "golem-host-functions": "Golem Host Functions",
   "json-wave-mapping": "JSON-WAVE Mapping",
-  "-- TO DELETE": {
-    "type": "separator",
-    "title": "OLD DOCUMENTS TO DELETE"
+  "rest-api": {
+    "title": "REST API",
+    "href": "#"
   }
 }
