@@ -19,7 +19,7 @@ In details, building the component requires the following steps:
 Use the `wit-bindgen` tool to generate the Go bindings from the WIT files:
 
 ```shell
-$ wit-bindgen tiny-go --world go-example --out-dir go_example ./wit
+$ wit-bindgen tiny-go --out-dir go_example ./wit
 ```
 
 ### Compile the Go code
@@ -35,14 +35,8 @@ $ tinygo build -target=wasi -tags=purego -o go_example.module.wasm main.go
 The following command embeds the WIT files into the WebAssembly module:
 
 ```shell
-$ wasm-tools component embed ./wit go_example.module.wasm --world go-example-imports --output go_example.embed.wasm
+$ wasm-tools component embed ./wit go_example.module.wasm --output go_example.embed.wasm
 ```
-
-<Callout type="warning">
-  Note that when using the Golem Go SDK, a different `world` must be used for `wit-bindgen` and
-  `wasm-tools component embed` commands, as explained on the [Golem Go SDK
-  page](docs/go-language-guide/golem-go-sdk).
-</Callout>
 
 ### Package the Go code into a WASM component
 

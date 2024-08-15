@@ -4,7 +4,7 @@ import { Callout } from "nextra/components"
 
 ## Creating a project
 
-Using Golem's **command line interface** provides a set of predefined, Golem-specific **examples** to choose from as a starting point.
+Golem's **command line interface** provides a set of predefined, Golem-specific **examples** to choose from as a starting point.
 
 To see the available examples for Go, run:
 
@@ -31,7 +31,7 @@ Golem and the Go toolchain currently requires defining the component's interface
 
 Each new project generated with `golem-cli` contains a `wit` directory with at least one `.wit` file defining a `world`. This world can contain **exports** (exported functions and interfaces) and these exports will be the compiled Golem component's public API.
 
-The first time a component is compiled (see the [Building Components page](docs/go-language-guide/building-components) for details), a couple of files get generated in a subdirectory named as the your component. This go module contains the definitions of all the data types and interfaces defined in the `WIT` file(s).
+The first time a component is compiled (see the [Building Components page](/docs/go-language-guide/building-components) for details), a couple of files get generated in a subdirectory named as `binding`. This go package contains the definitions of all the data types and interfaces defined in the `WIT` file(s).
 
 To **implement** the specification written in WIT, the Go code must implement some of these generated interfaces and set them explicitly in the `init` function.
 
@@ -49,7 +49,7 @@ world go-example {
 
 To implement this function in Go, the following steps must be taken:
 
-- make sure the generated `golem/demo/go_example` module is imported
+- make sure the generated `golem/demo/go_example` package is imported
 - define an empty struct representing our component
 - implement the generated `GoExample` interface for this struct
 - call the `SetGoExample` function to install the implementation
@@ -59,7 +59,7 @@ Let's see in code:
 ```go
 package main
 
-// make sure the generated module is imported
+// make sure the generated package is imported
 import (
 	"golem/demo/go_example"
 )
@@ -69,14 +69,13 @@ type GoExampleImpl struct {
 }
 
 // implement the generated `Guest` trait for this struct
-func (e GoExampleImpl) HelloWorld() string {
+func (e *GoExampleImpl) HelloWorld() string {
 	return "Hello, World!"
 }
 
 // install the implementation
 func init() {
-	a := GoExampleImpl{}
-	go_example.SetGoExample(a)
+	go_example.SetGoExample(&GoExampleImpl{})
 }
 
 ```
@@ -115,22 +114,27 @@ import (
 )
 
 type GoExampleImpl struct {
+	// state can be stored in the implementation struct
+	total uint64
 }
 
-// total State can be stored in global variables
-var total uint64
+// state can also be stored in global variables too
+// var total uint64
 
-func (e GoExampleImpl) Add(value uint64) {
-	total += value
+func (e *GoExampleImpl) Add(value uint64) {
+	e.total += value
+	// or with global state:
+	// total += value
 }
 
-func (e GoExampleImpl) Get() uint64 {
-	return total
+func (e *GoExampleImpl) Get() uint64 {
+	return e.total
+	// or with global state:
+	// return total
 }
 
 func init() {
-	a := GoExampleImpl{}
-	go_example.SetExportsGolemDemoApi(a)
+	go_example.SetExportsGolemDemoApi(&GoExampleImpl{})
 }
 ```
 
@@ -164,7 +168,7 @@ world example {
 }
 ```
 
-Resources can have multiple instances within a worker. Their constructor returns a _handle_ which is then used to call the methods on the resource. Learn more about how resources can be implicitly created and invoked through Golem's APIs in the [Invocations page](docs/concepts-invocations).
+Resources can have multiple instances within a worker. Their constructor returns a _handle_ which is then used to call the methods on the resource. Learn more about how resources can be implicitly created and invoked through Golem's APIs in the [Invocations page](/docs/concepts-invocations).
 
 To implement the above defined WIT resource in Go a few new steps must be taken:
 
@@ -191,24 +195,23 @@ type Counter struct {
 	current uint64
 }
 
-func (e GoExampleImpl) ConstructorCounter(name string) go_example.ExportsGolemDemoApiCounter {
-	return Counter{
+func (e *GoExampleImpl) ConstructorCounter(name string) go_example.ExportsGolemDemoApiCounter {
+	return &Counter{
 		name:    name,
 		current: 0,
 	}
 }
 
-func (e Counter) MethodCounterAdd(value uint64) {
+func (e *Counter) MethodCounterAdd(value uint64) {
 	e.current += value
 }
 
-func (e Counter) MethodCounterGet() uint64 {
+func (e *Counter) MethodCounterGet() uint64 {
 	return e.current
 }
 
 func init() {
-	a := GoExampleImpl{}
-	go_example.SetExportsGolemDemoApi(a)
+	go_example.SetExportsGolemDemoApi(&GoExampleImpl{})
 }
 ```
 
@@ -228,7 +231,7 @@ The following table shows an example of each `WIT` data type and its correspondi
 | `string`                   | `string`                                                                               |
 | `list<string>`             | `[]string`                                                                             |
 | `option<u64>`              | `Option[uint64]`                                                                       |
-| `result<s32, string>`      | `Result[int32, string]` where `Result` is defined in the binding module                |
+| `result<s32, string>`      | `Result[int32, string]` where `Result` is defined in the binding package               |
 | `result<_, string>`        | `Result[struct{}, String]`                                                             |
 | `result`                   | `Result[struct{}, struct{}]`                                                           |
 | `tuple<u64, string, char>` | Generated struct with a name describing the types like `GoExampleTuple3U64StringByteT` |
@@ -365,36 +368,42 @@ In general Golem supports three different ways of doing this:
 2. Defining a list of key-value pairs passed to the worker, available as **environment variables**.
 3. Using **resource constructors** to pass configuration values to the worker.
 
-### Command line arguments
+### Command line arguments and environment variables
 
-<Callout type="warning">
-  Currently TinyGo does not support the standard `os.Args` function, so we need to use the Golem GO
-  SDK to get the command line arguments.
-</Callout>
+First, make sure [the Golem Go SDK](/docs/go-language-guide/golem-go-sdk) is set up for the project.
 
-First, make sure [the Golem Go SDK](docs/go-language-guide/golem-go-sdk) is set up for the project.
-
-Then you can use the `golem_go_bindings` package to get the command line arguments:
+Then you can use the `golem_go_bindings` package to initialize the standard library's environment at start of the component's methods:
 
 ```go
-args := golem_go_bindings.WasiCli0_2_0_EnvironmentGetArguments()
-```
+package main
 
-### Environment variables
+import (
+	"fmt"
+	"os"
 
-<Callout type="warning">
-  Currently TinyGo does not support the standard `os` package's environment functions, so we need to
-  use the Golem GO SDK to get the command line arguments.
-</Callout>
+	// import the std helper
+	"github.com/golemcloud/golem-go/std"
 
-First, make sure [the Golem Go SDK](docs/go-language-guide/golem-go-sdk) is set up for the project.
+	"golem/demo/go_example"
+)
 
-Then you can use the `golem_go_bindings` package to get the command line arguments:
+type GoExampleImpl struct {
+}
 
-```go
-env := golem_go_bindings.WasiCli0_2_0_EnvironmentGetEnvironment()
-for _, pair := range env {
-	fmt.Println(pair.F0, " = ", pair.F1)
+func (e *GoExampleImpl) HelloWorld() string {
+    // initialize the std os package from the golem environment
+	// this initialization has to be called at the start of the implementation methods
+	std.Init(std.Packages{Os: true})
+
+    // access command line arguments and environment variables through the standard packages
+	fmt.Printf("args: %+v", os.Args)
+	fmt.Printf("env: %+v", os.Environ())
+
+	return "Hello, World!"
+}
+
+func init() {
+	go_example.SetGoExample(&GoExampleImpl{})
 }
 ```
 
@@ -402,13 +411,14 @@ for _, pair := range env {
 
 As explained earlier, Golem workers can export **resources** and these resources can have **constructor parameters**.
 
-Although resources can be used in many ways, one pattern for Golem is only create a single instance of the exported resource in each worker, and use it to pass configuration values to the worker. This is supported by Golem's worker invocation syntax directly, allowing to implicitly create workers and the corresponding resource by a single invocation as described on the [Invocations page](docs/concepts-invocations).
+Although resources can be used in many ways, one pattern for Golem is only create a single instance of the exported resource in each worker, and use it to pass configuration values to the worker. This is supported by Golem's worker invocation syntax directly, allowing to implicitly create workers and the corresponding resource by a single invocation as described on the [Invocations page](/docs/concepts-invocations).
 
 ## Managing state
 
 Golem workers are **stateful**. There are two major techniques to store and manipulate state in a Golem worker implemented in Rust:
 
 1. Using a global variable
-2. Using **resources** and storing state in the resource's struct
+2. Using fields in the implementation struct
+3. Using **resources** and storing state in the resource's struct
 
-Both techniques were demonstrated above in the code examples.
+All techniques were demonstrated above in the code examples.
