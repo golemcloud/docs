@@ -91,7 +91,7 @@ type ExmaplePayload struct {
 // accepts the payload as any JSON marshallable, and might return serialization errors
 ok, err := golemhost.CompletePromiseJSON(
 	promiseID,
-	Payload{
+	ExmaplePayload{
 		ID:   100,
 		Meta: "meta data",
 	},
