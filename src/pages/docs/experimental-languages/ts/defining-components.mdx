@@ -31,7 +31,7 @@ Golem and the TypeScript toolchain currently requires defining the component's i
 
 Each new project generated with `golem-cli` contains a `wit` directory with at least one `.wit` file defining a `world`. This world can contain **exports** (exported functions and interfaces) and these exports will be the compiled Golem component's public API.
 
-The first time a component is compiled (see the [Building Components page](/docs/go-language-guide/building-components) for details), a couple of files get generated in a subdirectory named `src/generated`. The generated sources contain the definitions of all the data types and interfaces defined in the `WIT` file(s) as TypeScript types and interfaces.
+The first time a component is compiled (see the [Building Components page](/docs/ts-language-guide/building-components) for details), a couple of files get generated in a subdirectory named `src/generated`. The generated sources contain the definitions of all the data types and interfaces defined in the `WIT` file(s) as TypeScript types and interfaces.
 
 To **implement** the specification written in WIT, the TypeScript code must implement some of these generated interfaces and set them explicitly in the `init` function.
 
@@ -42,7 +42,7 @@ WIT allows exporting one or more top-level functions in the `world` section, for
 ```wit
 package golem:demo;
 
-world go-example {
+world example {
     export hello-world: func() -> string;
 }
 ```
@@ -173,7 +173,7 @@ export const api: Api = {
 
 The `WIT` specifications contains some primitive and higher level data types and also allows defining custom data types which can be used as function parameters and return values on the exported functions, interfaces and resources.
 
-The following table shows an example of each `WIT` data type and its corresponding Rust type:
+The following table shows an example of each `WIT` data type and its corresponding TypeScript type:
 
 | WIT type                   | TypeScript type                                                           |
 | -------------------------- | ------------------------------------------------------------------------- |
@@ -207,10 +207,10 @@ interface api {
 
 Will generate the following TypeScript interface:
 
-```go
+```typescript
 export interface User {
-  id: bigint,
-  name: string,
+  id: bigint
+  name: string
 }
 ```
 
@@ -327,7 +327,7 @@ Environment variables can be specified when a worker is **explicitly created**, 
 - `GOLEM_COMPONENT_ID` - the ID of the worker's component
 - `GOLEM_COMPONENT_VERSION` - the version of the component used for this worker
 
-In addition to these, when using [Worker to Worker communication](/docs/pages/go-language-guide/worker-to-worker-communication), workers created by remote calls **inherit the environment variables of the caller**.
+In addition to these, when using [Worker to Worker communication](/docs/pages/ts-language-guide/worker-to-worker-communication), workers created by remote calls **inherit the environment variables of the caller**.
 
 This feature makes environment variables a good fit for passing configuration such as hostnames, ports, or access tokens to trees of workers.
 
