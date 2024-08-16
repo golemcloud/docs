@@ -56,7 +56,7 @@ model, and provide high-level overview of working with components.
   Model](https://component-model.bytecodealliance.org/) and [WASI](https://wasi.dev/) resources.
 </Callout>
 
-# Basics 
+# Structure 
 
 WASM components have a well-defined structure, which facilitates their execution
 in a host environment, as well as their interaction with other components.
@@ -116,9 +116,8 @@ Development of WASM components requires language-specific support, including:
   developed in the language can interact with the host environment, 
   and with other components.
 
-However, there are some concepts and aspects of developing WASM components 
-that are language-independent, and relevant to all developers working with 
-components on Golem.
+There are some aspects of developing WASM components that are language-
+independent, and relevant to all developers working with components on Golem.
 
 ## Lifecycle
 
@@ -129,8 +128,8 @@ steps:
    including dependencies such as WASI that are required by the language's 
    standard library.
 2. **Interface**. Define the public interface of the component, which includes 
-   both types and functions. In serverless environments like Golem, the interface 
-   dictates how external systems may interact with the component.
+   both types and functions. In serverless environments like Golem, the 
+   interface dictates how external systems may interact with the component.
 3. **Implementation**. Implement the component's functionality, including 
    satisfying the public interface of the component, using the language's 
    standard library and any other dependencies that are required.
@@ -207,7 +206,7 @@ message AddResponse {
 Further information on WIT can be found in [official documentation](https://component-model.bytecodealliance.org/design/wit.html),
 as well as the [WIT specification](https://github.com/WebAssembly/component-model/blob/main/design/mvp/WIT.md).
 
-# Language-Agnostic Tooling 
+## Language-Agnostic Tooling 
 
 Although the exact toolchain used to build a WASM component will depend on the
 language being used, there are a number of language-agnostic tools that are
@@ -215,7 +214,7 @@ useful for working with WASM components.
 
 In this section, you will learn about these tools.
 
-## wasm-tools 
+### wasm-tools 
 
 The Bytecode Alliance provides a set of tools for working with WASM components,
 called `wasm-tools`. This command-line interface (CLI) provides a number of 
@@ -255,7 +254,7 @@ then use _Cargo_ to build wasm-tools:
 $ cargo install wasm-tools
 ```
 
-## wit-bindgen 
+### wit-bindgen 
 
 The `wit-bindgen` tool, also from the Bytecode Alliance, is a tool for generating
 language bindings from WIT interfaces, which makes it easier to both consume 
@@ -269,3 +268,8 @@ of programming languages with immature support for the component model.
   - Java (TeaVM)
   - Go (TinyGo)
   - C# 
+
+# Deployment on Golem
+
+Once you have developed a WASM component, you can deploy it on Golem.
+
