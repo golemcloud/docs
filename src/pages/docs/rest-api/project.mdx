@@ -1,8 +1,4 @@
-import { Callout } from "nextra/components"
-
 # Project API
-
-<Callout type="info">The project API is only available for Golem Cloud.</Callout>
 
 Projects are groups of components and their workers, providing both a separate namespace for these entities and allows sharing between accounts.
 
@@ -12,7 +8,7 @@ Every account has a default project which is assumed when no specific project ID
 
 | Path                   | Method | Protected |
 | ---------------------- | ------ | --------- |
-| `/v2/projects/default` | GET    | Yes       |
+| `/v1/projects/default` | GET    | Yes       |
 
 - name of the project can be used for lookup the project if the ID is now known
 - defaultEnvironmentId is currently always default
@@ -37,7 +33,7 @@ Every account has a default project which is assumed when no specific project ID
 
 | Path           | Method | Protected |
 | -------------- | ------ | --------- |
-| `/v2/projects` | GET    | Yes       |
+| `/v1/projects` | GET    | Yes       |
 
 Returns all projects of the account if no project-name is specified.
 Otherwise, returns all projects of the account that has the given name.
@@ -70,7 +66,7 @@ As unique names are not enforced on the API level, the response may contain mult
 
 | Path           | Method | Protected |
 | -------------- | ------ | --------- |
-| `/v2/projects` | POST   | Yes       |
+| `/v1/projects` | POST   | Yes       |
 
 Creates a new project. The ownerAccountId must be the caller's account ID.
 
@@ -103,7 +99,7 @@ Creates a new project. The ownerAccountId must be the caller's account ID.
 
 | Path                        | Method | Protected |
 | --------------------------- | ------ | --------- |
-| `/v2/projects/{project_id}` | GET    | Yes       |
+| `/v1/projects/{project_id}` | GET    | Yes       |
 
 Gets a project by its identifier. Response is the same as for the default project.
 
@@ -126,7 +122,7 @@ Gets a project by its identifier. Response is the same as for the default projec
 
 | Path                        | Method | Protected |
 | --------------------------- | ------ | --------- |
-| `/v2/projects/{project_id}` | DELETE | Yes       |
+| `/v1/projects/{project_id}` | DELETE | Yes       |
 
 Deletes a project given by its identifier.
 
@@ -140,7 +136,7 @@ Deletes a project given by its identifier.
 
 | Path                                | Method | Protected |
 | ----------------------------------- | ------ | --------- |
-| `/v2/projects/{project_id}/actions` | GET    | Yes       |
+| `/v1/projects/{project_id}/actions` | GET    | Yes       |
 
 Returns a list of actions that can be performed on the project.
 

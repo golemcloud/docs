@@ -1,0 +1,25 @@
+# Deployment
+
+Golem Services are distributed as Docker images. They are available in [Golem Services Docker Hub](https://hub.docker.com/u/golemservices):
+
+- [golem-component-service](https://hub.docker.com/r/golemservices/golem-component-service)
+- [golem-component-compilation-service](https://hub.docker.com/r/golemservices/golem-component-compilation-service)
+- [golem-worker-service](https://hub.docker.com/r/golemservices/golem-worker-service)
+- [golem-worker-executor](https://hub.docker.com/r/golemservices/golem-worker-executor)
+- [golem-router](https://hub.docker.com/r/golemservices/golem-router) - API router
+
+Each Docker image is build for OS/ARCH-s:
+
+- linux/amd64
+- linux/arm64
+
+Storage requirements:
+
+- Redis
+- PostgreSQL (or SQLite for testing purposes)
+- File/Blob storage - File System or S3
+
+For deployment, see the following sections:
+
+- [docker](#deploy-docker) deployment
+- [kubernetes](#deploy-kubernetes) deployment

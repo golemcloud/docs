@@ -1,8 +1,4 @@
-import { Callout } from "nextra/components"
-
 # Login API
-
-<Callout type="info">The login API is only available for Golem Cloud.</Callout>
 
 The login endpoints are implementing an OAuth2 flow.
 
@@ -10,7 +6,7 @@ The login endpoints are implementing an OAuth2 flow.
 
 | Path         | Method | Protected |
 | ------------ | ------ | --------- |
-| `/v2/oauth2` | POST   | No        |
+| `/v1/oauth2` | POST   | No        |
 
 Gets a token by authorizing with an external OAuth2 provider. Currently only github is supported.
 
@@ -47,7 +43,7 @@ In the response:
 
 | Path              | Method | Protected |
 | ----------------- | ------ | --------- |
-| `/v2/login/token` | GET    | Yes       |
+| `/v1/login/token` | GET    | Yes       |
 
 Gets information about a token that is selected by the secret key passed in the Authorization header.
 The JSON is the same as the data object in the oauth2 endpoint's response.

@@ -1,19 +1,19 @@
 import { Callout } from "nextra/components"
 import { Card, Cards } from "nextra/components"
 
-# Introduction 
+# Introduction
 
 Golem is a durable computing platform that makes it simple to build and deploy
 highly reliable distributed systems.
 
-In server-based programming, the fundamental unit of work is the _server_, which 
-accepts incoming connections, and handles requests by generating responses. 
+In server-based programming, the fundamental unit of work is the _server_, which
+accepts incoming connections, and handles requests by generating responses.
 
-In Golem, which is a serverless computing platform, the fundamental unit of 
-work is the _worker_. A worker is a _running instance_ of a component, with a 
-unique identity, which allows addressing specific workers. 
+In Golem, which is a serverless computing platform, the fundamental unit of
+work is the _worker_. A worker is a _running instance_ of a component, with a
+unique identity, which allows addressing specific workers.
 
-Workers are similar to _lambdas_ or _functions_ in other serverless computing 
+Workers are similar to _lambdas_ or _functions_ in other serverless computing
 platforms, but they are far more powerful and expressive.
 
 <Callout type="info">
@@ -28,17 +28,17 @@ platforms, but they are far more powerful and expressive.
 
 The fundamental elements of every worker include:
 
- - **Identity**. Every worker has a unique identity, which allows addressing 
-   specific workers.
- - **State**. Every worker has state, including memory, environment variables, 
-   and file system.
- - **API**. Every worker has a public API, defined by its component.
+- **Identity**. Every worker has a unique identity, which allows addressing
+  specific workers.
+- **State**. Every worker has state, including memory, environment variables,
+  and file system.
+- **API**. Every worker has a public API, defined by its component.
 
 These core elements are discussed in the sections that follow.
 
 ## Identity
 
-Every worker has a globally unique identity, which is formed from the 
+Every worker has a globally unique identity, which is formed from the
 following elements:
 
  - **Component ID**. Every component deployed on Golem has a globally 
@@ -49,7 +49,7 @@ following elements:
    the worker name. The only constraint is that worker names must be unique 
    within the scope of their component.
 
-The unique identity of workers allows them to be addressed individually, 
+The unique identity of workers allows them to be addressed individually,
 which unlocks many powerful patterns for building distributed systems.
 
 ## State
@@ -71,7 +71,7 @@ State also includes something called the _instruction pointer_, which is not
 accessible in most programming languages, but which tracks which location in the 
 code the CPU is currently executing.
 
-## API 
+## API
 
 Workers are running instances of components. Because components have a public 
 API, which is defined by WIT, workers inherit this API.

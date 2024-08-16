@@ -1,8 +1,4 @@
-import { Callout } from "nextra/components"
-
 # Project Grant API
-
-<Callout type="info">The project grant API is only available for Golem Cloud.</Callout>
 
 Projects can have grants providing access to other accounts than the project's owner.
 
@@ -12,7 +8,7 @@ The project grant API allows listing, creating and deleting such grants. What th
 
 | Path                               | Method | Protected |
 | ---------------------------------- | ------ | --------- |
-| `/v2/projects/{project_id}/grants` | GET    | Yes       |
+| `/v1/projects/{project_id}/grants` | GET    | Yes       |
 
 Returns all projects grants associated with the given project.
 
@@ -42,7 +38,7 @@ For each grant:
 
 | Path                               | Method | Protected |
 | ---------------------------------- | ------ | --------- |
-| `/v2/projects/{project_id}/grants` | POST   | Yes       |
+| `/v1/projects/{project_id}/grants` | POST   | Yes       |
 
 Creates a new project grant from the following information:
 
@@ -79,7 +75,7 @@ The response describes the new project grant including it's id that can be used 
 
 | Path                                          | Method | Protected |
 | --------------------------------------------- | ------ | --------- |
-| `/v2/projects/{project_id}/grants/{grant_id}` | GET    | Yes       |
+| `/v1/projects/{project_id}/grants/{grant_id}` | GET    | Yes       |
 
 Returns a specific grant of a specific project. The returned object is the same as the elements of the grants endpoint's response described above.
 
@@ -100,7 +96,7 @@ Returns a specific grant of a specific project. The returned object is the same 
 
 | Path                                          | Method | Protected |
 | --------------------------------------------- | ------ | --------- |
-| `/v2/projects/{project_id}/grants/{grant_id}` | DELETE | Yes       |
+| `/v1/projects/{project_id}/grants/{grant_id}` | DELETE | Yes       |
 
 Deletes an existing grant of a specific project.
 

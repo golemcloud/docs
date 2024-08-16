@@ -1,12 +1,101 @@
 # Worker API
 
-The worker API allows to launch new workers, query and manipulate their status, and invoke their exported functions.
+## Get metadata of multiple workers
+
+| Path                                    | Method | Protected |
+| --------------------------------------- | ------ | --------- |
+| `/v1/components/{component_id}/workers` | GET    | Yes       |
+
+### Filters
+
+| Property    | Comparator             | Description                    | Example                            |
+| ----------- | ---------------------- | ------------------------------ | ---------------------------------- |
+| name        | StringFilterComparator | Name of worker                 | `name = worker-name`               |
+| version     | FilterComparator       | Version of worker              | `version >= 0`                     |
+| status      | FilterComparator       | Status of worker               | `status = Running`                 |
+| env.\[key\] | StringFilterComparator | Environment variable of worker | `env.var1 = value`                 |
+| createdAt   | FilterComparator       | Creation time of worker        | `createdAt > 2024-04-01T12:10:00Z` |
+
+### Comparators
+
+- StringFilterComparator: `eq|equal|=|==`, `ne|notequal|!=`, `like`, `notlike`
+- FilterComparator: `eq|equal|=|==`, `ne|notequal|!=`, `ge|greaterequal|>=`, `gt|greater|>`, `le|lessequal|<=`, `lt|less|<`
+
+Returns metadata about an existing component workers:
+
+- `workers` list of workers metadata
+- `cursor` cursor for next request, if cursor is empty/null, there are no other values
+
+**Query Parameters**
+
+| Name    | Type    | Required | Description                                                                                                                                                                        |
+| ------- | ------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| filter  | array   | No       | Filter for worker metadata in form of `property op value`. Can be used multiple times (AND condition is applied between them)                                                      |
+| cursor  | string  | No       | Count of listed values, default: 50                                                                                                                                                |
+| count   | integer | No       | Position where to start listing, if not provided, starts from the beginning. It is used to get the next page of results. To get next page, use the cursor returned in the response |
+| precise | boolean | No       | Precision in relation to worker status, if true, calculate the most up-to-date status for each worker, default is false                                                            |
+
+**Example Response JSON**
+
+```json copy
+{
+  "workers": [
+    {
+      "workerId": {
+        "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
+        "workerName": "string"
+      },
+      "accountId": "string",
+      "args": ["string"],
+      "env": {
+        "property1": "string",
+        "property2": "string"
+      },
+      "status": "Running",
+      "componentVersion": 0,
+      "retryCount": 0,
+      "pendingInvocationCount": 0,
+      "updates": [
+        {
+          "type": "pendingUpdate",
+          "timestamp": "2019-08-24T14:15:22Z",
+          "targetVersion": 0
+        }
+      ],
+      "createdAt": "2019-08-24T14:15:22Z",
+      "lastError": "string",
+      "componentSize": 0,
+      "totalLinearMemorySize": 0,
+      "ownedResources": {
+        "property1": {
+          "createdAt": "2019-08-24T14:15:22Z",
+          "indexed": {
+            "resourceName": "string",
+            "resourceParams": ["string"]
+          }
+        },
+        "property2": {
+          "createdAt": "2019-08-24T14:15:22Z",
+          "indexed": {
+            "resourceName": "string",
+            "resourceParams": ["string"]
+          }
+        }
+      }
+    }
+  ],
+  "cursor": {
+    "cursor": 0,
+    "layer": 0
+  }
+}
+```
 
 ## Launch a new worker.
 
 | Path                                    | Method | Protected |
 | --------------------------------------- | ------ | --------- |
-| `/v2/components/{component_id}/workers` | POST   | Yes       |
+| `/v1/components/{component_id}/workers` | POST   | Yes       |
 
 Creates a new worker. The worker initially is in `Idle`` status, waiting to be invoked.
 
@@ -34,102 +123,18 @@ The parameters in the request are the following:
 ```json copy
 {
   "workerId": {
-    "componentId": "196100ac-4eec-4fb6-a7f7-86c8b584771d",
+    "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
     "workerName": "string"
   },
   "componentVersion": 0
 }
 ```
 
-## Get metadata of multiple workers
-
-| Path                                    | Method | Protected |
-| --------------------------------------- | ------ | --------- |
-| `/v2/components/{component_id}/workers` | GET    | Yes       |
-
-### Filters
-
-| Property    | Comparator             | Description                    | Example                            |
-| ----------- | ---------------------- | ------------------------------ | ---------------------------------- |
-| name        | StringFilterComparator | Name of worker                 | `name = worker-name`               |
-| version     | FilterComparator       | Version of worker              | `version >= 0`                     |
-| status      | FilterComparator       | Status of worker               | `status = Running`                 |
-| env.\[key\] | StringFilterComparator | Environment variable of worker | `env.var1 = value`                 |
-| createdAt   | FilterComparator       | Creation time of worker        | `createdAt > 2024-04-01T12:10:00Z` |
-
-### Comparators
-
-- StringFilterComparator: `eq|equal|=|==`, `ne|notequal|!=`, `like`, `notlike`
-- FilterComparator: `eq|equal|=|==`, `ne|notequal|!=`, `ge|greaterequal|>=`, `gt|greater|>`, `le|lessequal|<=`, `lt|less|<`
-
-Returns metadata about an existing component workers:
-
-- `workers` list of workers metadata
-- `cursor` cursor for next request, if cursor is empty/null, there are no other values
-
-**Query Parameters**
-
-| Name    | Type    | Required | Description                                                                                                                                                                        |
-| ------- | ------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| filter  | array   | No       | Filter for worker metadata in form of `property op value`. Can be used multiple times (AND condition is applied between them)                                                      |
-| cursor  | integer | No       | Count of listed values, default: 50                                                                                                                                                |
-| count   | integer | No       | Position where to start listing, if not provided, starts from the beginning. It is used to get the next page of results. To get next page, use the cursor returned in the response |
-| precise | boolean | No       | Precision in relation to worker status, if true, calculate the most up-to-date status for each worker, default is false                                                            |
-
-**Example Response JSON**
-
-```json copy
-{
-  "workers": [
-    {
-      "workerId": {
-        "componentId": "196100ac-4eec-4fb6-a7f7-86c8b584771d",
-        "workerName": "string"
-      },
-      "accountId": "string",
-      "args": ["string"],
-      "env": {
-        "property1": "string",
-        "property2": "string"
-      },
-      "status": "Running",
-      "componentVersion": 0,
-      "retryCount": 0,
-      "pendingInvocationCount": 0,
-      "updates": [
-        {
-          "type": "pendingUpdate",
-          "timestamp": "2019-08-24T14:15:22Z",
-          "targetVersion": 0
-        }
-      ],
-      "createdAt": "2019-08-24T14:15:22Z",
-      "lastError": "string"
-    }
-  ],
-  "cursor": 0
-}
-```
-
-## Delete a worker
-
-| Path                                                  | Method | Protected |
-| ----------------------------------------------------- | ------ | --------- |
-| `/v2/components/{component_id}/workers/{worker_name}` | DELETE | Yes       |
-
-Interrupts and deletes an existing worker.
-
-**Example Response JSON**
-
-```json copy
-{}
-```
-
 ## Get metadata of a worker
 
 | Path                                                  | Method | Protected |
 | ----------------------------------------------------- | ------ | --------- |
-| `/v2/components/{component_id}/workers/{worker_name}` | GET    | Yes       |
+| `/v1/components/{component_id}/workers/{worker_name}` | GET    | Yes       |
 
 Returns metadata about an existing worker:
 
@@ -153,7 +158,7 @@ Returns metadata about an existing worker:
 ```json copy
 {
   "workerId": {
-    "componentId": "196100ac-4eec-4fb6-a7f7-86c8b584771d",
+    "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
     "workerName": "string"
   },
   "accountId": "string",
@@ -174,15 +179,47 @@ Returns metadata about an existing worker:
     }
   ],
   "createdAt": "2019-08-24T14:15:22Z",
-  "lastError": "string"
+  "lastError": "string",
+  "componentSize": 0,
+  "totalLinearMemorySize": 0,
+  "ownedResources": {
+    "property1": {
+      "createdAt": "2019-08-24T14:15:22Z",
+      "indexed": {
+        "resourceName": "string",
+        "resourceParams": ["string"]
+      }
+    },
+    "property2": {
+      "createdAt": "2019-08-24T14:15:22Z",
+      "indexed": {
+        "resourceName": "string",
+        "resourceParams": ["string"]
+      }
+    }
+  }
 }
+```
+
+## Delete a worker
+
+| Path                                                  | Method | Protected |
+| ----------------------------------------------------- | ------ | --------- |
+| `/v1/components/{component_id}/workers/{worker_name}` | DELETE | Yes       |
+
+Interrupts and deletes an existing worker.
+
+**Example Response JSON**
+
+```json copy
+{}
 ```
 
 ## Invoke a function and await it's resolution
 
 | Path                                                                   | Method | Protected |
 | ---------------------------------------------------------------------- | ------ | --------- |
-| `/v2/components/{component_id}/workers/{worker_name}/invoke-and-await` | POST   | Yes       |
+| `/v1/components/{component_id}/workers/{worker_name}/invoke-and-await` | POST   | Yes       |
 
 Supply the parameters in the request body as JSON.
 
@@ -190,20 +227,14 @@ Supply the parameters in the request body as JSON.
 
 | Name               | Type                                   | Required | Description                                                               |
 | ------------------ | -------------------------------------- | -------- | ------------------------------------------------------------------------- |
-| function           | string                                 | Yes      | name of the exported function to be invoked                               |
+| function           | string                                 | Yes      | -                                                                         |
 | calling-convention | #/components/schemas/CallingConvention | No       | One of `component`, `stdio`, `stdio-event-loop`. Defaults to `component`. |
-
-**Headers**
-
-| Name            | Type   | Required | Description                                                                     |
-| --------------- | ------ | -------- | ------------------------------------------------------------------------------- |
-| Idempotency-Key | string | No       | A key to avoid performing the same invocation more than once in case of retries |
 
 **Example Request JSON**
 
 ```json copy
 {
-  "params": null
+  "params": [null]
 }
 ```
 
@@ -219,9 +250,9 @@ Supply the parameters in the request body as JSON.
 
 | Path                                                         | Method | Protected |
 | ------------------------------------------------------------ | ------ | --------- |
-| `/v2/components/{component_id}/workers/{worker_name}/invoke` | POST   | Yes       |
+| `/v1/components/{component_id}/workers/{worker_name}/invoke` | POST   | Yes       |
 
-A simpler version of the previously defined invoke and await endpoint just triggers the execution of a function and immediately returns. Custom calling convention is not supported.
+A simpler version of the previously defined invoke and await endpoint just triggers the execution of a function and immediately returns.
 To understand how to get the function name and how to encode the function parameters check Component interface
 
 **Query Parameters**
@@ -230,17 +261,11 @@ To understand how to get the function name and how to encode the function parame
 | -------- | ------ | -------- | ------------------------------------------- |
 | function | string | Yes      | name of the exported function to be invoked |
 
-**Headers**
-
-| Name            | Type   | Required | Description                                                                     |
-| --------------- | ------ | -------- | ------------------------------------------------------------------------------- |
-| Idempotency-Key | string | No       | A key to avoid performing the same invocation more than once in case of retries |
-
 **Example Request JSON**
 
 ```json copy
 {
-  "params": null
+  "params": [null]
 }
 ```
 
@@ -254,7 +279,7 @@ To understand how to get the function name and how to encode the function parame
 
 | Path                                                           | Method | Protected |
 | -------------------------------------------------------------- | ------ | --------- |
-| `/v2/components/{component_id}/workers/{worker_name}/complete` | POST   | Yes       |
+| `/v1/components/{component_id}/workers/{worker_name}/complete` | POST   | Yes       |
 
 Completes a promise with a given custom array of bytes.
 The promise must be previously created from within the worker, and it's identifier (a combination of a worker identifier and an oplogIdx ) must be sent out to an external caller so it can use this endpoint to mark the promise completed.
@@ -279,7 +304,7 @@ true
 
 | Path                                                            | Method | Protected |
 | --------------------------------------------------------------- | ------ | --------- |
-| `/v2/components/{component_id}/workers/{worker_name}/interrupt` | POST   | Yes       |
+| `/v1/components/{component_id}/workers/{worker_name}/interrupt` | POST   | Yes       |
 
 Interrupts the execution of a worker.
 The worker's status will be Interrupted unless the recover-immediately parameter was used, in which case it remains as it was.
@@ -302,7 +327,7 @@ For example in case of a new invocation, the previously interrupted invocation i
 
 | Path                                         | Method | Protected |
 | -------------------------------------------- | ------ | --------- |
-| `/v2/components/{component_id}/workers/find` | POST   | Yes       |
+| `/v1/components/{component_id}/workers/find` | POST   | Yes       |
 
 ### Filter types
 
@@ -336,7 +361,10 @@ Returns metadata about an existing component workers:
     "comparator": "Equal",
     "value": "string"
   },
-  "cursor": 0,
+  "cursor": {
+    "cursor": 0,
+    "layer": 0
+  },
   "count": 0,
   "precise": true
 }
@@ -349,7 +377,7 @@ Returns metadata about an existing component workers:
   "workers": [
     {
       "workerId": {
-        "componentId": "196100ac-4eec-4fb6-a7f7-86c8b584771d",
+        "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
         "workerName": "string"
       },
       "accountId": "string",
@@ -370,10 +398,31 @@ Returns metadata about an existing component workers:
         }
       ],
       "createdAt": "2019-08-24T14:15:22Z",
-      "lastError": "string"
+      "lastError": "string",
+      "componentSize": 0,
+      "totalLinearMemorySize": 0,
+      "ownedResources": {
+        "property1": {
+          "createdAt": "2019-08-24T14:15:22Z",
+          "indexed": {
+            "resourceName": "string",
+            "resourceParams": ["string"]
+          }
+        },
+        "property2": {
+          "createdAt": "2019-08-24T14:15:22Z",
+          "indexed": {
+            "resourceName": "string",
+            "resourceParams": ["string"]
+          }
+        }
+      }
     }
   ],
-  "cursor": 0
+  "cursor": {
+    "cursor": 0,
+    "layer": 0
+  }
 }
 ```
 
@@ -381,7 +430,7 @@ Returns metadata about an existing component workers:
 
 | Path                                                         | Method | Protected |
 | ------------------------------------------------------------ | ------ | --------- |
-| `/v2/components/{component_id}/workers/{worker_name}/resume` | POST   | Yes       |
+| `/v1/components/{component_id}/workers/{worker_name}/resume` | POST   | Yes       |
 
 **Example Response JSON**
 
@@ -389,11 +438,11 @@ Returns metadata about an existing component workers:
 {}
 ```
 
-## Update a worker
+## undefined
 
 | Path                                                         | Method | Protected |
 | ------------------------------------------------------------ | ------ | --------- |
-| `/v2/components/{component_id}/workers/{worker_name}/update` | POST   | Yes       |
+| `/v1/components/{component_id}/workers/{worker_name}/update` | POST   | Yes       |
 
 **Example Request JSON**
 

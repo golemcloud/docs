@@ -1,8 +1,4 @@
-import { Callout } from "nextra/components"
-
 # Account API
-
-<Callout type="info">The account API is only available for Golem Cloud.</Callout>
 
 The account API allows users to query and manipulate their own account data.
 
@@ -10,7 +6,7 @@ The account API allows users to query and manipulate their own account data.
 
 | Path                        | Method | Protected |
 | --------------------------- | ------ | --------- |
-| `/v2/accounts/{account_id}` | GET    | Yes       |
+| `/v1/accounts/{account_id}` | GET    | Yes       |
 
 Retrieve an account for a given Account ID
 
@@ -29,7 +25,7 @@ Retrieve an account for a given Account ID
 
 | Path                        | Method | Protected |
 | --------------------------- | ------ | --------- |
-| `/v2/accounts/{account_id}` | PUT    | Yes       |
+| `/v1/accounts/{account_id}` | PUT    | Yes       |
 
 Allows the user to change the account details such as name and email.
 
@@ -60,7 +56,7 @@ The response is the updated account data.
 
 | Path                        | Method | Protected |
 | --------------------------- | ------ | --------- |
-| `/v2/accounts/{account_id}` | DELETE | Yes       |
+| `/v1/accounts/{account_id}` | DELETE | Yes       |
 
 Delete an account.
 
@@ -74,7 +70,7 @@ Delete an account.
 
 | Path                             | Method | Protected |
 | -------------------------------- | ------ | --------- |
-| `/v2/accounts/{account_id}/plan` | GET    | Yes       |
+| `/v1/accounts/{account_id}/plan` | GET    | Yes       |
 
 **Example Response JSON**
 
@@ -96,7 +92,7 @@ Delete an account.
 
 | Path           | Method | Protected |
 | -------------- | ------ | --------- |
-| `/v2/accounts` | POST   | Yes       |
+| `/v1/accounts` | POST   | Yes       |
 
 Create a new account. The response is the created account data.
 

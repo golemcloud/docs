@@ -1,16 +1,10 @@
-import { Callout } from "nextra/components"
-
 # Component API
-
-<Callout type="info">Specifying or querying by projects is only available for Golem Cloud.</Callout>
-
-The component API provides endpoint to upload, download and find Golem components (WASM files with associated metadata).
 
 ## Get the metadata for all component versions
 
 | Path                            | Method | Protected |
 | ------------------------------- | ------ | --------- |
-| `/v2/components/{component_id}` | GET    | Yes       |
+| `/v1/components/{component_id}` | GET    | Yes       |
 
 Each component can have multiple versions. Every time a new WASM is uploaded for a given component id, that creates a new version.
 This endpoint returns a list of all versions for the component id provided as part of the URL. Each element of the response describes a single version of a component, but does not contain the binary (WASM) itself:
@@ -29,18 +23,18 @@ This endpoint returns a list of all versions for the component id provided as pa
 [
   {
     "versionedComponentId": {
-      "componentId": "196100ac-4eec-4fb6-a7f7-86c8b584771d",
+      "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
       "version": 0
     },
     "userComponentId": {
       "versionedComponentId": {
-        "componentId": "196100ac-4eec-4fb6-a7f7-86c8b584771d",
+        "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
         "version": 0
       }
     },
     "protectedComponentId": {
       "versionedComponentId": {
-        "componentId": "196100ac-4eec-4fb6-a7f7-86c8b584771d",
+        "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
         "version": 0
       }
     },
@@ -100,6 +94,12 @@ This endpoint returns a list of all versions for the component id provided as pa
             }
           ]
         }
+      ],
+      "memories": [
+        {
+          "initial": 0,
+          "maximum": 0
+        }
       ]
     },
     "projectId": "5a8591dd-4039-49df-9202-96385ba3eff8"
@@ -111,7 +111,7 @@ This endpoint returns a list of all versions for the component id provided as pa
 
 | Path                                   | Method | Protected |
 | -------------------------------------- | ------ | --------- |
-| `/v2/components/{component_id}/upload` | PUT    | Yes       |
+| `/v1/components/{component_id}/upload` | PUT    | Yes       |
 
 **Request Body**: `WASM Binary File`
 
@@ -122,18 +122,18 @@ This endpoint returns a list of all versions for the component id provided as pa
 ```json copy
 {
   "versionedComponentId": {
-    "componentId": "196100ac-4eec-4fb6-a7f7-86c8b584771d",
+    "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
     "version": 0
   },
   "userComponentId": {
     "versionedComponentId": {
-      "componentId": "196100ac-4eec-4fb6-a7f7-86c8b584771d",
+      "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
       "version": 0
     }
   },
   "protectedComponentId": {
     "versionedComponentId": {
-      "componentId": "196100ac-4eec-4fb6-a7f7-86c8b584771d",
+      "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
       "version": 0
     }
   },
@@ -193,17 +193,128 @@ This endpoint returns a list of all versions for the component id provided as pa
           }
         ]
       }
+    ],
+    "memories": [
+      {
+        "initial": 0,
+        "maximum": 0
+      }
     ]
   },
   "projectId": "5a8591dd-4039-49df-9202-96385ba3eff8"
 }
 ```
 
-## Upload a new component
+## Get all components
 
 | Path             | Method | Protected |
 | ---------------- | ------ | --------- |
-| `/v2/components` | POST   | Yes       |
+| `/v1/components` | GET    | Yes       |
+
+Gets all components, optionally filtered by project and/or component name.
+
+**Query Parameters**
+
+| Name           | Type   | Required | Description                 |
+| -------------- | ------ | -------- | --------------------------- |
+| project-id     | string | No       | Project ID to filter by     |
+| component-name | string | No       | Component name to filter by |
+
+**Example Response JSON**
+
+```json copy
+[
+  {
+    "versionedComponentId": {
+      "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
+      "version": 0
+    },
+    "userComponentId": {
+      "versionedComponentId": {
+        "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
+        "version": 0
+      }
+    },
+    "protectedComponentId": {
+      "versionedComponentId": {
+        "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
+        "version": 0
+      }
+    },
+    "componentName": "string",
+    "componentSize": 0,
+    "metadata": {
+      "exports": [
+        {
+          "type": "Instance",
+          "name": "string",
+          "functions": [
+            {
+              "name": "string",
+              "parameters": [
+                {
+                  "name": "string",
+                  "typ": {
+                    "type": "Variant",
+                    "cases": [
+                      {
+                        "name": "string",
+                        "typ": {}
+                      }
+                    ]
+                  }
+                }
+              ],
+              "results": [
+                {
+                  "name": "string",
+                  "typ": {
+                    "type": "Variant",
+                    "cases": [
+                      {
+                        "name": "string",
+                        "typ": {}
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "producers": [
+        {
+          "fields": [
+            {
+              "name": "string",
+              "values": [
+                {
+                  "name": "string",
+                  "version": "string"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "memories": [
+        {
+          "initial": 0,
+          "maximum": 0
+        }
+      ]
+    },
+    "projectId": "5a8591dd-4039-49df-9202-96385ba3eff8"
+  }
+]
+```
+
+## Create a new component
+
+| Path             | Method | Protected |
+| ---------------- | ------ | --------- |
+| `/v1/components` | POST   | Yes       |
 
 The request body is encoded as multipart/form-data containing metadata and the WASM binary.
 
@@ -227,18 +338,18 @@ The request body is encoded as multipart/form-data containing metadata and the W
 ```json copy
 {
   "versionedComponentId": {
-    "componentId": "196100ac-4eec-4fb6-a7f7-86c8b584771d",
+    "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
     "version": 0
   },
   "userComponentId": {
     "versionedComponentId": {
-      "componentId": "196100ac-4eec-4fb6-a7f7-86c8b584771d",
+      "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
       "version": 0
     }
   },
   "protectedComponentId": {
     "versionedComponentId": {
-      "componentId": "196100ac-4eec-4fb6-a7f7-86c8b584771d",
+      "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
       "version": 0
     }
   },
@@ -298,116 +409,23 @@ The request body is encoded as multipart/form-data containing metadata and the W
           }
         ]
       }
+    ],
+    "memories": [
+      {
+        "initial": 0,
+        "maximum": 0
+      }
     ]
   },
   "projectId": "5a8591dd-4039-49df-9202-96385ba3eff8"
 }
 ```
 
-## Get all components
-
-| Path             | Method | Protected |
-| ---------------- | ------ | --------- |
-| `/v2/components` | GET    | Yes       |
-
-Gets all components, optionally filtered by project and/or component name.
-
-**Query Parameters**
-
-| Name           | Type   | Required | Description                 |
-| -------------- | ------ | -------- | --------------------------- |
-| project-id     | string | No       | Project ID to filter by     |
-| component-name | string | No       | Component name to filter by |
-
-**Example Response JSON**
-
-```json copy
-[
-  {
-    "versionedComponentId": {
-      "componentId": "196100ac-4eec-4fb6-a7f7-86c8b584771d",
-      "version": 0
-    },
-    "userComponentId": {
-      "versionedComponentId": {
-        "componentId": "196100ac-4eec-4fb6-a7f7-86c8b584771d",
-        "version": 0
-      }
-    },
-    "protectedComponentId": {
-      "versionedComponentId": {
-        "componentId": "196100ac-4eec-4fb6-a7f7-86c8b584771d",
-        "version": 0
-      }
-    },
-    "componentName": "string",
-    "componentSize": 0,
-    "metadata": {
-      "exports": [
-        {
-          "type": "Instance",
-          "name": "string",
-          "functions": [
-            {
-              "name": "string",
-              "parameters": [
-                {
-                  "name": "string",
-                  "typ": {
-                    "type": "Variant",
-                    "cases": [
-                      {
-                        "name": "string",
-                        "typ": {}
-                      }
-                    ]
-                  }
-                }
-              ],
-              "results": [
-                {
-                  "name": "string",
-                  "typ": {
-                    "type": "Variant",
-                    "cases": [
-                      {
-                        "name": "string",
-                        "typ": {}
-                      }
-                    ]
-                  }
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "producers": [
-        {
-          "fields": [
-            {
-              "name": "string",
-              "values": [
-                {
-                  "name": "string",
-                  "version": "string"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    "projectId": "5a8591dd-4039-49df-9202-96385ba3eff8"
-  }
-]
-```
-
 ## Download a component
 
 | Path                                     | Method | Protected |
 | ---------------------------------------- | ------ | --------- |
-| `/v2/components/{component_id}/download` | GET    | Yes       |
+| `/v1/components/{component_id}/download` | GET    | Yes       |
 
 Downloads a specific version of the component's WASM.
 
@@ -419,31 +437,31 @@ Downloads a specific version of the component's WASM.
 
 **Response Body:** `WASM Binary File`
 
-## Get the latest version of a given component
+## Get the version of a given component
 
-| Path                                   | Method | Protected |
-| -------------------------------------- | ------ | --------- |
-| `/v2/components/{component_id}/latest` | GET    | Yes       |
+| Path                                               | Method | Protected |
+| -------------------------------------------------- | ------ | --------- |
+| `/v1/components/{component_id}/versions/{version}` | GET    | Yes       |
 
-Gets the latest version of a component.
+Gets the version of a component.
 
 **Example Response JSON**
 
 ```json copy
 {
   "versionedComponentId": {
-    "componentId": "196100ac-4eec-4fb6-a7f7-86c8b584771d",
+    "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
     "version": 0
   },
   "userComponentId": {
     "versionedComponentId": {
-      "componentId": "196100ac-4eec-4fb6-a7f7-86c8b584771d",
+      "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
       "version": 0
     }
   },
   "protectedComponentId": {
     "versionedComponentId": {
-      "componentId": "196100ac-4eec-4fb6-a7f7-86c8b584771d",
+      "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
       "version": 0
     }
   },
@@ -502,6 +520,108 @@ Gets the latest version of a component.
             ]
           }
         ]
+      }
+    ],
+    "memories": [
+      {
+        "initial": 0,
+        "maximum": 0
+      }
+    ]
+  },
+  "projectId": "5a8591dd-4039-49df-9202-96385ba3eff8"
+}
+```
+
+## Get the latest version of a given component
+
+| Path                                   | Method | Protected |
+| -------------------------------------- | ------ | --------- |
+| `/v1/components/{component_id}/latest` | GET    | Yes       |
+
+Gets the latest version of a component.
+
+**Example Response JSON**
+
+```json copy
+{
+  "versionedComponentId": {
+    "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
+    "version": 0
+  },
+  "userComponentId": {
+    "versionedComponentId": {
+      "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
+      "version": 0
+    }
+  },
+  "protectedComponentId": {
+    "versionedComponentId": {
+      "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
+      "version": 0
+    }
+  },
+  "componentName": "string",
+  "componentSize": 0,
+  "metadata": {
+    "exports": [
+      {
+        "type": "Instance",
+        "name": "string",
+        "functions": [
+          {
+            "name": "string",
+            "parameters": [
+              {
+                "name": "string",
+                "typ": {
+                  "type": "Variant",
+                  "cases": [
+                    {
+                      "name": "string",
+                      "typ": {}
+                    }
+                  ]
+                }
+              }
+            ],
+            "results": [
+              {
+                "name": "string",
+                "typ": {
+                  "type": "Variant",
+                  "cases": [
+                    {
+                      "name": "string",
+                      "typ": {}
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "producers": [
+      {
+        "fields": [
+          {
+            "name": "string",
+            "values": [
+              {
+                "name": "string",
+                "version": "string"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "memories": [
+      {
+        "initial": 0,
+        "maximum": 0
       }
     ]
   },

@@ -1,8 +1,4 @@
-import { Callout } from "nextra/components"
-
 # Limits API
-
-<Callout type="info">The limits API is only available for Golem Cloud.</Callout>
 
 The limits API allows users to query their current resource limits.
 
@@ -10,7 +6,7 @@ The limits API allows users to query their current resource limits.
 
 | Path                  | Method | Protected |
 | --------------------- | ------ | --------- |
-| `/v2/resource-limits` | GET    | Yes       |
+| `/v1/resource-limits` | GET    | Yes       |
 
 **Query Parameters**
 
@@ -31,7 +27,7 @@ The limits API allows users to query their current resource limits.
 
 | Path                  | Method | Protected |
 | --------------------- | ------ | --------- |
-| `/v2/resource-limits` | POST   | Yes       |
+| `/v1/resource-limits` | POST   | Yes       |
 
 **Example Request JSON**
 
@@ -56,4 +52,5 @@ The limits API allows users to query their current resource limits.
 | ----------- | ------------------------------------------------------------------------ | ----------------------- |
 | 400         | Invalid request, returning with a list of issues detected in the request | `{"errors":["string"]}` |
 | 401         | Unauthorized request                                                     | `{"error":"string"}`    |
+| 403         |                                                                          | `{"error":"string"}`    |
 | 500         | Internal server error                                                    | `{"error":"string"}`    |

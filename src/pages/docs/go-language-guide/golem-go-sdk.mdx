@@ -8,7 +8,7 @@ import { Steps } from "nextra/components"
   steps can be ignored.
 </Callout>
 
-If setting up the Golem Go SDK manually, the following steps are required:
+If setting up the [Golem Go SDK](https://github.com/golemcloud/golem-go) manually, the following steps are required:
 
 <Steps>
 ### Add the Golem Go SDK as a dependency
@@ -23,7 +23,7 @@ $ go get github.com/golemcloud/golem-go
 
 The project's `wit/deps` directory must contain all the WIT files from the [golem-wit](https://github.com/golemcloud/golem-wit/tree/main/wit/deps) repository.
 
-### Create a second world in the WIT file importing all these WITs:
+### Importing WITs into the component's world:
 
 If the project's WIT file was like this:
 
@@ -41,10 +41,6 @@ Modify it in the following way:
 package golem:demo;
 
 world go-example {
-  export api;
-}
-
-world go-example-imports {
   import golem:api/host@0.2.0;
   import golem:rpc/types@0.1.0;
 
@@ -69,14 +65,8 @@ world go-example-imports {
   import wasi:sockets/ip-name-lookup@0.2.0;
   import wasi:sockets/instance-network@0.2.0;
 
-  include go-example;
+  export api;
 }
 ```
-
-### Modify the build scripts
-
-Make sure to pass `--world go-example` to the `wit-bindgen` call, so the generated bindings won't include the WASI and Golem APIs. Otherwise the build will fail due to duplicate bindings.
-
-Pass `--world go-example-imports` to the `wasm-tools embed` command to import all the required interfaces in the final WebAssembly component.
 
 </Steps>
