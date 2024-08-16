@@ -10,7 +10,6 @@ Each component can have multiple versions. Every time a new WASM is uploaded for
 This endpoint returns a list of all versions for the component id provided as part of the URL. Each element of the response describes a single version of a component, but does not contain the binary (WASM) itself:
 
 - `versionedComponentId` associates a specific version with the component id
-- `userComponentId` and protectedComponentId are implementation details, not used elsewhere on the public API
 - `componentName` is the human-readable name of the component
 - `componentSize` is the WASM binary's size in bytes
 - `metadata` contains information extracted from the WASM itself
@@ -26,56 +25,39 @@ This endpoint returns a list of all versions for the component id provided as pa
       "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
       "version": 0
     },
-    "userComponentId": {
-      "versionedComponentId": {
-        "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
-        "version": 0
-      }
-    },
-    "protectedComponentId": {
-      "versionedComponentId": {
-        "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
-        "version": 0
-      }
-    },
     "componentName": "string",
     "componentSize": 0,
     "metadata": {
       "exports": [
         {
-          "type": "Instance",
+          "type": "Function",
           "name": "string",
-          "functions": [
+          "parameters": [
             {
               "name": "string",
-              "parameters": [
-                {
-                  "name": "string",
-                  "typ": {
-                    "type": "Variant",
-                    "cases": [
-                      {
-                        "name": "string",
-                        "typ": {}
-                      }
-                    ]
+              "typ": {
+                "type": "Variant",
+                "cases": [
+                  {
+                    "name": "string",
+                    "typ": {}
                   }
-                }
-              ],
-              "results": [
-                {
-                  "name": "string",
-                  "typ": {
-                    "type": "Variant",
-                    "cases": [
-                      {
-                        "name": "string",
-                        "typ": {}
-                      }
-                    ]
+                ]
+              }
+            }
+          ],
+          "results": [
+            {
+              "name": "string",
+              "typ": {
+                "type": "Variant",
+                "cases": [
+                  {
+                    "name": "string",
+                    "typ": {}
                   }
-                }
-              ]
+                ]
+              }
             }
           ]
         }
@@ -125,56 +107,39 @@ This endpoint returns a list of all versions for the component id provided as pa
     "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
     "version": 0
   },
-  "userComponentId": {
-    "versionedComponentId": {
-      "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
-      "version": 0
-    }
-  },
-  "protectedComponentId": {
-    "versionedComponentId": {
-      "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
-      "version": 0
-    }
-  },
   "componentName": "string",
   "componentSize": 0,
   "metadata": {
     "exports": [
       {
-        "type": "Instance",
+        "type": "Function",
         "name": "string",
-        "functions": [
+        "parameters": [
           {
             "name": "string",
-            "parameters": [
-              {
-                "name": "string",
-                "typ": {
-                  "type": "Variant",
-                  "cases": [
-                    {
-                      "name": "string",
-                      "typ": {}
-                    }
-                  ]
+            "typ": {
+              "type": "Variant",
+              "cases": [
+                {
+                  "name": "string",
+                  "typ": {}
                 }
-              }
-            ],
-            "results": [
-              {
-                "name": "string",
-                "typ": {
-                  "type": "Variant",
-                  "cases": [
-                    {
-                      "name": "string",
-                      "typ": {}
-                    }
-                  ]
+              ]
+            }
+          }
+        ],
+        "results": [
+          {
+            "name": "string",
+            "typ": {
+              "type": "Variant",
+              "cases": [
+                {
+                  "name": "string",
+                  "typ": {}
                 }
-              }
-            ]
+              ]
+            }
           }
         ]
       }
@@ -229,56 +194,39 @@ Gets all components, optionally filtered by project and/or component name.
       "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
       "version": 0
     },
-    "userComponentId": {
-      "versionedComponentId": {
-        "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
-        "version": 0
-      }
-    },
-    "protectedComponentId": {
-      "versionedComponentId": {
-        "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
-        "version": 0
-      }
-    },
     "componentName": "string",
     "componentSize": 0,
     "metadata": {
       "exports": [
         {
-          "type": "Instance",
+          "type": "Function",
           "name": "string",
-          "functions": [
+          "parameters": [
             {
               "name": "string",
-              "parameters": [
-                {
-                  "name": "string",
-                  "typ": {
-                    "type": "Variant",
-                    "cases": [
-                      {
-                        "name": "string",
-                        "typ": {}
-                      }
-                    ]
+              "typ": {
+                "type": "Variant",
+                "cases": [
+                  {
+                    "name": "string",
+                    "typ": {}
                   }
-                }
-              ],
-              "results": [
-                {
-                  "name": "string",
-                  "typ": {
-                    "type": "Variant",
-                    "cases": [
-                      {
-                        "name": "string",
-                        "typ": {}
-                      }
-                    ]
+                ]
+              }
+            }
+          ],
+          "results": [
+            {
+              "name": "string",
+              "typ": {
+                "type": "Variant",
+                "cases": [
+                  {
+                    "name": "string",
+                    "typ": {}
                   }
-                }
-              ]
+                ]
+              }
             }
           ]
         }
@@ -341,56 +289,39 @@ The request body is encoded as multipart/form-data containing metadata and the W
     "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
     "version": 0
   },
-  "userComponentId": {
-    "versionedComponentId": {
-      "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
-      "version": 0
-    }
-  },
-  "protectedComponentId": {
-    "versionedComponentId": {
-      "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
-      "version": 0
-    }
-  },
   "componentName": "string",
   "componentSize": 0,
   "metadata": {
     "exports": [
       {
-        "type": "Instance",
+        "type": "Function",
         "name": "string",
-        "functions": [
+        "parameters": [
           {
             "name": "string",
-            "parameters": [
-              {
-                "name": "string",
-                "typ": {
-                  "type": "Variant",
-                  "cases": [
-                    {
-                      "name": "string",
-                      "typ": {}
-                    }
-                  ]
+            "typ": {
+              "type": "Variant",
+              "cases": [
+                {
+                  "name": "string",
+                  "typ": {}
                 }
-              }
-            ],
-            "results": [
-              {
-                "name": "string",
-                "typ": {
-                  "type": "Variant",
-                  "cases": [
-                    {
-                      "name": "string",
-                      "typ": {}
-                    }
-                  ]
+              ]
+            }
+          }
+        ],
+        "results": [
+          {
+            "name": "string",
+            "typ": {
+              "type": "Variant",
+              "cases": [
+                {
+                  "name": "string",
+                  "typ": {}
                 }
-              }
-            ]
+              ]
+            }
           }
         ]
       }
@@ -453,56 +384,39 @@ Gets the version of a component.
     "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
     "version": 0
   },
-  "userComponentId": {
-    "versionedComponentId": {
-      "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
-      "version": 0
-    }
-  },
-  "protectedComponentId": {
-    "versionedComponentId": {
-      "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
-      "version": 0
-    }
-  },
   "componentName": "string",
   "componentSize": 0,
   "metadata": {
     "exports": [
       {
-        "type": "Instance",
+        "type": "Function",
         "name": "string",
-        "functions": [
+        "parameters": [
           {
             "name": "string",
-            "parameters": [
-              {
-                "name": "string",
-                "typ": {
-                  "type": "Variant",
-                  "cases": [
-                    {
-                      "name": "string",
-                      "typ": {}
-                    }
-                  ]
+            "typ": {
+              "type": "Variant",
+              "cases": [
+                {
+                  "name": "string",
+                  "typ": {}
                 }
-              }
-            ],
-            "results": [
-              {
-                "name": "string",
-                "typ": {
-                  "type": "Variant",
-                  "cases": [
-                    {
-                      "name": "string",
-                      "typ": {}
-                    }
-                  ]
+              ]
+            }
+          }
+        ],
+        "results": [
+          {
+            "name": "string",
+            "typ": {
+              "type": "Variant",
+              "cases": [
+                {
+                  "name": "string",
+                  "typ": {}
                 }
-              }
-            ]
+              ]
+            }
           }
         ]
       }
@@ -549,56 +463,39 @@ Gets the latest version of a component.
     "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
     "version": 0
   },
-  "userComponentId": {
-    "versionedComponentId": {
-      "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
-      "version": 0
-    }
-  },
-  "protectedComponentId": {
-    "versionedComponentId": {
-      "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
-      "version": 0
-    }
-  },
   "componentName": "string",
   "componentSize": 0,
   "metadata": {
     "exports": [
       {
-        "type": "Instance",
+        "type": "Function",
         "name": "string",
-        "functions": [
+        "parameters": [
           {
             "name": "string",
-            "parameters": [
-              {
-                "name": "string",
-                "typ": {
-                  "type": "Variant",
-                  "cases": [
-                    {
-                      "name": "string",
-                      "typ": {}
-                    }
-                  ]
+            "typ": {
+              "type": "Variant",
+              "cases": [
+                {
+                  "name": "string",
+                  "typ": {}
                 }
-              }
-            ],
-            "results": [
-              {
-                "name": "string",
-                "typ": {
-                  "type": "Variant",
-                  "cases": [
-                    {
-                      "name": "string",
-                      "typ": {}
-                    }
-                  ]
+              ]
+            }
+          }
+        ],
+        "results": [
+          {
+            "name": "string",
+            "typ": {
+              "type": "Variant",
+              "cases": [
+                {
+                  "name": "string",
+                  "typ": {}
                 }
-              }
-            ]
+              ]
+            }
           }
         ]
       }

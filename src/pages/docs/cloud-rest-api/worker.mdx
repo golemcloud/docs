@@ -225,16 +225,28 @@ Supply the parameters in the request body as JSON.
 
 **Query Parameters**
 
-| Name               | Type                                   | Required | Description                                                               |
-| ------------------ | -------------------------------------- | -------- | ------------------------------------------------------------------------- |
-| function           | string                                 | Yes      | -                                                                         |
-| calling-convention | #/components/schemas/CallingConvention | No       | One of `component`, `stdio`, `stdio-event-loop`. Defaults to `component`. |
+| Name     | Type   | Required | Description |
+| -------- | ------ | -------- | ----------- |
+| function | string | Yes      | -           |
 
 **Example Request JSON**
 
 ```json copy
 {
-  "params": [null]
+  "params": [
+    {
+      "typ": {
+        "type": "Variant",
+        "cases": [
+          {
+            "name": "string",
+            "typ": {}
+          }
+        ]
+      },
+      "value": null
+    }
+  ]
 }
 ```
 
@@ -242,7 +254,18 @@ Supply the parameters in the request body as JSON.
 
 ```json copy
 {
-  "result": null
+  "result": {
+    "typ": {
+      "type": "Variant",
+      "cases": [
+        {
+          "name": "string",
+          "typ": {}
+        }
+      ]
+    },
+    "value": null
+  }
 }
 ```
 
@@ -264,7 +287,20 @@ A simpler version of the previously defined invoke and await endpoint just trigg
 
 ```json copy
 {
-  "params": [null]
+  "params": [
+    {
+      "typ": {
+        "type": "Variant",
+        "cases": [
+          {
+            "name": "string",
+            "typ": {}
+          }
+        ]
+      },
+      "value": null
+    }
+  ]
 }
 ```
 
