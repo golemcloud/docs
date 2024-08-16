@@ -1,10 +1,13 @@
 # Api Definition API
 
-## undefined
+## Upload an OpenAPI definition
 
 | Path                         | Method | Protected |
 | ---------------------------- | ------ | --------- |
 | `/v1/api/definitions/import` | PUT    | No        |
+
+Uploads an OpenAPI JSON document and either creates a new one or updates an existing Golem
+API definition using it.
 
 **Example Request JSON**
 
@@ -34,11 +37,14 @@ null
 }
 ```
 
-## undefined
+## Get or list API definitions
 
 | Path                  | Method | Protected |
 | --------------------- | ------ | --------- |
 | `/v1/api/definitions` | GET    | No        |
+
+If `api_definition_id` is specified, returns a single API definition.
+Otherwise lists all API definitions.
 
 **Query Parameters**
 
@@ -70,12 +76,15 @@ null
 ]
 ```
 
-## undefined
+## Create a new API definition
 
 | Path                  | Method | Protected |
 | --------------------- | ------ | --------- |
 | `/v1/api/definitions` | POST   | No        |
 
+Creates a new API definition described by Golem's API definition JSON document.
+If an API definition of the same version already exists, its an error.
+
 **Example Request JSON**
 
 ```json copy
@@ -120,12 +129,14 @@ null
 }
 ```
 
-## undefined
+## Get an API definition
 
 | Path                                 | Method | Protected |
 | ------------------------------------ | ------ | --------- |
 | `/v1/api/definitions/{id}/{version}` | GET    | No        |
 
+An API definition is selected by its API definition ID and version.
+
 **Example Response JSON**
 
 ```json copy
@@ -148,11 +159,13 @@ null
 }
 ```
 
-## undefined
+## Update an existing API definition.
 
 | Path                                 | Method | Protected |
 | ------------------------------------ | ------ | --------- |
 | `/v1/api/definitions/{id}/{version}` | PUT    | No        |
+
+Only draft API definitions can be updated.
 
 **Example Request JSON**
 
@@ -198,11 +211,13 @@ null
 }
 ```
 
-## undefined
+## Delete an API definition
 
 | Path                                 | Method | Protected |
 | ------------------------------------ | ------ | --------- |
 | `/v1/api/definitions/{id}/{version}` | DELETE | No        |
+
+Deletes an API definition by its API definition ID and version.
 
 **Example Response JSON**
 

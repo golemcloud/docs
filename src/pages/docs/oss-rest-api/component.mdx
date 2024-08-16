@@ -1,10 +1,12 @@
 # Component API
 
-## undefined
+## Get all components
 
 | Path             | Method | Protected |
 | ---------------- | ------ | --------- |
 | `/v1/components` | GET    | No        |
+
+Gets all components, optionally filtered by component name.
 
 **Query Parameters**
 
@@ -84,11 +86,13 @@
 ]
 ```
 
-## undefined
+## Create a new component
 
 | Path             | Method | Protected |
 | ---------------- | ------ | --------- |
 | `/v1/components` | POST   | No        |
+
+The request body is encoded as multipart/form-data containing metadata and the WASM binary.
 
 **Request Form**: `multipart/form-data`
 
@@ -168,7 +172,7 @@
 }
 ```
 
-## undefined
+## Update a component
 
 | Path                                   | Method | Protected |
 | -------------------------------------- | ------ | --------- |
@@ -248,11 +252,13 @@
 }
 ```
 
-## undefined
+## Download a component
 
 | Path                                     | Method | Protected |
 | ---------------------------------------- | ------ | --------- |
 | `/v1/components/{component_id}/download` | GET    | No        |
+
+Downloads a specific version of the component's WASM.
 
 **Query Parameters**
 
@@ -262,11 +268,22 @@
 
 **Response Body:** `WASM Binary File`
 
-## undefined
+## Get the metadata for all component versions
 
 | Path                            | Method | Protected |
 | ------------------------------- | ------ | --------- |
 | `/v1/components/{component_id}` | GET    | No        |
+
+Each component can have multiple versions. Every time a new WASM is uploaded for a given component id, that creates a new version.
+This endpoint returns a list of all versions for the component id provided as part of the URL. Each element of the response describes a single version of a component, but does not contain the binary (WASM) itself:
+
+- `versionedComponentId` associates a specific version with the component id
+- `userComponentId` and protectedComponentId are implementation details, not used elsewhere on the public API
+- `componentName` is the human-readable name of the component
+- `componentSize` is the WASM binary's size in bytes
+- `metadata` contains information extracted from the WASM itself
+- `metadata.exports` is a list of exported functions, including their parameter's and return value's types
+- `metadata.producers` is a list of producer information added by tooling, each consisting of a list of fields associating one or more values to a given key. This contains information about what compilers and other WASM related tools were used to construct the Golem component.
 
 **Example Response JSON**
 
@@ -340,11 +357,13 @@
 ]
 ```
 
-## undefined
+## Get the version of a given component
 
 | Path                                               | Method | Protected |
 | -------------------------------------------------- | ------ | --------- |
 | `/v1/components/{component_id}/versions/{version}` | GET    | No        |
+
+Gets the version of a component.
 
 **Example Response JSON**
 
@@ -416,11 +435,13 @@
 }
 ```
 
-## undefined
+## Get the latest version of a given component
 
 | Path                                   | Method | Protected |
 | -------------------------------------- | ------ | --------- |
 | `/v1/components/{component_id}/latest` | GET    | No        |
+
+Gets the latest version of a component.
 
 **Example Response JSON**
 

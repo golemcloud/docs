@@ -1,10 +1,30 @@
 # Worker API
 
-## undefined
+## Get metadata of multiple workers
 
 | Path                                    | Method | Protected |
 | --------------------------------------- | ------ | --------- |
 | `/v1/components/{component_id}/workers` | GET    | No        |
+
+### Filters
+
+| Property    | Comparator             | Description                    | Example                            |
+| ----------- | ---------------------- | ------------------------------ | ---------------------------------- |
+| name        | StringFilterComparator | Name of worker                 | `name = worker-name`               |
+| version     | FilterComparator       | Version of worker              | `version >= 0`                     |
+| status      | FilterComparator       | Status of worker               | `status = Running`                 |
+| env.\[key\] | StringFilterComparator | Environment variable of worker | `env.var1 = value`                 |
+| createdAt   | FilterComparator       | Creation time of worker        | `createdAt > 2024-04-01T12:10:00Z` |
+
+### Comparators
+
+- StringFilterComparator: `eq|equal|=|==`, `ne|notequal|!=`, `like`, `notlike`
+- FilterComparator: `eq|equal|=|==`, `ne|notequal|!=`, `ge|greaterequal|>=`, `gt|greater|>`, `le|lessequal|<=`, `lt|less|<`
+
+Returns metadata about an existing component workers:
+
+- `workers` list of workers metadata
+- `cursor` cursor for next request, if cursor is empty/null, there are no other values
 
 **Query Parameters**
 
@@ -70,11 +90,19 @@
 }
 ```
 
-## undefined
+## Launch a new worker.
 
 | Path                                    | Method | Protected |
 | --------------------------------------- | ------ | --------- |
 | `/v1/components/{component_id}/workers` | POST   | No        |
+
+Creates a new worker. The worker initially is in `Idle`` status, waiting to be invoked.
+
+The parameters in the request are the following:
+
+- `name` is the name of the created worker. This has to be unique, but only for a given component
+- `args` is a list of strings which appear as command line arguments for the worker
+- `env` is a list of key-value pairs (represented by arrays) which appear as environment variables for the worker
 
 **Example Request JSON**
 
@@ -101,11 +129,28 @@
 }
 ```
 
-## undefined
+## Get metadata of a worker
 
 | Path                                                  | Method | Protected |
 | ----------------------------------------------------- | ------ | --------- |
 | `/v1/components/{component_id}/workers/{worker_name}` | GET    | No        |
+
+Returns metadata about an existing worker:
+
+- `workerId` is a combination of the used component and the worker's user specified name
+- `accountId` the account the worker is created by
+- `args` is the provided command line arguments passed to the worker
+- `env` is the provided map of environment variables passed to the worker
+- `componentVersion` is the version of the component used by the worker
+- `retryCount` is the number of retries the worker did in case of a failure
+- `status` is the worker's current status, one of the following:
+- `Running` if the worker is currently executing
+- `Idle` if the worker is waiting for an invocation
+- `Suspended` if the worker was running but is now waiting to be resumed by an event (such as end of a sleep, a promise, etc)
+- `Interrupted` if the worker was interrupted by the user
+- `Retrying` if the worker failed, and an automatic retry was scheduled for it
+- `Failed` if the worker failed and there are no more retries scheduled for it
+- `Exited` if the worker explicitly exited using the exit WASI function
 
 **Example Response JSON**
 
@@ -154,11 +199,13 @@
 }
 ```
 
-## undefined
+## Delete a worker
 
 | Path                                                  | Method | Protected |
 | ----------------------------------------------------- | ------ | --------- |
 | `/v1/components/{component_id}/workers/{worker_name}` | DELETE | No        |
+
+Interrupts and deletes an existing worker.
 
 **Example Response JSON**
 
@@ -166,11 +213,13 @@
 {}
 ```
 
-## undefined
+## Invoke a function and await it's resolution
 
 | Path                                                                   | Method | Protected |
 | ---------------------------------------------------------------------- | ------ | --------- |
 | `/v1/components/{component_id}/workers/{worker_name}/invoke-and-await` | POST   | No        |
+
+Supply the parameters in the request body as JSON.
 
 **Query Parameters**
 
@@ -218,11 +267,13 @@
 }
 ```
 
-## undefined
+## Invoke a function
 
 | Path                                                         | Method | Protected |
 | ------------------------------------------------------------ | ------ | --------- |
 | `/v1/components/{component_id}/workers/{worker_name}/invoke` | POST   | No        |
+
+A simpler version of the previously defined invoke and await endpoint just triggers the execution of a function and immediately returns.
 
 **Query Parameters**
 
@@ -257,11 +308,15 @@
 {}
 ```
 
-## undefined
+## Complete a promise
 
 | Path                                                           | Method | Protected |
 | -------------------------------------------------------------- | ------ | --------- |
 | `/v1/components/{component_id}/workers/{worker_name}/complete` | POST   | No        |
+
+Completes a promise with a given custom array of bytes.
+The promise must be previously created from within the worker, and it's identifier (a combination of a worker identifier and an oplogIdx ) must be sent out to an external caller so it can use this endpoint to mark the promise completed.
+The data field is sent back to the worker and it has no predefined meaning.
 
 **Example Request JSON**
 
@@ -278,11 +333,16 @@
 true
 ```
 
-## undefined
+## Interrupt a worker
 
 | Path                                                            | Method | Protected |
 | --------------------------------------------------------------- | ------ | --------- |
 | `/v1/components/{component_id}/workers/{worker_name}/interrupt` | POST   | No        |
+
+Interrupts the execution of a worker.
+The worker's status will be Interrupted unless the recover-immediately parameter was used, in which case it remains as it was.
+An interrupted worker can be still used, and it is going to be automatically resumed the first time it is used.
+For example in case of a new invocation, the previously interrupted invocation is continued before the new one gets processed.
 
 **Query Parameters**
 
@@ -296,11 +356,34 @@ true
 {}
 ```
 
-## undefined
+## Advanced search for workers
 
 | Path                                         | Method | Protected |
 | -------------------------------------------- | ------ | --------- |
 | `/v1/components/{component_id}/workers/find` | POST   | No        |
+
+### Filter types
+
+| Type      | Comparator             | Description                    | Example                                                                                        |
+| --------- | ---------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------- |
+| Name      | StringFilterComparator | Name of worker                 | `{ "type": "Name", "comparator": "Equal", "value": "worker-name" }`                            |
+| Version   | FilterComparator       | Version of worker              | `{ "type": "Version", "comparator": "GreaterEqual", "value": 0 }`                              |
+| Status    | FilterComparator       | Status of worker               | `{ "type": "Status", "comparator": "Equal", "value": "Running" }`                              |
+| Env       | StringFilterComparator | Environment variable of worker | `{ "type": "Env", "name": "var1", "comparator": "Equal", "value": "value" }`                   |
+| CreatedAt | FilterComparator       | Creation time of worker        | `{ "type": "CreatedAt", "comparator": "Greater", "value": "2024-04-01T12:10:00Z" }`            |
+| And       |                        | And filter combinator          | `{ "type": "And", "filters": [ ... ] }`                                                        |
+| Or        |                        | Or filter combinator           | `{ "type": "Or", "filters": [ ... ] }`                                                         |
+| Not       |                        | Negates the specified filter   | `{ "type": "Not", "filter": { "type": "Version", "comparator": "GreaterEqual", "value": 0 } }` |
+
+### Comparators
+
+- StringFilterComparator: `Equal`, `NotEqual`, `Like`, `NotLike`
+- FilterComparator: `Equal`, `NotEqual`, `GreaterEqual`, `Greater`, `LessEqual`, `Less`
+
+Returns metadata about an existing component workers:
+
+- `workers` list of workers metadata
+- `cursor` cursor for next request, if cursor is empty/null, there are no other values
 
 **Example Request JSON**
 
@@ -375,7 +458,7 @@ true
 }
 ```
 
-## undefined
+## Resume a worker
 
 | Path                                                         | Method | Protected |
 | ------------------------------------------------------------ | ------ | --------- |
@@ -387,7 +470,7 @@ true
 {}
 ```
 
-## undefined
+## Update a worker
 
 | Path                                                         | Method | Protected |
 | ------------------------------------------------------------ | ------ | --------- |

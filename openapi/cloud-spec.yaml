@@ -2706,9 +2706,7 @@ paths:
       tags:
       - Worker
       summary: Invoke a function
-      description: |-
-        A simpler version of the previously defined invoke and await endpoint just triggers the execution of a function and immediately returns.
-        To understand how to get the function name and how to encode the function parameters check Component interface
+      description: A simpler version of the previously defined invoke and await endpoint just triggers the execution of a function and immediately returns.
       operationId: invoke_function
       parameters:
       - in: path
@@ -3121,6 +3119,7 @@ paths:
     post:
       tags:
       - Worker
+      summary: Update a worker
       operationId: update_worker
       parameters:
       - in: path
