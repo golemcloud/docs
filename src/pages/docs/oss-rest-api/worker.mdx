@@ -4,7 +4,7 @@
 
 | Path                                    | Method | Protected |
 | --------------------------------------- | ------ | --------- |
-| `/v1/components/{component_id}/workers` | GET    | Yes       |
+| `/v1/components/{component_id}/workers` | GET    | No        |
 
 ### Filters
 
@@ -28,12 +28,12 @@ Returns metadata about an existing component workers:
 
 **Query Parameters**
 
-| Name    | Type    | Required | Description                                                                                                                                                                        |
-| ------- | ------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| filter  | array   | No       | Filter for worker metadata in form of `property op value`. Can be used multiple times (AND condition is applied between them)                                                      |
-| cursor  | string  | No       | Count of listed values, default: 50                                                                                                                                                |
-| count   | integer | No       | Position where to start listing, if not provided, starts from the beginning. It is used to get the next page of results. To get next page, use the cursor returned in the response |
-| precise | boolean | No       | Precision in relation to worker status, if true, calculate the most up-to-date status for each worker, default is false                                                            |
+| Name    | Type    | Required | Description |
+| ------- | ------- | -------- | ----------- |
+| filter  | array   | No       | -           |
+| cursor  | string  | No       | -           |
+| count   | integer | No       | -           |
+| precise | boolean | No       | -           |
 
 **Example Response JSON**
 
@@ -45,7 +45,6 @@ Returns metadata about an existing component workers:
         "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
         "workerName": "string"
       },
-      "accountId": "string",
       "args": ["string"],
       "env": {
         "property1": "string",
@@ -95,7 +94,7 @@ Returns metadata about an existing component workers:
 
 | Path                                    | Method | Protected |
 | --------------------------------------- | ------ | --------- |
-| `/v1/components/{component_id}/workers` | POST   | Yes       |
+| `/v1/components/{component_id}/workers` | POST   | No        |
 
 Creates a new worker. The worker initially is in `Idle`` status, waiting to be invoked.
 
@@ -134,7 +133,7 @@ The parameters in the request are the following:
 
 | Path                                                  | Method | Protected |
 | ----------------------------------------------------- | ------ | --------- |
-| `/v1/components/{component_id}/workers/{worker_name}` | GET    | Yes       |
+| `/v1/components/{component_id}/workers/{worker_name}` | GET    | No        |
 
 Returns metadata about an existing worker:
 
@@ -161,7 +160,6 @@ Returns metadata about an existing worker:
     "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
     "workerName": "string"
   },
-  "accountId": "string",
   "args": ["string"],
   "env": {
     "property1": "string",
@@ -205,7 +203,7 @@ Returns metadata about an existing worker:
 
 | Path                                                  | Method | Protected |
 | ----------------------------------------------------- | ------ | --------- |
-| `/v1/components/{component_id}/workers/{worker_name}` | DELETE | Yes       |
+| `/v1/components/{component_id}/workers/{worker_name}` | DELETE | No        |
 
 Interrupts and deletes an existing worker.
 
@@ -219,22 +217,34 @@ Interrupts and deletes an existing worker.
 
 | Path                                                                   | Method | Protected |
 | ---------------------------------------------------------------------- | ------ | --------- |
-| `/v1/components/{component_id}/workers/{worker_name}/invoke-and-await` | POST   | Yes       |
+| `/v1/components/{component_id}/workers/{worker_name}/invoke-and-await` | POST   | No        |
 
 Supply the parameters in the request body as JSON.
 
 **Query Parameters**
 
-| Name               | Type                                   | Required | Description                                                               |
-| ------------------ | -------------------------------------- | -------- | ------------------------------------------------------------------------- |
-| function           | string                                 | Yes      | -                                                                         |
-| calling-convention | #/components/schemas/CallingConvention | No       | One of `component`, `stdio`, `stdio-event-loop`. Defaults to `component`. |
+| Name     | Type   | Required | Description |
+| -------- | ------ | -------- | ----------- |
+| function | string | Yes      | -           |
 
 **Example Request JSON**
 
 ```json copy
 {
-  "params": [null]
+  "params": [
+    {
+      "typ": {
+        "type": "Variant",
+        "cases": [
+          {
+            "name": "string",
+            "typ": {}
+          }
+        ]
+      },
+      "value": null
+    }
+  ]
 }
 ```
 
@@ -242,7 +252,18 @@ Supply the parameters in the request body as JSON.
 
 ```json copy
 {
-  "result": null
+  "result": {
+    "typ": {
+      "type": "Variant",
+      "cases": [
+        {
+          "name": "string",
+          "typ": {}
+        }
+      ]
+    },
+    "value": null
+  }
 }
 ```
 
@@ -250,22 +271,34 @@ Supply the parameters in the request body as JSON.
 
 | Path                                                         | Method | Protected |
 | ------------------------------------------------------------ | ------ | --------- |
-| `/v1/components/{component_id}/workers/{worker_name}/invoke` | POST   | Yes       |
+| `/v1/components/{component_id}/workers/{worker_name}/invoke` | POST   | No        |
 
 A simpler version of the previously defined invoke and await endpoint just triggers the execution of a function and immediately returns.
-To understand how to get the function name and how to encode the function parameters check Component interface
 
 **Query Parameters**
 
-| Name     | Type   | Required | Description                                 |
-| -------- | ------ | -------- | ------------------------------------------- |
-| function | string | Yes      | name of the exported function to be invoked |
+| Name     | Type   | Required | Description |
+| -------- | ------ | -------- | ----------- |
+| function | string | Yes      | -           |
 
 **Example Request JSON**
 
 ```json copy
 {
-  "params": [null]
+  "params": [
+    {
+      "typ": {
+        "type": "Variant",
+        "cases": [
+          {
+            "name": "string",
+            "typ": {}
+          }
+        ]
+      },
+      "value": null
+    }
+  ]
 }
 ```
 
@@ -279,7 +312,7 @@ To understand how to get the function name and how to encode the function parame
 
 | Path                                                           | Method | Protected |
 | -------------------------------------------------------------- | ------ | --------- |
-| `/v1/components/{component_id}/workers/{worker_name}/complete` | POST   | Yes       |
+| `/v1/components/{component_id}/workers/{worker_name}/complete` | POST   | No        |
 
 Completes a promise with a given custom array of bytes.
 The promise must be previously created from within the worker, and it's identifier (a combination of a worker identifier and an oplogIdx ) must be sent out to an external caller so it can use this endpoint to mark the promise completed.
@@ -304,7 +337,7 @@ true
 
 | Path                                                            | Method | Protected |
 | --------------------------------------------------------------- | ------ | --------- |
-| `/v1/components/{component_id}/workers/{worker_name}/interrupt` | POST   | Yes       |
+| `/v1/components/{component_id}/workers/{worker_name}/interrupt` | POST   | No        |
 
 Interrupts the execution of a worker.
 The worker's status will be Interrupted unless the recover-immediately parameter was used, in which case it remains as it was.
@@ -313,9 +346,9 @@ For example in case of a new invocation, the previously interrupted invocation i
 
 **Query Parameters**
 
-| Name                 | Type    | Required | Description                                                 |
-| -------------------- | ------- | -------- | ----------------------------------------------------------- |
-| recovery-immediately | boolean | No       | if true will simulate a worker recovery. Defaults to false. |
+| Name                 | Type    | Required | Description |
+| -------------------- | ------- | -------- | ----------- |
+| recovery-immediately | boolean | No       | -           |
 
 **Example Response JSON**
 
@@ -327,7 +360,7 @@ For example in case of a new invocation, the previously interrupted invocation i
 
 | Path                                         | Method | Protected |
 | -------------------------------------------- | ------ | --------- |
-| `/v1/components/{component_id}/workers/find` | POST   | Yes       |
+| `/v1/components/{component_id}/workers/find` | POST   | No        |
 
 ### Filter types
 
@@ -380,7 +413,6 @@ Returns metadata about an existing component workers:
         "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
         "workerName": "string"
       },
-      "accountId": "string",
       "args": ["string"],
       "env": {
         "property1": "string",
@@ -430,7 +462,7 @@ Returns metadata about an existing component workers:
 
 | Path                                                         | Method | Protected |
 | ------------------------------------------------------------ | ------ | --------- |
-| `/v1/components/{component_id}/workers/{worker_name}/resume` | POST   | Yes       |
+| `/v1/components/{component_id}/workers/{worker_name}/resume` | POST   | No        |
 
 **Example Response JSON**
 
@@ -438,11 +470,11 @@ Returns metadata about an existing component workers:
 {}
 ```
 
-## undefined
+## Update a worker
 
 | Path                                                         | Method | Protected |
 | ------------------------------------------------------------ | ------ | --------- |
-| `/v1/components/{component_id}/workers/{worker_name}/update` | POST   | Yes       |
+| `/v1/components/{component_id}/workers/{worker_name}/update` | POST   | No        |
 
 **Example Request JSON**
 
@@ -461,11 +493,11 @@ Returns metadata about an existing component workers:
 
 ## Worker API Errors
 
-| Status Code | Description                                                              | Body                                                          |
-| ----------- | ------------------------------------------------------------------------ | ------------------------------------------------------------- |
-| 400         | Invalid request, returning with a list of issues detected in the request | `{"errors":["string"]}`                                       |
-| 401         | Unauthorized                                                             | `{"error":"string"}`                                          |
-| 403         | Maximum number of workers exceeded                                       | `{"error":"string"}`                                          |
-| 404         | Component / Worker / Promise not found                                   | `{"error":"string"}`                                          |
-| 409         | Worker already exists                                                    | `{"error":"string"}`                                          |
-| 500         | Internal server error                                                    | `{"golemError":{"type":"InvalidRequest","details":"string"}}` |
+| Status Code | Description | Body                                                          |
+| ----------- | ----------- | ------------------------------------------------------------- |
+| 400         |             | `{"errors":["string"]}`                                       |
+| 401         |             | `{"error":"string"}`                                          |
+| 403         |             | `{"error":"string"}`                                          |
+| 404         |             | `{"error":"string"}`                                          |
+| 409         |             | `{"error":"string"}`                                          |
+| 500         |             | `{"golemError":{"type":"InvalidRequest","details":"string"}}` |

@@ -1,10 +1,12 @@
 # Api Deployment API
 
-## undefined
+## Creates or updates a deployment
 
 | Path                         | Method | Protected |
 | ---------------------------- | ------ | --------- |
 | `/v1/api/deployments/deploy` | POST   | Yes       |
+
+Deploys a set of API definitions to a site (specific host and subdomain).
 
 **Example Request JSON**
 
@@ -42,11 +44,14 @@
 }
 ```
 
-## undefined
+## Get one or more API deployments
 
 | Path                  | Method | Protected |
 | --------------------- | ------ | --------- |
 | `/v1/api/deployments` | GET    | Yes       |
+
+If `api-definition-id` is not set, it lists all API deployments.
+If `api-definition-id` is set, returns a single API deployment.
 
 **Query Parameters**
 
@@ -75,11 +80,13 @@
 ]
 ```
 
-## undefined
+## Get API deployment by site
 
 | Path                         | Method | Protected |
 | ---------------------------- | ------ | --------- |
 | `/v1/api/deployments/{site}` | GET    | Yes       |
+
+Gets an API deployment by the host name (optionally with a subdomain) it is deployed to.
 
 **Example Response JSON**
 
@@ -99,11 +106,13 @@
 }
 ```
 
-## undefined
+## Delete API deployment by site
 
 | Path                         | Method | Protected |
 | ---------------------------- | ------ | --------- |
 | `/v1/api/deployments/{site}` | DELETE | Yes       |
+
+Deletes an API deployment by the host name (optionally with a subdomain) it is deployed to.
 
 **Example Response JSON**
 
