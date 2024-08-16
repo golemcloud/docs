@@ -99,7 +99,6 @@ result, err := transaction.Fallible(func(tx transaction.FallibleTx) (Result, err
 })
 
 // with transaction.Infallible no explicit error handling is needed, as it is handled by Golem retries
-
 result := transaction.Infallible(func(tx transaction.InfallibleTx) Result {
 	entity1 := transaction.ExecuteInfallible(tx, op, 1)
 	entity2 := transaction.ExecuteInfallible(tx, op, 2)
