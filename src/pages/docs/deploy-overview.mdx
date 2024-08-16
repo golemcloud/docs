@@ -7,6 +7,7 @@ Golem Services:
 - [golem-worker-executor](https://github.com/golemcloud/golem/tree/main/golem-worker-executor) - worker executor is responsible for running the [worker](concepts-workers) which belongs to assigned shards, see: [configuration](https://github.com/golemcloud/golem/blob/main/golem-worker-executor/config/worker-executor.toml), [environment variables](https://github.com/golemcloud/golem/blob/main/golem-worker-executor/config/worker-executor.sample.env)
 - [golem-shard-manager](https://github.com/golemcloud/golem/tree/main/golem-shard-manager) - shard manager is a single node in charge of maintaining the worker executors shards assignments, only one instance can be alive at any given time, see: [configuration](https://github.com/golemcloud/golem/blob/main/golem-shard-manager/config/shard-manager.toml), [environment variables](https://github.com/golemcloud/golem/blob/main/golem-shard-manager/config/shard-manager.sample.env)
 - [golem-component-compilation-service](https://github.com/golemcloud/golem/tree/main/golem-component-compilation-service) - sidecar service responsible for compiling [components](concepts-components), see: [configuration](https://github.com/golemcloud/golem/blob/main/golem-component-compilation-service/config/component-compilation-service.toml), [environment variables](https://github.com/golemcloud/golem/blob/main/golem-component-compilation-service/config/component-compilation-service.sample.env)
+- [golem-router](https://github.com/golemcloud/golem/tree/main/golem-router) - [nginx](https://nginx.org/) Golem APIs proxy, see: [configuration](https://github.com/golemcloud/golem/blob/main/golem-router/golem-services.conf.template)
 
 Golem Services are distributed as Docker images. They are available in [Golem Services Docker Hub](https://hub.docker.com/u/golemservices):
 
@@ -15,7 +16,7 @@ Golem Services are distributed as Docker images. They are available in [Golem Se
 - [golem-worker-executor](https://hub.docker.com/r/golemservices/golem-worker-executor)
 - [golem-shard-manager](https://hub.docker.com/r/golemservices/golem-shard-manager])
 - [golem-component-compilation-service](https://hub.docker.com/r/golemservices/golem-component-compilation-service)
-- [golem-router](https://hub.docker.com/r/golemservices/golem-router) - API router
+- [golem-router](https://hub.docker.com/r/golemservices/golem-router)
 
 Each Docker image is build for OS/ARCH-s:
 
@@ -24,8 +25,8 @@ Each Docker image is build for OS/ARCH-s:
 
 Storage requirements:
 
-- Redis
-- PostgreSQL (or SQLite for testing purposes)
+- [PostgreSQL](https://www.postgresql.org/) (or SQLite for testing purposes)
+- [Redis](https://redis.io/)
 - File/Blob storage - Shared File System or S3
 
 For deployment, see the following sections:
