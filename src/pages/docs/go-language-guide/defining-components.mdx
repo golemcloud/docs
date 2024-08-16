@@ -220,7 +220,7 @@ The `WIT` specifications contains some primitive and higher level data types and
 
 The following table shows an example of each `WIT` data type and its corresponding Rust type:
 
-| WIT type                   | Rust type                                                                              |
+| WIT type                   | Go type                                                                                |
 | -------------------------- | -------------------------------------------------------------------------------------- |
 | `bool`                     | `bool`                                                                                 |
 | `s8`, `s16`, `s32`, `s64`  | `int8`, `int16`, `int32`, `int64`                                                      |
@@ -244,8 +244,8 @@ package golem:demo;
 
 interface api {
     record user {
-        id: u64;
-        name: string;
+        id: u64,
+        name: string,
     }
 }
 ```
@@ -424,7 +424,7 @@ Although resources can be used in many ways, one pattern for Golem is only creat
 
 ## Managing state
 
-Golem workers are **stateful**. There are two major techniques to store and manipulate state in a Golem worker implemented in Rust:
+Golem workers are **stateful**. There are three major techniques to store and manipulate state in a Golem worker implemented in Go:
 
 1. Using a global variable
 2. Using fields in the implementation struct
