@@ -31,7 +31,7 @@ Golem and the TypeScript toolchain currently requires defining the component's i
 
 Each new project generated with `golem-cli` contains a `wit` directory with at least one `.wit` file defining a `world`. This world can contain **exports** (exported functions and interfaces) and these exports will be the compiled Golem component's public API.
 
-The first time a component is compiled (see the [Building Components page](/docs/ts-language-guide/building-components) for details), a couple of files get generated in a subdirectory named `src/generated`. The generated sources contain the definitions of all the data types and interfaces defined in the `WIT` file(s) as TypeScript types and interfaces.
+The first time a component is compiled (see the [Building Components page](/docs/experimental-languages/ts-language-guide/building-components) for details), a couple of files get generated in a subdirectory named `src/generated`. The generated sources contain the definitions of all the data types and interfaces defined in the `WIT` file(s) as TypeScript types and interfaces.
 
 To **implement** the specification written in WIT, the TypeScript code must implement some of these generated interfaces and set them explicitly in the `init` function.
 
