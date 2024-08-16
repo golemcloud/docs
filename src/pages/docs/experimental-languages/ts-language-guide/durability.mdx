@@ -28,7 +28,7 @@ To change the persistence level for a section of the code, use the `withPersiste
 import { withPersistenceLevel } from "@golemcloud/golem-ts"
 
 const result: string = withPersistenceLevel({ tag: "persist-nothing" }, () => {
-  // this closure run in PersistNothing mode
+  // this closure runs in PersistNothing mode
   return "hello"
 })
 ```
@@ -66,4 +66,4 @@ const result: [string, string] = atomically(() => {
 
 ### Commit oplog
 
-The `oplogCommit` function waits until the oplog is committed to its persistent storage. The function takes a single argument, `replicas`, with the desired number of storage replicas the worker's journal is replicated to. The function will block until the oplog is committed to the specified number of replicas, or, if this number is larger than the available number of replicas, until it is written to all the replicas.
+The `oplogCommit` function in `"@golemcloud/golem-ts` waits until the oplog is committed to its persistent storage. The function takes a single argument, `replicas`, with the desired number of storage replicas the worker's journal is replicated to. The function will block until the oplog is committed to the specified number of replicas, or, if this number is larger than the available number of replicas, until it is written to all the replicas.
