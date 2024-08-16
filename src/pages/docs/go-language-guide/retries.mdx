@@ -6,7 +6,7 @@ Golem applies a retry mechanism to all workers. In case of a failure, Golem will
 
 If the maximum number of retries is reached, the worker will be marked as failed and no further invocations will be possible on it.
 
-This mechanism is automatic and applied to all kind of failures. To rely on it, just let the Rust code panic.
+This mechanism is automatic and applied to all kind of failures. To rely on it, just let the Go code panic.
 
 ### Customizing the retry policy
 

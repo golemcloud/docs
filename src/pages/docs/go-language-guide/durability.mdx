@@ -1,4 +1,4 @@
-# Control durability guarantees from Rust
+# Control durability guarantees from Go
 
 Golem provides a set of functions components can call to control details of the durable execution engine. For components implemented in Go the [Golem Go SDK](/docs/go-language-guide/golem-go-sdk) provides a set of Go wrappers for these functions.
 
@@ -8,12 +8,12 @@ If the project was created with `golem-cli new`, it already has the Golem Go SDK
 
 ### General concepts
 
-The library allows controlling four main aspects of the durable execution engine: the current persistence level, the idempotence mode, defining atomic regions and changing retry policies (discussed in [the next page](/docs/rust-language-guide/retries)).
+The library allows controlling four main aspects of the durable execution engine: the current persistence level, the idempotence mode, defining atomic regions and changing retry policies (discussed in [the next page](/docs/go-language-guide/retries)).
 
-All these features are regional - they can be changed for a section of the code within a single exported function. To make this easy to use in Rust, the library provides a pair of functions for each feature:
+All these features are regional - they can be changed for a section of the code within a single exported function. To make this easy to use in Go, the library provides lower and higher level functions:
 
-- the functions starting with `use_` return a guard, which resets the property when dropped
-- the functions starting with `with_` take a closure and apply the property only for the duration of the closure
+- the functions starting with `Set` and `Get` can be used to directly change the current mode of the engine
+- the functions starting with `With` take a function parameter which will be executed with the requested mode, and then they restore the previous settings
 
 ### Persistence level
 
