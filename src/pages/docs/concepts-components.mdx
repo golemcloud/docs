@@ -126,11 +126,11 @@ steps:
 1. **Dependencies**. Identify the dependencies that the component requires,
    including dependencies such as WASI that are required by the language's
    standard library.
-2. **Interface**. Define the public interface of the component, which includes 
-   both types and functions. In serverless environments like Golem, the 
+2. **Interface**. Define the public interface of the component, which includes
+   both types and functions. In serverless environments like Golem, the
    interface dictates how external systems may interact with the component.
-3. **Implementation**. Implement the component's functionality, including 
-   satisfying the public interface of the component, using the language's 
+3. **Implementation**. Implement the component's functionality, including
+   satisfying the public interface of the component, using the language's
    standard library and any other dependencies that are required.
 4. **Building**. Using language-specific tools, compile the implementation of
    the component to a WASM component; or, for interpreted languages, package
@@ -213,7 +213,7 @@ useful for working with WASM components.
 
 In this section, you will learn about these tools.
 
-## wasm-tools 
+## wasm-tools
 
 The Bytecode Alliance provides a set of tools for working with WASM components,
 called `wasm-tools`. This command-line interface (CLI) provides a number of
@@ -262,13 +262,12 @@ of programming languages with immature support for the component model.
 
 `wit-bindgen` generates bindings for a number of languages, including:
 
-  - C/C++
-  - Rust 
-  - Java (TeaVM)
-  - Go (TinyGo)
-  - C# 
+- C/C++
+- Rust
+- Java (TeaVM)
+- Go (TinyGo)
+- C#
 
 # Deployment on Golem
 
 Once you have developed a WASM component, you can deploy it on Golem.
-
