@@ -1,10 +1,13 @@
 # Api Certificate API
 
-## undefined
+## Gets one or all certificates for a given project
 
 | Path                   | Method | Protected |
 | ---------------------- | ------ | --------- |
 | `/v1/api/certificates` | GET    | Yes       |
+
+If `certificate-id` is not set, it returns all certificates associated with the project.
+If `certificate-id` is set, it returns a single certificate if it exists.
 
 **Query Parameters**
 
@@ -25,11 +28,16 @@
 ]
 ```
 
-## undefined
+## Creates a new certificate
 
 | Path                   | Method | Protected |
 | ---------------------- | ------ | --------- |
 | `/v1/api/certificates` | POST   | Yes       |
+
+A certificate is associated with a given Golem project and domain, and consists of
+a key pair.
+
+The created certificate will be associated with a certificate ID returned by this endpoint.
 
 **Example Request JSON**
 
@@ -52,11 +60,13 @@
 }
 ```
 
-## undefined
+## Deletes a certificate
 
 | Path                   | Method | Protected |
 | ---------------------- | ------ | --------- |
 | `/v1/api/certificates` | DELETE | Yes       |
+
+Deletes the certificate associated with the given certificate ID and project ID.
 
 **Query Parameters**
 

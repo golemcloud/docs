@@ -3196,6 +3196,10 @@ paths:
     put:
       tags:
       - ApiDefinition
+      summary: Upload an OpenAPI definition
+      description: |-
+        Uploads an OpenAPI JSON document and either creates a new one or updates an existing Golem
+        API definition using it.
       operationId: import_open_api
       parameters:
       - in: path
@@ -3262,6 +3266,8 @@ paths:
     get:
       tags:
       - ApiDefinition
+      summary: List API definitions
+      description: Lists all API definitions associated with the project.
       operationId: list_definitions
       parameters:
       - in: path
@@ -3331,6 +3337,10 @@ paths:
     post:
       tags:
       - ApiDefinition
+      summary: Create a new API definition
+      description: |-
+        Creates a new API definition described by Golem's API definition JSON document.
+        If an API definition of the same version already exists, its an error.
       operationId: create_definition
       parameters:
       - in: path
@@ -3398,6 +3408,8 @@ paths:
     get:
       tags:
       - ApiDefinition
+      summary: Get an API definition
+      description: An API definition is selected by its API definition ID and version.
       operationId: get_definition
       parameters:
       - in: path
@@ -3474,6 +3486,8 @@ paths:
     put:
       tags:
       - ApiDefinition
+      summary: Update an existing API definition.
+      description: Only draft API definitions can be updated.
       operationId: update_definition
       parameters:
       - in: path
@@ -3556,6 +3570,8 @@ paths:
     delete:
       tags:
       - ApiDefinition
+      summary: Delete an API definition
+      description: Deletes an API definition by its API definition ID and version.
       operationId: delete_definition
       parameters:
       - in: path
@@ -3633,6 +3649,8 @@ paths:
     post:
       tags:
       - ApiDeployment
+      summary: Creates or updates a deployment
+      description: Deploys a set of API definitions to a site (specific host and subdomain).
       operationId: deploy
       requestBody:
         content:
@@ -3690,6 +3708,10 @@ paths:
     get:
       tags:
       - ApiDeployment
+      summary: Get one or more API deployments
+      description: |-
+        If `api-definition-id` is not set, it lists all API deployments.
+        If `api-definition-id` is set, returns a single API deployment.
       operationId: list_deployments
       parameters:
       - in: query
@@ -3761,6 +3783,8 @@ paths:
     get:
       tags:
       - ApiDeployment
+      summary: Get API deployment by site
+      description: Gets an API deployment by the host name (optionally with a subdomain) it is deployed to.
       operationId: get_deployment
       parameters:
       - in: path
@@ -3820,6 +3844,8 @@ paths:
     delete:
       tags:
       - ApiDeployment
+      summary: Delete API deployment by site
+      description: Deletes an API deployment by the host name (optionally with a subdomain) it is deployed to.
       operationId: delete_deployment
       parameters:
       - in: path
@@ -3880,6 +3906,10 @@ paths:
     get:
       tags:
       - ApiCertificate
+      summary: Gets one or all certificates for a given project
+      description: |-
+        If `certificate-id` is not set, it returns all certificates associated with the project.
+        If `certificate-id` is set, it returns a single certificate if it exists.
       operationId: get_certificates
       parameters:
       - in: query
@@ -3950,6 +3980,12 @@ paths:
     post:
       tags:
       - ApiCertificate
+      summary: Creates a new certificate
+      description: |-
+        A certificate is associated with a given Golem project and domain, and consists of
+        a key pair.
+
+        The created certificate will be associated with a certificate ID returned by this endpoint.
       operationId: create_certificate
       requestBody:
         content:
@@ -4006,6 +4042,8 @@ paths:
     delete:
       tags:
       - ApiCertificate
+      summary: Deletes a certificate
+      description: Deletes the certificate associated with the given certificate ID and project ID.
       operationId: delete_certificate
       parameters:
       - in: query
@@ -4076,6 +4114,8 @@ paths:
     get:
       tags:
       - ApiDomain
+      summary: Get all API domains
+      description: Returns a list of API domains for the given project.
       operationId: get_domains
       parameters:
       - in: query
@@ -4138,6 +4178,7 @@ paths:
     put:
       tags:
       - ApiDomain
+      summary: Create or update an API domain
       operationId: create_or_update_domain
       requestBody:
         content:
@@ -4194,6 +4235,7 @@ paths:
     delete:
       tags:
       - ApiDomain
+      summary: Delete an API domain
       operationId: delete_domain
       parameters:
       - in: query

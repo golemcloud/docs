@@ -74,8 +74,12 @@
   "rib": "Rib",
   "golem-host-functions": "Golem Host Functions",
   "json-wave-mapping": "JSON-WAVE Mapping",
-  "rest-api": {
-    "title": "REST API",
+  "cloud-rest-api": {
+    "title": "Cloud REST API",
+    "href": "#"
+  },
+  "oss-rest-api": {
+    "title": "OSS REST API",
     "href": "#"
   }
 }

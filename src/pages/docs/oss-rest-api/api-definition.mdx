@@ -1,0 +1,222 @@
+# Api Definition API
+
+## undefined
+
+| Path                         | Method | Protected |
+| ---------------------------- | ------ | --------- |
+| `/v1/api/definitions/import` | PUT    | No        |
+
+**Example Request JSON**
+
+```json copy
+null
+```
+
+**Example Response JSON**
+
+```json copy
+{
+  "id": "string",
+  "version": "string",
+  "routes": [
+    {
+      "method": "Get",
+      "path": "string",
+      "binding": {
+        "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
+        "workerName": "string",
+        "idempotencyKey": "string",
+        "response": "string"
+      }
+    }
+  ],
+  "draft": true
+}
+```
+
+## undefined
+
+| Path                  | Method | Protected |
+| --------------------- | ------ | --------- |
+| `/v1/api/definitions` | GET    | No        |
+
+**Query Parameters**
+
+| Name              | Type   | Required | Description |
+| ----------------- | ------ | -------- | ----------- |
+| api-definition-id | string | No       | -           |
+
+**Example Response JSON**
+
+```json copy
+[
+  {
+    "id": "string",
+    "version": "string",
+    "routes": [
+      {
+        "method": "Get",
+        "path": "string",
+        "binding": {
+          "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
+          "workerName": "string",
+          "idempotencyKey": "string",
+          "response": "string"
+        }
+      }
+    ],
+    "draft": true
+  }
+]
+```
+
+## undefined
+
+| Path                  | Method | Protected |
+| --------------------- | ------ | --------- |
+| `/v1/api/definitions` | POST   | No        |
+
+**Example Request JSON**
+
+```json copy
+{
+  "id": "string",
+  "version": "string",
+  "routes": [
+    {
+      "method": "Get",
+      "path": "string",
+      "binding": {
+        "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
+        "workerName": "string",
+        "idempotencyKey": "string",
+        "response": "string"
+      }
+    }
+  ],
+  "draft": true
+}
+```
+
+**Example Response JSON**
+
+```json copy
+{
+  "id": "string",
+  "version": "string",
+  "routes": [
+    {
+      "method": "Get",
+      "path": "string",
+      "binding": {
+        "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
+        "workerName": "string",
+        "idempotencyKey": "string",
+        "response": "string"
+      }
+    }
+  ],
+  "draft": true
+}
+```
+
+## undefined
+
+| Path                                 | Method | Protected |
+| ------------------------------------ | ------ | --------- |
+| `/v1/api/definitions/{id}/{version}` | GET    | No        |
+
+**Example Response JSON**
+
+```json copy
+{
+  "id": "string",
+  "version": "string",
+  "routes": [
+    {
+      "method": "Get",
+      "path": "string",
+      "binding": {
+        "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
+        "workerName": "string",
+        "idempotencyKey": "string",
+        "response": "string"
+      }
+    }
+  ],
+  "draft": true
+}
+```
+
+## undefined
+
+| Path                                 | Method | Protected |
+| ------------------------------------ | ------ | --------- |
+| `/v1/api/definitions/{id}/{version}` | PUT    | No        |
+
+**Example Request JSON**
+
+```json copy
+{
+  "id": "string",
+  "version": "string",
+  "routes": [
+    {
+      "method": "Get",
+      "path": "string",
+      "binding": {
+        "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
+        "workerName": "string",
+        "idempotencyKey": "string",
+        "response": "string"
+      }
+    }
+  ],
+  "draft": true
+}
+```
+
+**Example Response JSON**
+
+```json copy
+{
+  "id": "string",
+  "version": "string",
+  "routes": [
+    {
+      "method": "Get",
+      "path": "string",
+      "binding": {
+        "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
+        "workerName": "string",
+        "idempotencyKey": "string",
+        "response": "string"
+      }
+    }
+  ],
+  "draft": true
+}
+```
+
+## undefined
+
+| Path                                 | Method | Protected |
+| ------------------------------------ | ------ | --------- |
+| `/v1/api/definitions/{id}/{version}` | DELETE | No        |
+
+**Example Response JSON**
+
+```json copy
+"string"
+```
+
+## Api Definition API Errors
+
+| Status Code | Description | Body                                      |
+| ----------- | ----------- | ----------------------------------------- |
+| 400         |             | `{"type":"Messages","errors":["string"]}` |
+| 401         |             | `{"error":"string"}`                      |
+| 403         |             | `{"error":"string"}`                      |
+| 404         |             | `{"error":"string"}`                      |
+| 409         |             | `"string"`                                |
+| 500         |             | `{"error":"string"}`                      |

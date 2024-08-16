@@ -1,0 +1,420 @@
+# Worker API
+
+## undefined
+
+| Path                                    | Method | Protected |
+| --------------------------------------- | ------ | --------- |
+| `/v1/components/{component_id}/workers` | GET    | No        |
+
+**Query Parameters**
+
+| Name    | Type    | Required | Description |
+| ------- | ------- | -------- | ----------- |
+| filter  | array   | No       | -           |
+| cursor  | string  | No       | -           |
+| count   | integer | No       | -           |
+| precise | boolean | No       | -           |
+
+**Example Response JSON**
+
+```json copy
+{
+  "workers": [
+    {
+      "workerId": {
+        "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
+        "workerName": "string"
+      },
+      "args": ["string"],
+      "env": {
+        "property1": "string",
+        "property2": "string"
+      },
+      "status": "Running",
+      "componentVersion": 0,
+      "retryCount": 0,
+      "pendingInvocationCount": 0,
+      "updates": [
+        {
+          "type": "pendingUpdate",
+          "timestamp": "2019-08-24T14:15:22Z",
+          "targetVersion": 0
+        }
+      ],
+      "createdAt": "2019-08-24T14:15:22Z",
+      "lastError": "string",
+      "componentSize": 0,
+      "totalLinearMemorySize": 0,
+      "ownedResources": {
+        "property1": {
+          "createdAt": "2019-08-24T14:15:22Z",
+          "indexed": {
+            "resourceName": "string",
+            "resourceParams": ["string"]
+          }
+        },
+        "property2": {
+          "createdAt": "2019-08-24T14:15:22Z",
+          "indexed": {
+            "resourceName": "string",
+            "resourceParams": ["string"]
+          }
+        }
+      }
+    }
+  ],
+  "cursor": {
+    "cursor": 0,
+    "layer": 0
+  }
+}
+```
+
+## undefined
+
+| Path                                    | Method | Protected |
+| --------------------------------------- | ------ | --------- |
+| `/v1/components/{component_id}/workers` | POST   | No        |
+
+**Example Request JSON**
+
+```json copy
+{
+  "name": "string",
+  "args": ["string"],
+  "env": {
+    "property1": "string",
+    "property2": "string"
+  }
+}
+```
+
+**Example Response JSON**
+
+```json copy
+{
+  "workerId": {
+    "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
+    "workerName": "string"
+  },
+  "componentVersion": 0
+}
+```
+
+## undefined
+
+| Path                                                  | Method | Protected |
+| ----------------------------------------------------- | ------ | --------- |
+| `/v1/components/{component_id}/workers/{worker_name}` | GET    | No        |
+
+**Example Response JSON**
+
+```json copy
+{
+  "workerId": {
+    "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
+    "workerName": "string"
+  },
+  "args": ["string"],
+  "env": {
+    "property1": "string",
+    "property2": "string"
+  },
+  "status": "Running",
+  "componentVersion": 0,
+  "retryCount": 0,
+  "pendingInvocationCount": 0,
+  "updates": [
+    {
+      "type": "pendingUpdate",
+      "timestamp": "2019-08-24T14:15:22Z",
+      "targetVersion": 0
+    }
+  ],
+  "createdAt": "2019-08-24T14:15:22Z",
+  "lastError": "string",
+  "componentSize": 0,
+  "totalLinearMemorySize": 0,
+  "ownedResources": {
+    "property1": {
+      "createdAt": "2019-08-24T14:15:22Z",
+      "indexed": {
+        "resourceName": "string",
+        "resourceParams": ["string"]
+      }
+    },
+    "property2": {
+      "createdAt": "2019-08-24T14:15:22Z",
+      "indexed": {
+        "resourceName": "string",
+        "resourceParams": ["string"]
+      }
+    }
+  }
+}
+```
+
+## undefined
+
+| Path                                                  | Method | Protected |
+| ----------------------------------------------------- | ------ | --------- |
+| `/v1/components/{component_id}/workers/{worker_name}` | DELETE | No        |
+
+**Example Response JSON**
+
+```json copy
+{}
+```
+
+## undefined
+
+| Path                                                                   | Method | Protected |
+| ---------------------------------------------------------------------- | ------ | --------- |
+| `/v1/components/{component_id}/workers/{worker_name}/invoke-and-await` | POST   | No        |
+
+**Query Parameters**
+
+| Name     | Type   | Required | Description |
+| -------- | ------ | -------- | ----------- |
+| function | string | Yes      | -           |
+
+**Example Request JSON**
+
+```json copy
+{
+  "params": [
+    {
+      "typ": {
+        "type": "Variant",
+        "cases": [
+          {
+            "name": "string",
+            "typ": {}
+          }
+        ]
+      },
+      "value": null
+    }
+  ]
+}
+```
+
+**Example Response JSON**
+
+```json copy
+{
+  "result": {
+    "typ": {
+      "type": "Variant",
+      "cases": [
+        {
+          "name": "string",
+          "typ": {}
+        }
+      ]
+    },
+    "value": null
+  }
+}
+```
+
+## undefined
+
+| Path                                                         | Method | Protected |
+| ------------------------------------------------------------ | ------ | --------- |
+| `/v1/components/{component_id}/workers/{worker_name}/invoke` | POST   | No        |
+
+**Query Parameters**
+
+| Name     | Type   | Required | Description |
+| -------- | ------ | -------- | ----------- |
+| function | string | Yes      | -           |
+
+**Example Request JSON**
+
+```json copy
+{
+  "params": [
+    {
+      "typ": {
+        "type": "Variant",
+        "cases": [
+          {
+            "name": "string",
+            "typ": {}
+          }
+        ]
+      },
+      "value": null
+    }
+  ]
+}
+```
+
+**Example Response JSON**
+
+```json copy
+{}
+```
+
+## undefined
+
+| Path                                                           | Method | Protected |
+| -------------------------------------------------------------- | ------ | --------- |
+| `/v1/components/{component_id}/workers/{worker_name}/complete` | POST   | No        |
+
+**Example Request JSON**
+
+```json copy
+{
+  "oplogIdx": 0,
+  "data": [0]
+}
+```
+
+**Example Response JSON**
+
+```json copy
+true
+```
+
+## undefined
+
+| Path                                                            | Method | Protected |
+| --------------------------------------------------------------- | ------ | --------- |
+| `/v1/components/{component_id}/workers/{worker_name}/interrupt` | POST   | No        |
+
+**Query Parameters**
+
+| Name                 | Type    | Required | Description |
+| -------------------- | ------- | -------- | ----------- |
+| recovery-immediately | boolean | No       | -           |
+
+**Example Response JSON**
+
+```json copy
+{}
+```
+
+## undefined
+
+| Path                                         | Method | Protected |
+| -------------------------------------------- | ------ | --------- |
+| `/v1/components/{component_id}/workers/find` | POST   | No        |
+
+**Example Request JSON**
+
+```json copy
+{
+  "filter": {
+    "type": "Name",
+    "comparator": "Equal",
+    "value": "string"
+  },
+  "cursor": {
+    "cursor": 0,
+    "layer": 0
+  },
+  "count": 0,
+  "precise": true
+}
+```
+
+**Example Response JSON**
+
+```json copy
+{
+  "workers": [
+    {
+      "workerId": {
+        "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
+        "workerName": "string"
+      },
+      "args": ["string"],
+      "env": {
+        "property1": "string",
+        "property2": "string"
+      },
+      "status": "Running",
+      "componentVersion": 0,
+      "retryCount": 0,
+      "pendingInvocationCount": 0,
+      "updates": [
+        {
+          "type": "pendingUpdate",
+          "timestamp": "2019-08-24T14:15:22Z",
+          "targetVersion": 0
+        }
+      ],
+      "createdAt": "2019-08-24T14:15:22Z",
+      "lastError": "string",
+      "componentSize": 0,
+      "totalLinearMemorySize": 0,
+      "ownedResources": {
+        "property1": {
+          "createdAt": "2019-08-24T14:15:22Z",
+          "indexed": {
+            "resourceName": "string",
+            "resourceParams": ["string"]
+          }
+        },
+        "property2": {
+          "createdAt": "2019-08-24T14:15:22Z",
+          "indexed": {
+            "resourceName": "string",
+            "resourceParams": ["string"]
+          }
+        }
+      }
+    }
+  ],
+  "cursor": {
+    "cursor": 0,
+    "layer": 0
+  }
+}
+```
+
+## undefined
+
+| Path                                                         | Method | Protected |
+| ------------------------------------------------------------ | ------ | --------- |
+| `/v1/components/{component_id}/workers/{worker_name}/resume` | POST   | No        |
+
+**Example Response JSON**
+
+```json copy
+{}
+```
+
+## undefined
+
+| Path                                                         | Method | Protected |
+| ------------------------------------------------------------ | ------ | --------- |
+| `/v1/components/{component_id}/workers/{worker_name}/update` | POST   | No        |
+
+**Example Request JSON**
+
+```json copy
+{
+  "mode": "Automatic",
+  "targetVersion": 0
+}
+```
+
+**Example Response JSON**
+
+```json copy
+{}
+```
+
+## Worker API Errors
+
+| Status Code | Description | Body                                                          |
+| ----------- | ----------- | ------------------------------------------------------------- |
+| 400         |             | `{"errors":["string"]}`                                       |
+| 401         |             | `{"error":"string"}`                                          |
+| 403         |             | `{"error":"string"}`                                          |
+| 404         |             | `{"error":"string"}`                                          |
+| 409         |             | `{"error":"string"}`                                          |
+| 500         |             | `{"golemError":{"type":"InvalidRequest","details":"string"}}` |
