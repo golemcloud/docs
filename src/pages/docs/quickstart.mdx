@@ -1,4 +1,5 @@
 import { Callout } from "nextra/components"
+import { Card, Cards } from "nextra/components"
 
 # Quickstart
 
@@ -8,7 +9,10 @@ This guide will get you up and running in Golem in minutes.
 
 Golem CLI is a command-line application that allows you to deploy new invincible workers onto Golem.
 
-To install `golem-cli` you currently need to use `cargo`, Rust's build tool.
+There are **precompiled binaries** of `golem-cli` (and its other variants) for various platforms. Alternatively you can build it for yourself.
+
+<Callout type="info">
+To build `golem-cli` you need to use `cargo`, Rust's build tool.
 
 To get `cargo` on your system, we recommend to use [rustup](https://rustup.rs/):
 
@@ -18,9 +22,17 @@ rustup install stable
 rustup default stable
 ```
 
+</Callout>
+
 #### Recommended CLI version
 
-You can install universal version of `golem-cli` with the following command:
+You can download the universal version of `golem-cli` from the following page:
+
+<Cards num={1}>
+  <Card title="Golem Cloud Releases" href="TODO" />
+</Cards>
+
+Alternatively you can build and install the universal version of `golem-cli` with the following command:
 
 ```bash filename="Terminal" copy
 cargo install --features universal golem-cloud-cli
@@ -30,13 +42,25 @@ The comman above installs both universal `golem-cli` (with support for cloud and
 
 #### Alternative CLI versions
 
-You can install cloud specific `golem-cloud-cli` withour universal `golem-cli` with the following command:
+You can download the cloud specific `golem-cloud-cli` without supporting OSS deployments from the following page:
+
+<Cards num={1}>
+  <Card title="Golem Cloud Releases" href="TODO" />
+</Cards>
+
+Alternatively you can build and install cloud specific `golem-cloud-cli` without universal `golem-cli` with the following command:
 
 ```bash filename="Terminal" copy
 cargo install golem-cloud-cli
 ```
 
-You can install open sorcce specific `golem-cli` without cloud profiles support with the following command:
+You can download the open source specific `golem-cli` without supporting Golem Cloud from the following page:
+
+<Cards num={1}>
+  <Card title="Golem Releases" href="https://github.com/golemcloud/golem/releases" />
+</Cards>
+
+Alternatively you can build and install open sorcce specific `golem-cli` without cloud profiles support with the following command:
 
 ```bash filename="Terminal" copy
 cargo install golem-cli
