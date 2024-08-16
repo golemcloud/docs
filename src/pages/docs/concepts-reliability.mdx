@@ -265,13 +265,12 @@ each request. For now, however, you can use the language-specific Golem SDK
 to generate an idempotency key, which you can then pass to the remote system.
 
 <Callout type="warning">
-  It is recommended to use the Golem SDK to generate idempotency keys, rather
-  than generating them yourself, to ensure that Golem transactionally 
-  _commits_ the key to durable persistence right away. If you generate a 
-  random idempotency key yourself, without also using the Golem SDK to 
-  manually perform a commit, then there is a small but nonzero chance that 
-  a failure event could happen after the HTTP API is invoked, but before 
-  the idempotency key is committed to durable persistence.
+  It is recommended to use the Golem SDK to generate idempotency keys, rather than generating them
+  yourself, to ensure that Golem transactionally _commits_ the key to durable persistence right
+  away. If you generate a random idempotency key yourself, without also using the Golem SDK to
+  manually perform a commit, then there is a small but nonzero chance that a failure event could
+  happen after the HTTP API is invoked, but before the idempotency key is committed to durable
+  persistence.
 </Callout>
 
 Idempotency keys guarantee exactly-once semantics for requests that support
