@@ -175,6 +175,9 @@ Workers support the following operations:
 - **Deletion**. Workers can be deleted, which causes all state of the worker
   to be permanently deleted. Deleted workers cannot be undeleted or resumed,
   and if invoked again, they will be recreated from scratch.
+- **Updating**. Workers can be updated to a newer version of a component, which 
+  is useful for long-lived workers that can benefit from bug fixes or new 
+  features.
 
 Details about how to perform these operations can be found in the CLI guide,
 the REST API reference, and language-specific SDK documentation.
