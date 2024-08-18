@@ -41,6 +41,7 @@
   "invoke-http": "HTTP",
   "invoke-cli": "CLI",
   "invoke-making-custom-apis": "Making Custom APIs",
+
   "-- Operate": {
     "type": "separator",
     "title": "Operate"
@@ -73,6 +74,7 @@
   },
   "rib": "Rib",
   "golem-host-functions": "Golem Host Functions",
+  "function-names": "Function names",
   "json-wave-mapping": "JSON-WAVE Mapping",
   "cloud-rest-api": {
     "title": "Cloud REST API",
