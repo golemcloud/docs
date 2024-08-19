@@ -1,15 +1,15 @@
 import { Callout } from "nextra/components"
 
-# Defining Golem Components in TypeScript
+# Defining Golem Components in JavaScript
 
 ## Creating a project
 
 Using Golem's **command line interface** provides a set of predefined, Golem-specific **examples** to choose from as a starting point.
 
-To see the available examples for TypeScript, run:
+To see the available examples for JavaScript, run:
 
 ```shell
-$ golem-cli list-examples --language ts
+$ golem-cli list-examples --language js
 ```
 
 <Callout type="info">
@@ -17,23 +17,21 @@ $ golem-cli list-examples --language ts
   [golem-examples](http://github.com/golemcloud/golem-examples).
 </Callout>
 
-Then to create a new project based on the default TypeScript example, run:
+Then to create a new project based on the default JavaScript example, run:
 
 ```shell
-$ golem-cli new --language ts --package-name 'golem:demo' ts-example
+$ golem-cli new --language js --package-name 'golem:demo' js-example
 ```
 
-The command will create a new Golem project in the `ts-example` directory, and print short, language-specific instructions on how to build the project.
+The command will create a new Golem project in the `js-example` directory, and print short, language-specific instructions on how to build the project.
 
 ## Specification-first approach
 
-Golem and the TypeScript toolchain currently requires defining the component's interface using the **WebAssembly Interface Type (WIT)** format. See [the official documentation of this format](https://component-model.bytecodealliance.org/design/wit.html) for reference.
+Golem and the JavaScript toolchain currently requires defining the component's interface using the **WebAssembly Interface Type (WIT)** format. See [the official documentation of this format](https://component-model.bytecodealliance.org/design/wit.html) for reference.
 
 Each new project generated with `golem-cli` contains a `wit` directory with at least one `.wit` file defining a `world`. This world can contain **exports** (exported functions and interfaces) and these exports will be the compiled Golem component's public API.
 
-The first time a component is compiled (see the [Building Components page](/docs/experimental-languages/ts-language-guide/building-components) for details), a couple of files get generated in a subdirectory named `src/generated`. The generated sources contain the definitions of all the data types and interfaces defined in the `WIT` file(s) as TypeScript types and interfaces.
-
-To **implement** the specification written in WIT, the TypeScript code must implement some of these generated interfaces and export them in `main.ts`.
+To **implement** the specification written in WIT, the JavaScript code must implement these interfaces and export them in `main.js`.
 
 ### Exporting top-level functions
 
@@ -47,18 +45,27 @@ world example {
 }
 ```
 
-To implement this function in TypeScript we simply have to export a function with matching names and types in `main.ts`:
+To implement this function in JavaScript we simply have to export a function with matching names and types in `main.js`:
 
-```typescript
+```javascript
 export function helloWorld(): string {
-  return "hello"
+  return "hello";
 }
 ```
 
 <Callout type="warning">
-  Note that in WIT, identifiers are using the `kebab-case` naming convention, while TypeScript uses
+  Note that in WIT, identifiers are using the `kebab-case` naming convention, while JavaScript uses
   the `PascalCase` and `camelCase` convention. The generated bindings map between these are handled
   automatically.
+</Callout>
+
+<Callout type="info">
+During [componentization](/docs/experimental-languages/js-language-guide/golem-js-sdk) the exported objects and functions are checked against the `wit` world, eg. if the helloWorld function were not exported, we would get the following error:
+
+```
+(jco componentize) ComponentError: Expected a JS export definition for 'helloWorld'
+```
+
 </Callout>
 
 ### Exporting interfaces
@@ -80,25 +87,35 @@ world example {
 }
 ```
 
-This is similar to having the two exported functions directly exported from the `world` section, but there is a corresponding TypeScript **interface** generated that needs to be separately implemented and exported:
+This is similar to having the two exported functions directly exported from the `world` section, but now a matching JavaScript object needs to be exported:
 
-```typescript
-import { Api } from "./generated/example.js"
-
+```javascript
 let state = BigInt(0)
 
-export const api: Api = {
-  add(value: bigint) {
+export const api = {
+  add(value) {
     console.log(`Adding ${value} to the counter`)
     state += value
   },
-  get(): bigint {
+  get() {
     return state
   },
 }
 ```
 
-Using the generated interfaces also helps during development, as it can guide IDEs and the TypeScript compiler to create the expected exports.
+<Callout type="info">
+    During [componentization](/docs/experimental-languages/js-language-guide/golem-js-sdk) the exported objects and functions are checked against the `wit` world, eg. if the get function were not part of the `api` objects, we would get an error similar to this:
+
+    ```
+    Exception while pre-initializing: (new Error(main.js source does not export a golem:component/api get function as expected by the world.
+    Try defining it on the interface alias api:
+        export const api = {
+            get () {}
+        };,
+        "main.bindings.js", 73))
+    ```
+
+</Callout>
 
 <Callout type="info">
   See the **Managing state** section below to learn the recommended way of managing state in Golem
@@ -131,40 +148,33 @@ world example {
 
 Resources can have multiple instances within a worker. Their constructor returns a _handle_ which is then used to call the methods on the resource. Learn more about how resources can be implicitly created and invoked through Golem's APIs in the [Invocations page](/docs/concepts-invocations).
 
-To implement the above defined WIT resource in TypeScript a few new steps must be taken:
+To implement the above defined WIT resource in JavaScript a few new steps must be taken:
 
 - define a class representing the resource - it can contain data!
 - implement the interface generated as the resource's interface for this class named `CounterInstance`
 - implement the constructor on the component class as defined by the interface `CounterStatic`
 
-<Callout type={"warning"}>
-  The `CounterStatic` interface cannot be implemented by the `Counter` class, but the `constructor`
-  in `Counter` will be checked against the `new` method defined in `CounterStatic`.
-</Callout>
-
 Let's see in code:
 
-```typescript
-import { Api, CounterInstance, CounterStatic } from "./generated/example.js"
-
-class Counter implements CounterInstance {
-  name: string
+```javascript
+class Counter {
+  name
   state = BigInt(0)
 
-  constructor(name: string) {
+  constructor(name) {
     this.name = name
   }
 
-  add(value: bigint): void {
+  add(value) {
     this.state += value
   }
 
-  get(): bigint {
+  get() {
     return this.state
   }
 }
 
-export const api: Api = {
+export const api = {
   Counter: Counter,
 }
 ```
@@ -173,22 +183,29 @@ export const api: Api = {
 
 The `WIT` specifications contains some primitive and higher level data types and also allows defining custom data types which can be used as function parameters and return values on the exported functions, interfaces and resources.
 
-The following table shows an example of each `WIT` data type and its corresponding TypeScript type:
+The following table shows an example of each `WIT` data type and its corresponding JavaScript type:
 
-| WIT type                   | TypeScript type                                                           |
-| -------------------------- | ------------------------------------------------------------------------- |
-| `bool`                     | `boolean`                                                                 |
-| `s8`, `s16`, `s32`, `s64`  | `number`, `number`, `number`, `bigint`                                    |
-| `u8`, `u16`, `u32`, `u64`  | `number`, `number`, `number`, `bigint`                                    |
-| `f32`, `f64`               | `number`, `number`                                                        |
-| `char`                     | `string`                                                                  |
-| `string`                   | `string`                                                                  |
-| `list<string>`             | `string[]`                                                                |
-| `option<u64>`              | `? uint64`                                                                |
-| `result<s32, string>`      | `Result<number, string>` where `Result` is defined in the generated types |
-| `result<_, string>`        | `Result<void, string>`                                                    |
-| `result`                   | `Result<void, void>`                                                      |
-| `tuple<u64, string, char>` | `[bigint, string, string]`                                                |
+| WIT type                   | JavaScript type                        |
+| -------------------------- | -------------------------------------- |
+| `bool`                     | `boolean`                              |
+| `s8`, `s16`, `s32`, `s64`  | `number`, `number`, `number`, `bigint` |
+| `u8`, `u16`, `u32`, `u64`  | `number`, `number`, `number`, `bigint` |
+| `f32`, `f64`               | `number`, `number`                     |
+| `char`                     | `string`                               |
+| `string`                   | `string`                               |
+| `list<string>`             | `string[]`                             |
+| `option<u64>`              | `? uint64`                             |
+| `result<s32, string>`      | `Result<number, string>`               |
+| `result<_, string>`        | `Result<void, string>`                 |
+| `result`                   | `Result<void, void>`                   |
+| `tuple<u64, string, char>` | `[bigint, string, string]`             |
+
+The `Result` type above is expected to be a tagged union:
+
+```javascript
+const okResult = { tag: "ok", val: "hello" }
+const errorResult = { tag: "err", val: "error" }
+```
 
 ### WIT records
 
@@ -205,12 +222,12 @@ interface api {
 }
 ```
 
-Will generate the following TypeScript interface:
+Will expect the following JavaScript object:
 
-```typescript
-export interface User {
-  id: bigint
-  name: string
+```javascript
+const user = {
+  id: BigInt(1),
+  name: "name",
 }
 ```
 
@@ -226,28 +243,16 @@ interface api {
         red,
         green,
         blue,
-        rgb(u32)
+        rgb(string)
     }
 }
 ```
 
-Will generate the following TypeScript tagged union:
+Will expect a JavaScript tagged union:
 
-```TypeScript
-export type Color = ColorRed | ColorGreen | ColorBlue | ColorRgb;
-export interface ColorRed {
-  tag: 'red',
-}
-export interface ColorGreen {
-  tag: 'green',
-}
-export interface ColorBlue {
-  tag: 'blue',
-}
-export interface ColorRgb {
-  tag: 'rgb',
-  val: number,
-}
+```JavaScript
+const colorRed = {"tag": "red"};
+const colorRgb = {"tag": "rgb", val: "#ff00ff"};
 ```
 
 ### WIT enums
@@ -266,13 +271,11 @@ interface api {
 }
 ```
 
-Will generate the following Typescript union:
+Will expect a JavaScript string matching the above enum cases:
 
-```TypeScript
-export type Color = 'red' | 'green' | 'blue';
+```JavaScript
+const color = "green";
 ```
-
-and a set of helper functions.
 
 ### WIT flags
 
@@ -290,13 +293,13 @@ interface api {
 }
 ```
 
-Will generate the following TypeScript interface:
+Will expect a JavaScript object:
 
-```typescript
-export interface Access {
-  read?: boolean
-  write?: boolean
-  lst?: boolean
+```javascript
+const access = {
+  read: true,
+  write: false,
+  // some of the flags can be omitted, like `lst` in this example
 }
 ```
 
@@ -314,11 +317,11 @@ In general Golem supports three different ways of doing this:
 
 Command line arguments and environment variables are accessible through the generated bindings:
 
-```typescript
+```javascript
 import { getArguments, getEnvironment } from "wasi:cli/environment@0.2.0"
 
-const args: string[] = getArguments()
-const env: [string, string][] = getEnvironment()
+const args = getArguments() // returns []string
+const env = getEnvironment() // returns [string, string][]
 ```
 
 Environment variables can be specified when a worker is **explicitly created**, but there are some environment variables that are always set by Golem:
@@ -327,7 +330,7 @@ Environment variables can be specified when a worker is **explicitly created**, 
 - `GOLEM_COMPONENT_ID` - the ID of the worker's component
 - `GOLEM_COMPONENT_VERSION` - the version of the component used for this worker
 
-In addition to these, when using [Worker to Worker communication](/docs/pages/ts-language-guide/worker-to-worker-communication), workers created by remote calls **inherit the environment variables of the caller**.
+In addition to these, when using [Worker to Worker communication](/docs/pages/js-language-guide/worker-to-worker-communication), workers created by remote calls **inherit the environment variables of the caller**.
 
 This feature makes environment variables a good fit for passing configuration such as hostnames, ports, or access tokens to trees of workers.
 
@@ -339,7 +342,7 @@ Although resources can be used in many ways, one pattern for Golem is only creat
 
 ## Managing state
 
-Golem workers are **stateful**. There are two major techniques to store and manipulate state in a Golem worker implemented in TypeScript:
+Golem workers are **stateful**. There are two major techniques to store and manipulate state in a Golem worker implemented in JavaScript:
 
 1. Using a global variable
 2. Using **resources** and storing state in the resource's class

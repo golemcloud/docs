@@ -1,16 +1,16 @@
-# Control durability guarantees from TypeScript
+# Control durability guarantees from JavaScript
 
-Golem provides a set of functions components can call to control details of the durable execution engine. For components implemented in TypeScript the [Golem Typescript SDK](/docs/experimental-languages/ts-language-guide/golem-ts-sdk) provides a set of TypeScript wrappers for these functions.
+Golem provides a set of functions components can call to control details of the durable execution engine. For components implemented in JavaScript the [Golem JavaScript SDK](/docs/experimental-languages/jss-language-guide/golem-js-sdk) provides a set of JavaScript wrappers for these functions.
 
-### Setting up the Golem TypeScript SDK
+### Setting up the Golem JavaScript SDK
 
-If the project was created with `golem-cli new`, it already has the Golem TypeScript SDK set up, otherwise follow the step at [Setting up the Golem TypeScript SDK](/docs/experimental-languages/ts-language-guide/golem-ts-sdk)
+If the project was created with `golem-cli new`, it already has the Golem JavaScript SDK set up, otherwise follow the step at [Setting up the Golem JavaScript SDK](/docs/experimental-languages/jss-language-guide/golem-js-sdk)
 
 ### General concepts
 
-The library allows controlling four main aspects of the durable execution engine: the current persistence level, the idempotence mode, defining atomic regions and changing retry policies (discussed in [the next page](/docs/experimental-languages/ts-language-guide/retries)).
+The library allows controlling four main aspects of the durable execution engine: the current persistence level, the idempotence mode, defining atomic regions and changing retry policies (discussed in [the next page](/docs/experimental-languages/js-language-guide/retries)).
 
-All these features are regional - they can be changed for a section of the code within a single exported function. To make this easy to use in TypeScript, the library provides functions starting with `with`, they take a closure parameter which will be executed with the requested mode, and then they restore the previous settings.
+All these features are regional - they can be changed for a section of the code within a single exported function. To make this easy to use in JavaScript, the library provides functions starting with `with`, they take a closure parameter which will be executed with the requested mode, and then they restore the previous settings.
 
 ### Persistence level
 
@@ -24,23 +24,23 @@ The persistence level can be one of the following:
 
 To change the persistence level for a section of the code, use the `withPersistenceLevel` function:
 
-```typescript
+```javascript
 import { withPersistenceLevel } from "@golemcloud/golem-ts"
 
 const result: string = withPersistenceLevel({ tag: "persist-nothing" }, () => {
   // this closure runs in PersistNothing mode
-  return "hello"
-})
+  return "hello";
+});
 ```
 
 ### Idempotence mode
 
 Golem assumes that HTTP requests are idempotent by default. This means that in case of a failure, if the system cannot determine whether the request successfully reached the target or not, it will be retried. This behavior can be changed using the `withIdempotenceMode` function:
 
-```typescript
+```javascript
 import { withIdempotenceMode } from "@golemcloud/golem-ts"
 
-const result: string = withIdempotenceMode(false, () => {
+const result = withIdempotenceMode(false, () => {
   // this closure runs with idempotence mode disabled
   return "hello"
 })
@@ -54,12 +54,12 @@ By default, side effects are persisted and retried one by one. It is possible to
 
 The `golem-ts` library exports the `atomically` function for using atomic regions:
 
-```typescript
+```javascript
 import { atomically } from "@golemcloud/golem-ts"
 
-const result: [string, string] = atomically(() => {
-  const firstResult: string = firstSideEffect()
-  const secondResult: string = secondSideEffect(firstResult)
+const result = atomically(() => {
+  const firstResult = firstSideEffect()
+  const secondResult = secondSideEffect(firstResult)
   return [firstResult, secondResult]
 })
 ```
