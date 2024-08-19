@@ -27,7 +27,7 @@ An infallible transaction can be executed using the `infallibleTransaction` func
 
 Both transaction types require the definition of **operations**.
 
-In _TypeScript_ is defined with the following interface:
+As documentation, here is the _TypeScript_ interface that operations has to match:
 
 ```typescript
 /**
@@ -54,7 +54,7 @@ export interface Operation<In, Out, Err> {
 }
 ```
 
-There are two ways to define an operation in _JavaScript_:
+In _JavaScript_ there are two ways to define an operation that matches the above interface:
 
 1. Implement the `Operation` interface manually
 

@@ -1,6 +1,6 @@
 import { Callout } from "nextra/components"
 
-# Working with Golem Promises in C/C++
+# Working with Golem Promises in Go
 
 Golem **promises** provide a way for Golem workers to wait on an external condition. The worker creates the promise and somehow sends its identifier to the external system responsible for **completing** the promise. Then the worker can **await** the promise, being suspended until the external system completes the promise using Golem's REST API.
 
