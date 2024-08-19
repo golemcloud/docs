@@ -27,10 +27,10 @@ To change the persistence level for a section of the code, use the `withPersiste
 ```javascript
 import { withPersistenceLevel } from "@golemcloud/golem-ts"
 
-const result: string = withPersistenceLevel({ tag: "persist-nothing" }, () => {
+const result = withPersistenceLevel({ tag: "persist-nothing" }, () => {
   // this closure runs in PersistNothing mode
-  return "hello";
-});
+  return "hello"
+})
 ```
 
 ### Idempotence mode
