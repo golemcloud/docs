@@ -17,6 +17,7 @@
   "retries": "Retries",
   "transactions": "Transactions",
   "promises": "Promises",
+  "worker-metadata": "Accessing worker metadata",
   "updating": "Updating Workers",
   "wasi": "WASI",
   "-- worker-to-worker-communication": {
