@@ -7,14 +7,16 @@ This guide will get you up and running in Golem in minutes.
 
 ### Install Golem CLI
 
-Golem CLI is a command-line application that allows you to deploy new invincible workers onto Golem.
+Golem CLI is a command-line application that allows you to deploy components,
+create and invoke workers, and otherwise manage your Golem applications.
 
-There are **precompiled binaries** of `golem-cli` (and its other variants) for various platforms. Alternatively you can build it for yourself.
+There are **precompiled binaries** of `golem-cli` (and its other variants) for
+various platforms. Alternatively, you can build Golem CLI for yourself.
 
 <Callout type="info">
 To build `golem-cli` you need to use `cargo`, Rust's build tool.
 
-To get `cargo` on your system, we recommend to use [rustup](https://rustup.rs/):
+To get `cargo` on your system, we recommend using [rustup](https://rustup.rs/):
 
 ```bash filename="Terminal" copy
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -24,7 +26,7 @@ rustup default stable
 
 </Callout>
 
-#### Recommended CLI version
+#### Recommended CLI
 
 You can download the universal version of `golem-cli` from the following page:
 
@@ -35,17 +37,20 @@ You can download the universal version of `golem-cli` from the following page:
   />
 </Cards>
 
-Alternatively you can build and install the universal version of `golem-cli` with the following command:
+Alternatively, you can build and install the universal version of `golem-cli`
+with the following command:
 
 ```bash filename="Terminal" copy
 cargo install --features universal golem-cloud-cli
 ```
 
-The comman above installs both universal `golem-cli` (with support for cloud and open source version) and cloud specific `golem-cloud-cli`.
+This command installs both universal `golem-cli` (with support for cloud and
+open source versions) and the cloud-specific `golem-cloud-cli`.
 
-#### Alternative CLI versions
+#### Alternative Versions
 
-You can download the cloud specific `golem-cloud-cli` without supporting OSS deployments from the following page:
+You can download the cloud-specific `golem-cloud-cli` without supporting OSS
+deployments from the following page:
 
 <Cards num={1}>
   <Card
@@ -54,19 +59,22 @@ You can download the cloud specific `golem-cloud-cli` without supporting OSS dep
   />
 </Cards>
 
-Alternatively you can build and install cloud specific `golem-cloud-cli` without universal `golem-cli` with the following command:
+Alternatively, you can build and install cloud-specific `golem-cloud-cli`
+without the universal `golem-cli` with the following command:
 
 ```bash filename="Terminal" copy
 cargo install golem-cloud-cli --bin golem-cloud-cli
 ```
 
-You can download the open source specific `golem-cli` without supporting Golem Cloud from the following page:
+You can download the open source-specific `golem-cli` without support for Golem
+Cloud from the following page:
 
 <Cards num={1}>
   <Card title="Golem Releases" href="https://github.com/golemcloud/golem/releases" />
 </Cards>
 
-Alternatively you can build and install open sorcce specific `golem-cli` without cloud profiles support with the following command:
+Alternatively, you can build and install open source-specific `golem-cli`
+without cloud profiles support with the following command:
 
 ```bash filename="Terminal" copy
 cargo install golem-cli
@@ -76,11 +84,12 @@ cargo install golem-cli
   Open source specific `golem-cli` and universal `golem-cli` can not be installed at the same time.
   {/* prettier-ignore */}
 
-We will use universal `golem-cli` in all examples, but `golem-cloud-cli` supports all commands supported by universal `golem-cli`.
+We will use the universal `golem-cli` in all examples, but `golem-cloud-cli`
+supports all the commands supported by the universal `golem-cli`.
 
 </Callout>
 
-### Setting up Golem
+### Setup
 
 To use the open source version of Golem you need to deploy it in your own infrastructure.
 
@@ -96,19 +105,23 @@ curl -O https://raw.githubusercontent.com/golemcloud/golem/main/docker-examples/
 docker-compose -f docker-compose-postgres.yaml up
 ```
 
-Note that, here we are making use of an example docker-compose file. You may need to modify it to suit your needs,
-or refer other examples in Golem [repository](https://github.com/golemcloud/golem/tree/main/docker-examples).
-That said, the example docker-compose file along with .env file should be enough to get you started.
+Note that, here we are making use of an example docker-compose file. You may
+need to modify it to suit your needs, or refer other examples in Golem
+[repository](https://github.com/golemcloud/golem/tree/main/docker-examples).
+That said, the example docker-compose file along with .env file should be enough
+to get you started.
 
-If you are running into any port conflicts you can modify the `.env` file that was downloaded as part of the above curl command.
+If you are running into any port conflicts, you can modify the `.env` file that
+was downloaded as part of the above `curl` command.
 
 <Callout type="info">If you are using the hosted version of Golem, you can skip this step.</Callout>
 
-See also [deployment](deployment-overview.mdx) page for additional deployment options.
+See also [deployment](deployment-overview.mdx) page for additional deployment
+options.
 
-### Creating CLI profile
+### Creating a Profile
 
-To specify Golem service location run the following command:
+To specify the Golem service location, run the following command:
 
 ```bash filename="Terminal" copy
 golem-cli init
@@ -126,19 +139,26 @@ If you can't see `Golem Cloud` option - you are using an open source specific ve
 
 ### Building an Example
 
-Golem runs components that are WebAssembly programs. Components are like applications, except they may expose functions that can be called externally.
+Golem runs components that are WebAssembly programs. Components are like
+applications, except they may expose functions that can be called externally.
 
-To deploy to Golem, you must first [build a component](/docs/building-components) using any programming language and toolchain that can build WebAssembly components.
+To deploy to Golem, you must first build a [component](concepts-components)
+using any programming language and toolchain that can build WebAssembly
+components.
 
-To get started quickly, you can use Golem CLI to create a component from an example:
+To get started quickly, you can use Golem CLI to create a component from an
+existing example:
 
 ```bash filename="Terminal" copy
 golem-cli new --example rust-shopping-cart --component-name shopping_cart
 ```
 
-This will generate a new `shopping_cart` directory in the current directory with the example for your component.
+This will generate a new `shopping_cart` directory in the current directory with
+the example for your component.
 
-To **build** the newly created component you need some development tools installed. These are collected for each supported **guest language** on the [Building Components](/docs/building-components) page. For the above example, please read the [Rust](/docs/building-components/tier-1/rust) specific instructions to set up `cargo-component`.
+To **build** the newly created component, you need some development tools
+installed. Which tools you need depend on the language you are using. You can
+find more information on the [components](concepts-components) explainer.
 
 Once you have that, navigate to the `shopping_cart`, and run:
 

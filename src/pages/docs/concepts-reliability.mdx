@@ -205,9 +205,10 @@ consider implementing your own retry strategies for such cases.
 
 ### Customization
 
-Currently, you cannot customize the retry strategy without forking the Golem
-code base and incorporating your modifications directly in the worker executor.
-However, configurable retry strategies are on the roadmap for future releases.
+Currently, you can customize a worker's retry policy, including number of
+retries, delays, and so on, but it is a global setting that applies to all
+failed operations. See [Golem host functions](/docs/golem-host-functions) for
+more details, or langauge-specific SDKs.
 
 ## Fault-Tolerance
 

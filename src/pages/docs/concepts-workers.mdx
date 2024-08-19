@@ -59,9 +59,10 @@ is stateful. Workers have the following stateful elements:
 - **Memory**. A worker has in-memory state, such as global variables, stack,
   and so on, which constantly changes over the life of the worker.
 - **Environment Variables**. A worker has environment variables, which it
-  inherits from component settings, and which may change over time.
-- **File System**. A worker has a file system, which it inherits from
-  component settings, but which may evolve over the life of the worker.
+  inherits from component settings and any initial settings when the worker is
+  created, and which may change over time.
+- **File System**. A worker has a file system, which currently starts out
+  empty, but which may evolve over the life of the worker.
 - **Status**. The status of the worker, managed by Golem, is one of the
   following: running, idle, suspended, interrupted, retrying, failed, or
   exited.
@@ -169,9 +170,8 @@ Workers support the following operations:
 - **Creation**. Workers benefit from automatic creation, which occurs when a
   worker is invoked for the first time. Therefore, it is not necessary to
   create workers explicitly.
-- **Cancellation**. Workers can be cancelled at any time, which causes the
-  worker to stop executing. Cancelled workers suffer from corrupted state,
-  arising from their abupt termination, and cannot be resumed or inspected.
+- **Interruption**. Workers can be interrupted at any time, which causes the
+  worker to stop executing. Interrupted workers can be resumed later.
 - **Deletion**. Workers can be deleted, which causes all state of the worker
   to be permanently deleted. Deleted workers cannot be undeleted or resumed,
   and if invoked again, they will be recreated from scratch.

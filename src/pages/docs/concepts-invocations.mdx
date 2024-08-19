@@ -40,14 +40,15 @@ for remote invocation through multiple protocols.
 Understanding the structure of invocations, then, comes down to understanding
 the structure of component model types, as defined by WIT.
 
-In the next section, you will learn more about this structure.
+In the next section, you will learn the basics of this structure. For a more
+detailed reference, you can see the page on [Function names](/docs/function-names).
 
 ## Basic Invocations
 
 Assume we have created a component designed to provide durable counters, whose
 public API is defined by the following WIT:
 
-```
+```wit
 package demo:counter;
 
 interface counters {
@@ -87,7 +88,8 @@ This name identifies the `get-total-counters` function, unique from any other
 function that is exported by the component.
 
 You will learn how to specify parameters later, when the different supported
-protocols are introduced.
+protocols are introduced. For more information on the structure of function
+names, see the page on [Function names](/docs/function-names).
 
 ## Resource Invocations
 
@@ -130,7 +132,7 @@ constructor parameters, and automatically constructs resources as necessary.
 Let's take the following example counter component, which defines a resource
 named `counter`:
 
-```
+```wit
 package demo:counter;
 
 interface counters {
