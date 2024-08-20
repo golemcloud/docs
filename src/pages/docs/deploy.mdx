@@ -1,3 +1,5 @@
+import { Cards, Card } from "nextra/components"
+
 # Deployment
 
 Golem Services are distributed as Docker images. They are available in [Golem Services Docker Hub](https://hub.docker.com/u/golemservices). Each Docker image is built for OS/ARCH-s:
@@ -54,6 +56,8 @@ See also: [configuration](https://github.com/golemcloud/golem/blob/main/golem-ro
 
 For deployment variants, see the following sections:
 
-- [docker](deploy-docker.mdx) deployment
-- [kubernetes](deploy-kubernetes.mdx) deployment
-- [Golem Cloud](deploy-golem-cloud.mdx) deployment
+<Cards num={3}>
+  <Card title="Docker" href="/docs/deploy/docker" />
+  <Card title="Kubernetes" href="/docs/deploy/kubernetes" />
+  <Card title="Golem Cloud" href="/docs/deploy/golem-cloud" />
+</Cards>
