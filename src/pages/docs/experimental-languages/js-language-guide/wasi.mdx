@@ -1,6 +1,8 @@
-import { Callout } from "nextra/components"
+import { Callout, FileTree, Tabs } from "nextra/components"
+import { AllWitDeps } from "@/components/all-wit-deps"
+import { PackageManagerCommand } from "@/components/package-manager-command"
 
-# Using WASI interfaces from JAvaScript
+# Using WASI interfaces from JavaScript
 
 Golem implements and exports a subset of the [WASI](https://wasi.dev) interfaces, as well as its own **runtime interfaces**.
 
@@ -29,6 +31,75 @@ The following table lists all packages provided by Golem:
 | `wasi:random`     | Interface for generating random numbers                                                     |
 | `wasi:sockets`    | Interface for working with TCP and UDP sockets (currently not supporting durable execution) |
 
-## Additional Golem runtime APIs
+## WIT to JavaScript Type Mapping
 
-This section describes Golem-specific functionalities which are available through the Golem runtime API but does not have an idiomatic Go wrapper in the `golem-ts` library yet.
+The following table shows how WIT types are mapped to JavaScript types:
+
+| WIT Type                             | JS Type    | Notes                                                       |
+| ------------------------------------ | ---------- | ----------------------------------------------------------- |
+| bool                                 | boolean    |                                                             |
+| u8, s8, u16, s16, u32, s32, f32, f64 | number     |                                                             |
+| u64, s64                             | bigint     |                                                             |
+| char                                 | string     | Represents a single Unicode character                       |
+| string                               | string     |                                                             |
+| list\<T>                             | Array      | For most types                                              |
+| list\<u8>                            | Uint8Array | Special case for byte arrays                                |
+| tuple\<T1, T2, ...>                  | Array      |                                                             |
+| record                               | Object     | Fields become properties                                    |
+| variant                              | Object     | Each case becomes an object with a `tag` and optional `val` |
+| enum                                 | string     |                                                             |
+| option\<T>                           | T \| null  | If T can be represented as null                             |
+| option\<T>                           | Object     | If T cannot be represented as null                          |
+| result\<T, E>                        | Object     |                                                             |
+| flags                                | Object     | Each flag becomes an optional boolean property              |
+| resource                             | class      | Methods become class methods                                |
+
+Note: The `Option` and `Result` types are represented as objects in JavaScript if they cannot be represented as null or a simple value.
+
+They are structured as follows:
+
+```javascript
+// Option
+{ tag: "none" } | { tag: "some", val: T }
+
+// Result
+{ tag: "ok", val: T } | { tag: "err", val: E }
+```
+
+#### Variant Type Example
+
+```javascript
+// UserRole can be one of these objects:
+{ tag: "guest" }
+{ tag: "regular-user" }
+{ tag: "admin" }
+{ tag: "super-moderator", val: string }
+```
+
+#### Flags Type Example
+
+```javascript
+// OpenFlags
+{
+  create: boolean,
+  directory: boolean,
+  exclusive: boolean,
+  truncate: boolean,
+  readWrite: boolean
+}
+```
+
+## Generate JavaScript Bindings for WASI
+
+Run the `stub` command with the package manager of your choice
+
+This script should have been setup during the [installation of the Golem JavaScript SDK](/docs/experimental-languages/js-language-guide/golem-js-sdk#scripts).
+
+<PackageManagerCommand
+  command={[
+    { label: "npm", command: "npm run stub" },
+    { label: "pnpm", command: "pnpm run stub" },
+    { label: "yarn", command: "yarn run stub" },
+    { label: "bun", command: "bun run stub" },
+  ]}
+/>
