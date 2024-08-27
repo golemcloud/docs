@@ -1,4 +1,6 @@
-import { Callout } from "nextra/components"
+import { Callout, FileTree, Tabs } from "nextra/components"
+import { AllWitDeps } from "@/components/all-wit-deps"
+import { PackageManagerCommand } from "@/components/package-manager-command"
 
 # Using WASI interfaces from TypeScript
 
@@ -29,6 +31,109 @@ The following table lists all packages provided by Golem:
 | `wasi:random`     | Interface for generating random numbers                                                     |
 | `wasi:sockets`    | Interface for working with TCP and UDP sockets (currently not supporting durable execution) |
 
-## Additional Golem runtime APIs
+## WIT to TypeScript Type Mapping
 
-This section describes Golem-specific functionalities which are available through the Golem runtime API but does not have an idiomatic Go wrapper in the `golem-ts` library yet.
+The following table shows how WIT types are mapped to TypeScript types:
+
+| WIT Type                             | TS Type                  | Notes                                                          |
+| ------------------------------------ | ------------------------ | -------------------------------------------------------------- |
+| bool                                 | boolean                  |                                                                |
+| u8, s8, u16, s16, u32, s32, f32, f64 | number                   |                                                                |
+| u64, s64                             | bigint                   |                                                                |
+| char                                 | string                   | Represents a single Unicode character                          |
+| string                               | string                   |                                                                |
+| list\<T>                             | T[]                      | For most types                                                 |
+| list\<u8>                            | Uint8Array               | Special case for byte arrays                                   |
+| tuple\<T1, T2, ...>                  | [T1, T2, ...]            |                                                                |
+| record                               | interface                | Fields become properties                                       |
+| variant                              | union of interfaces      | Each case becomes an interface with a `tag` and optional `val` |
+| enum                                 | union of string literals |                                                                |
+| option\<T>                           | T \| null                | If T can be represented as null                                |
+| option\<T>                           | Option\<T>               | If T cannot be represented as null                             |
+| result\<T, E>                        | Result\<T, E>            |                                                                |
+| flags                                | interface                | Each flag becomes an optional boolean property                 |
+| resource                             | class                    | Methods become class methods                                   |
+
+Note: The `Option` and `Result` types are automatically included in the generated TypeScript if they are detected in the WIT interface.
+
+They are defined as follows:
+
+```typescript
+export type Option<T> = { tag: "none" } | { tag: "some"; val: T }
+```
+
+```typescript
+export type Result<T, E> = { tag: "ok"; val: T } | { tag: "err"; val: E }
+```
+
+#### Variant Type Example
+
+> the original kebab-case is kept in the Typescript `tag` property
+
+```wit
+variant user-role {
+    guest,
+    regular-user,
+    admin,
+    super-moderator(string)
+}
+```
+
+```typescript
+export type UserRole = UserRoleGuest | UserRoleRegularUser | UserRoleAdmin | UserRoleSuperModerator
+
+export interface UserRoleGuest {
+  tag: "guest"
+}
+
+export interface UserRoleRegularUser {
+  tag: "regular-user"
+}
+
+export interface UserRoleAdmin {
+  tag: "admin"
+}
+
+export interface UserRoleSuperModerator {
+  tag: "super-moderator"
+  val: string
+}
+```
+
+#### Flags Type Example
+
+```wit
+/// Open flags used by `open-at`.
+flags open-flags {
+    create,
+    directory,
+    exclusive,
+    truncate,
+    read-write,
+}
+```
+
+```typescript
+export interface OpenFlags = {
+  create: boolean
+  directory: boolean
+  exclusive: boolean
+  truncate: boolean
+  readWrite: boolean
+}
+```
+
+## Generate Typescript Bindings for WASI
+
+Run the `stub` command with the package manager of your choice
+
+This script should have been setup during the [installation of the Golem TypeScript SDK](/docs/experimental-languages/ts-language-guide/golem-ts-sdk#scripts).
+
+<PackageManagerCommand
+  command={[
+    { label: "npm", command: "npm run stub" },
+    { label: "pnpm", command: "pnpm run stub" },
+    { label: "yarn", command: "yarn run stub" },
+    { label: "bun", command: "bun run stub" },
+  ]}
+/>
