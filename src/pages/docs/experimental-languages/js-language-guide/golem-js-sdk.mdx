@@ -29,9 +29,19 @@ If setting up the [Golem JavaScript SDK](https://github.com/golemcloud/golem-ts)
   ]}
 />
 
+### Ensure ESM is enabled
+
+In your `package.json` file, ensure the `type` is set to `module`.
+
+```json filename="package.json" {2} copy
+{
+  "type": "module"
+}
+```
+
 ### Install Dev Dependencies
 
-The Golem JavaScript SDK currently relies on forked versions of `jco` and `componentize-js`.
+The Golem JavaScript SDK currently relies on forked versions of [jco](https://github.com/golemcloud/jco) and [componentize-js](https://github.com/golemcloud/componentize-js).
 
 export const deps =
   "@golemcloud/componentize-js @golemcloud/golem-ts @golemcloud/jco @rollup/plugin-node-resolve@^15.2.3 rollup@^4.18.0"
@@ -50,11 +60,10 @@ export const deps =
 To silence rollup warnings, add WIT imports to the `external` array.
 
 ```js filename="rollup.config.mjs" {10} copy
-import typescript from "rollup-plugin-typescript2"
 import resolve from "@rollup/plugin-node-resolve"
 
 export default {
-  input: "src/main.ts",
+  input: "src/main.js",
   output: {
     file: "out/main.js",
     format: "esm",
@@ -83,7 +92,7 @@ export default {
     "wasi:sockets/ip-name-lookup@0.2.0",
     "wasi:sockets/instance-network@0.2.0",
   ],
-  plugins: [resolve(), typescript()],
+  plugins: [resolve()],
 }
 ```
 
@@ -120,10 +129,7 @@ Ensure the `scripts` and `devDependencies` sections are correct (versions may di
     "@golemcloud/golem-ts": "0.2.0",
     "@golemcloud/jco": "1.4.4-golem.1",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "rollup-plugin-typescript2": "^0.36.0",
-    "@types/node": "^20.14.2",
-    "rollup": "^4.18.0",
-    "tslib": "^2.6.3"
+    "rollup": "^4.18.0"
   }
 }
 ```

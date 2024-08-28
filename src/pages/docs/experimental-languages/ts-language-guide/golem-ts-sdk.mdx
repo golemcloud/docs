@@ -24,9 +24,19 @@ If setting up the [Golem TypeScript SDK](https://github.com/golemcloud/golem-ts)
   ]}
 />
 
+### Ensure ESM is enabled
+
+In your `package.json` file, ensure the `type` is set to `module`.
+
+```json filename="package.json" {2} copy
+{
+  "type": "module"
+}
+```
+
 ### Install Dev Dependencies
 
-The Golem TypeScript SDK currently relies on forked versions of `jco` and `componentize-js`.
+The Golem TypeScript SDK currently relies on forked versions of [jco](https://github.com/golemcloud/jco) and [componentize-js](https://github.com/golemcloud/componentize-js).
 
 export const deps =
   "@golemcloud/componentize-js @golemcloud/golem-ts @golemcloud/jco @rollup/plugin-node-resolve@^15.2.3 rollup-plugin-typescript2@^0.36.0 @types/node@^20.14.2 rollup@^4.18.0 tslib@^2.6.3 typescript@^5.4.5"
