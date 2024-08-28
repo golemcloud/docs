@@ -114,6 +114,12 @@ To trigger an update for a given worker from one component version to another, u
 ```javascript
 import { updateWorker } from "golem:api/host@0.2.0"
 
+const workerId = {
+  /* ... */
+}
+
+const targetVersion = 1n
+
 updateWorker(workerId, targetVersion, "automatic")
 ```
 

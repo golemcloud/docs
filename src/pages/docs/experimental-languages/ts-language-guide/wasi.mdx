@@ -84,23 +84,20 @@ import {
   ComponentId,
   GetWorkers,
   WorkerAnyFilter,
-  WorkerAllFilter,
-  WorkerPropertyFilter,
-  WorkerStatus,
-  FilterComparator,
   WorkerMetadata,
+  WorkerStatusFilter,
 } from "golem:api/host@0.2.0"
 
-const filter: WorkerAnyFilter | undefined = {
+const filter: WorkerAnyFilter = {
   filters: [
     {
       filters: [
         {
           tag: "status",
           val: {
-            comparator: "equal" as FilterComparator,
-            value: "idle" as WorkerStatus,
-          },
+            comparator: "equal",
+            value: "idle",
+          } satisfies WorkerStatusFilter,
         },
       ],
     },
@@ -126,9 +123,15 @@ The third parameter of the `GetWorkers` constructor enables `precise` mode. In t
 To trigger an update for a given worker from one component version to another, use the `updateWorker` function:
 
 ```typescript
-import { updateWorker, WorkerId, ComponentVersion, UpdateMode } from "golem:api/host@0.2.0"
+import { updateWorker, WorkerId, ComponentVersion } from "golem:api/host@0.2.0"
 
-updateWorker(workerId, targetVersion, "automatic" as UpdateMode)
+const workerId: WorkerId = {
+  /* ... */
+}
+
+const targetVersion: ComponentVersion = 1n
+
+updateWorker(workerId, targetVersion, "automatic")
 ```
 
 To learn more about updating workers, see the updating workers page in the documentation.
