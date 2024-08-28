@@ -3,15 +3,15 @@ import { Fragment } from "react"
 import { ComponentProps } from "react"
 
 type Props = {
-  command: LiteralCommand[]
+  commands: Command[]
 } & Omit<ComponentProps<typeof Pre>, "children">
 
-type LiteralCommand = {
+type Command = {
   label: string
   command: string
 }
 
-export const MultiPlatformCommand = ({ command, ...props }: Props) => {
+export const MultiPlatformCommand = ({ commands: command, ...props }: Props) => {
   const labels = command.map(c => c.label)
 
   // Mimicking the shiki theme

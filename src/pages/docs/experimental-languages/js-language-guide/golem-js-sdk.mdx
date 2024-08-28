@@ -21,7 +21,7 @@ If setting up the [Golem JavaScript SDK](https://github.com/golemcloud/golem-ts)
 ### Create a new project
 
 <MultiPlatformCommand
-  command={[
+  commands={[
     { label: "npm", command: "npm init" },
     { label: "pnpm", command: "pnpm init" },
     { label: "yarn", command: "yarn init" },
@@ -47,7 +47,7 @@ export const deps =
   "@golemcloud/componentize-js @golemcloud/golem-ts @golemcloud/jco @rollup/plugin-node-resolve@^15.2.3 rollup@^4.18.0"
 
 <MultiPlatformCommand
-  command={[
+  commands={[
     { label: "npm", command: `npm install --save-dev ${deps}` },
     { label: "pnpm", command: `pnpm add --save-dev ${deps}` },
     { label: "yarn", command: `yarn add --dev ${deps}` },
@@ -142,7 +142,7 @@ The project's `wit/deps` directory must contain all the WIT files from the [gole
 Either clone the repository and copy the `wit/deps` directory into your project, or run the following command to download the WIT files:
 
 <MultiPlatformCommand
-  command={[
+  commands={[
     {
       label: "macOS/Linux",
       command:
