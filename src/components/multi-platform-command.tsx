@@ -11,7 +11,7 @@ type LiteralCommand = {
   command: string
 }
 
-export const PackageManagerCommand = ({ command, ...props }: Props) => {
+export const MultiPlatformCommand = ({ command, ...props }: Props) => {
   const labels = command.map(c => c.label)
 
   // Mimicking the shiki theme

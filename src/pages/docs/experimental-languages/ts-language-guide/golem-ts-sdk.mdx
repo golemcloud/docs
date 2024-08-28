@@ -1,6 +1,6 @@
 import { Callout, Steps, Tabs } from "nextra/components"
 import { AllWitDeps } from "@/components/all-wit-deps"
-import { PackageManagerCommand } from "@/components/package-manager-command"
+import { MultiPlatformCommand } from "@/components/multi-platform-command"
 
 # Setting up the Golem TypeScript SDK
 
@@ -15,7 +15,7 @@ If setting up the [Golem TypeScript SDK](https://github.com/golemcloud/golem-ts)
 
 ### Create a new project
 
-<PackageManagerCommand
+<MultiPlatformCommand
   command={[
     { label: "npm", command: "npm init" },
     { label: "pnpm", command: "pnpm init" },
@@ -41,7 +41,7 @@ The Golem TypeScript SDK currently relies on forked versions of [jco](https://gi
 export const deps =
   "@golemcloud/componentize-js @golemcloud/golem-ts @golemcloud/jco @rollup/plugin-node-resolve@^15.2.3 rollup-plugin-typescript2@^0.36.0 @types/node@^20.14.2 rollup@^4.18.0 tslib@^2.6.3 typescript@^5.4.5"
 
-<PackageManagerCommand
+<MultiPlatformCommand
   command={[
     { label: "npm", command: `npm install --save-dev ${deps}` },
     { label: "pnpm", command: `pnpm add --save-dev ${deps}` },
@@ -166,7 +166,7 @@ The project's `wit/deps` directory must contain all the WIT files from the [gole
 
 Either clone the repository and copy the `wit/deps` directory into your project, or run the following command to download the WIT files:
 
-<PackageManagerCommand
+<MultiPlatformCommand
   command={[
     {
       label: "MacOS/Linux",
