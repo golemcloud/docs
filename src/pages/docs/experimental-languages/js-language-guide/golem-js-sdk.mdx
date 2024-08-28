@@ -139,6 +139,23 @@ Ensure the `scripts` and `devDependencies` sections are correct (versions may di
 
 The project's `wit/deps` directory must contain all the WIT files from the [golem-wit](https://github.com/golemcloud/golem-wit/tree/main/wit/deps) repository.
 
+Either clone the repository and copy the `wit/deps` directory into your project, or run the following command to download the WIT files:
+
+<PackageManagerCommand
+  command={[
+    {
+      label: "MacOS/Linux",
+      command:
+        'curl -L https://github.com/golemcloud/golem-wit/archive/refs/heads/main.zip | tar -xvf- -C . --strip-components=2 "golem-wit-main/wit/deps" && mkdir -p ./wit/deps && mv deps/* ./wit/deps/ && rm -rf deps/',
+    },
+    {
+      label: "Windows",
+      command:
+        'Invoke-WebRequest -Uri "https://github.com/golemcloud/golem-wit/archive/refs/heads/main.zip" -OutFile "main.zip"; Expand-Archive -Path "main.zip" -DestinationPath "temp" -Force; New-Item -Path ".\\wit\\deps" -ItemType Directory -Force; Move-Item -Path ".\\temp\\golem-wit-main\\wit\\deps\\*" -Destination ".\\wit\\deps" -Force; Remove-Item -Path "main.zip", "temp" -Recurse -Force',
+    },
+  ]}
+/>
+
 The resulting directory structure should look like this:
 
 <AllWitDeps />
