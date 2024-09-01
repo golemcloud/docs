@@ -501,7 +501,7 @@ The return value of the script is the last expression in the script, and is of t
 
 ## Known issues and Limitations
 
-Rib has become a typed script very recently prior to 1.0 release of Golem, and is probably the newest entry into the whole ecosystem of Golem.
+Rib has become a typed script as part of 1.0 release, and is probably the newest entry into the whole ecosystem of Golem.
 We are making great improvements in this space and there will be constant release especially in the space of Rib.
 
 Following are some known issues and how to fix them if you encounter them
@@ -520,6 +520,6 @@ call(x)
     * Missing closing curly braces
     * Missing closing square brackets
     * Missing comma
-    
+
 * Complex compiler error messages. We are working on this
 * Compiler errors occur when you don't specify the type of numbers. Example `1` will fail whil `1u8` will not. This is because Rib is typed and is trying to infer a proper WASM type. We will see how to improve this.
