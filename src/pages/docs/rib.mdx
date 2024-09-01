@@ -514,12 +514,13 @@ let x = { a: 1u32, b: 2u32, c: d };
 call(x)
 
 ```
-* Incomplete syntax errors. We are working on this. For the most part a syntax (parser errors) comes from the following
-    * Missing semicolon at the end of the every Rib statement
-    * Adding a semicolon at the end of the last line in your Rib script. Rib will fail in this case
-    * Missing closing curly braces
+* Incomplete syntax errors. We are working on this. For the most part a syntax (parser errors) comes from the following:
+    * Missing semicolon at the end of the every Rib statement.
+    * Adding a semicolon at the end of the last line in your Rib script. Rib will fail to compile in this case.
+    * Missing closing curly braces.
     * Missing closing square brackets
-    * Missing comma
+    * Missing comma in sequence elements.
+    * Invalid function names.
 
 * Complex compiler error messages. We are working on this
 * Compiler errors occur when you don't specify the type of numbers. Example `1` will fail whil `1u8` will not. This is because Rib is typed and is trying to infer a proper WASM type. We will see how to improve this.
