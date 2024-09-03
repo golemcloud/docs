@@ -87,6 +87,8 @@ world component2 {
 }
 ```
 
+Updating the `main.go` component implementations is also needed based on the above.
+
 ### Generate RPC client stub definition and component
 
 All components that we want to call from another component will require client stub definitions and components.
@@ -163,7 +165,7 @@ world component1 {
 
 ### Regenerate bindings
 
-To actually be able to use the imported stub we regenerate our bindings, which in this example project can done with:
+To actually be able to use the imported stub we regenerate our bindings, which can done in the `component1` directory with:
 
 ```shell
 $ make bindings
@@ -266,6 +268,6 @@ build: compile
     golem-cli stubgen compose --source-wasm component1.wasm --stub-wasm ../component2-stub/component2_stub.wasm --dest-wasm component1-with-component2-stub.wasm
 ```
 
-Now we can use `make build` to create our component with remote worker calls, which can be deployed to golem.
+Now we can use `make build` to create our component with remote worker calls, then `component1-with-component2-stub.wasm` is ready to be deployed to golem.
 
 </Steps>
