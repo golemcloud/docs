@@ -20,44 +20,44 @@ Using [Worker to Worker communication](/docs/python-language-guide/rpc) requires
 
 <Steps>
 
-    ### Install Rust
+### Install Rust
 
-    Install rustup
+Install rustup
 
-    ```bash copy
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-    ```
+```bash copy
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
 
-    Install the latest stable version of Rust
+Install the latest stable version of Rust
 
-    ```bash copy
-    rustup install stable && rustup default stable
-    ```
+```bash copy
+rustup install stable && rustup default stable
+```
 
-    Add the WASI target
+Add the WASI target
 
-    ```bash copy
-    rustup target add wasm32-wasi
-    ```
+```bash copy
+rustup target add wasm32-wasi
+```
 
-    ### Install `cargo-component`
+### Install `cargo-component`
 
-    The last step is installing the `cargo-component` extension for Rust's `cargo` build tool. This will enable a set of subcommands for `cargo` which allows compiling Rust projects into **WebAssembly components**.
+The last step is installing the `cargo-component` extension for Rust's `cargo` build tool. This will enable a set of subcommands for `cargo` which allows compiling Rust projects into **WebAssembly components**.
 
-    Install the version `0.13.2` of `cargo-component` with `cargo` itself:
+Install the version `0.13.2` of `cargo-component` with `cargo` itself:
 
-    ```shell
-    $ cargo install --force --locked cargo-component@0.13.2
-    ```
+```shell
+$ cargo install --force --locked cargo-component@0.13.2
+```
 
-    Verify that the correct version is installed:
+Verify that the correct version is installed:
 
-    ```shell
-    $ cargo component --version
-    cargo-component 0.13.2 (wasi:040ec92)
-    ```
+```shell
+$ cargo component --version
+cargo-component 0.13.2 (wasi:040ec92)
+```
 
-    Please refer [to the cargo-component website](http://github.com/bytecodealliance/cargo-component) for more information.
+Please refer [to the cargo-component website](http://github.com/bytecodealliance/cargo-component) for more information.
 
 </Steps>
 
