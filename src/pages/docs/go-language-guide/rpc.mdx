@@ -254,7 +254,7 @@ Before we can deploy our built component we also have to compose the stub client
 For this we will add the following `golem-cli stubgen compose` command as the last step in our makefile:
 
 ```shell
-
+golem-cli stubgen compose --source-wasm component1.wasm --stub-wasm ../component2-stub/component2_stub.wasm --dest-wasm component1-with-component2-stub.wasm
 ```
 
 So the final build step in out makefile will look like this:
