@@ -186,22 +186,22 @@ The following code snippet gets the target component's id from an environment va
 
 ```typescript
 // Import the generated binding, which includes the remote client stub
-import { Component2Api } from "rpcdemo:component2-stub/stub-component2"
+import { Component2Api } from "rpcdemo:component2-stub/stub-component2";
 // Import getEnvironment for environment variable access
-import { getEnvironment } from "wasi:cli/environment@0.2.0"
+import { getEnvironment } from "wasi:cli/environment@0.2.0";
 
 // We get the component ID from environment variable, because it depends on the deploy
 const componentId = (() => {
-  const envVar = getEnvironment().find(([key]) => key == "COMPONENT2_ID")
+  const envVar = getEnvironment().find(([key]) => key == "COMPONENT2_ID");
   if (envVar === undefined) {
-    throw new Error("Missing COMPONENT2_ID")
+    throw new Error("Missing COMPONENT2_ID");
   }
   return envVar[1]
-})()
-const workerName = "target-worker"
+})();
+const workerName = "target-worker";
 
 // Create new worker client with an URN constructed from the component ID and worker name
-const component2Worker = new Component2Api({ value: `urn:worker:${componentId}/${workerName}` })
+const component2Worker = new Component2Api({ value: `urn:worker:${componentId}/${workerName}` });
 ```
 
 ### Calling worker client functions
@@ -221,26 +221,26 @@ component2Worker.blockingAdd(BigInt(3))
 And a **non-blocking one**, which assumes two worker clients, and uses the low level WASI poll API:
 
 ```typescript
-const future1 = component2Worker1.get()
-const future2 = component2Worker2.get()
-const poll1 = future1.subscribe()
-const poll2 = future1.subscribe()
+const future1 = component2Worker1.get();
+const future2 = component2Worker2.get();
+const poll1 = future1.subscribe();
+const poll2 = future1.subscribe();
 
-let futures = [future1, future2]
-let polls = [poll1, poll2]
-let results: BigInt[] = []
+let futures = [future1, future2];
+let polls = [poll1, poll2];
+let results: BigInt[] = [];
 
 while (polls.length != 0) {
   // Poll returns the indices of the finished future poll handles
-  const ready = poll(polls)
+  const ready = poll(polls);
   for (let idx of ready) {
-    const result = futures[idx]?.get()
+    const result = futures[idx]?.get();
     if (result === undefined) {
-      throw new Error("Missing result for future")
+      throw new Error("Missing result for future");
     }
-    results[idx] = result
-    futures.splice(idx, 1)
-    results.splice(idx, 1)
+    results[idx] = result;
+    futures.splice(idx, 1);
+    results.splice(idx, 1);
   }
 }
 ```
