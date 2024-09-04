@@ -7,7 +7,7 @@ See the [Worker to Worker communication page](/docs/concepts/worker-to-worker-co
 
 ## Tooling setup
 
-Make sure that all required tools are installed according to the [setup](/docs/experimental-languags/ts-language-guide/setup) page, including the _Worker to Worker communication_ parts.
+Make sure that all required tools are installed according to the [setup](/docs/experimental-languages/ts-language-guide/setup) page, including the _Worker to Worker communication_ parts.
 
 ## Setup with using example RPC TypeScript project
 
@@ -180,7 +180,7 @@ The worker to be invoked is identified by an URI which consists of the **compone
 
 If the worker pointed by the URI does not exists, it is going to be created automatically and it inherits the environment variables of the caller.
 
-A common pattern is to use environment variables to configure the deployed component's **component ID** and use that to construct the URI. See the [defining components](/docs/go-language-guide/defining-components) page for more information about passing configuration values to workers.
+A common pattern is to use environment variables to configure the deployed component's **component ID** and use that to construct the URI. See the [defining components](/docs/experimental-languages/ts-language-guide/defining-components) page for more information about passing configuration values to workers.
 
 The following code snippet gets the target component's id from an environment variable, and constructs the URI for the target worker with a fixed worker name `target-worker`:
 
