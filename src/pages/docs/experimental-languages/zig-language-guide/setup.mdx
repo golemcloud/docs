@@ -57,30 +57,11 @@ wit-bindgen --version
 wit-bindgen-cli 0.26.0
 ```
 
-### Install `cargo-component`
-
-The last step is installing the `cargo-component` extension for Rust's `cargo` build tool. This will enable a set of subcommands for `cargo` which allows compiling Rust projects into **WebAssembly components**. This is required for Worker to Worker communication, because _golem RPC client stubs_ are generated and implemented as _Rust_ components.
-
-Install the version `0.13.2` of `cargo-component` with `cargo` itself:
-
-```shell
-$ cargo install --force --locked cargo-component@0.13.2
-```
-
-Verify that the correct version is installed:
-
-```shell
-$ cargo component --version
-cargo-component 0.13.2 (wasi:040ec92)
-```
-
-Please refer [to the cargo-component website](http://github.com/bytecodealliance/cargo-component) for more information.
-
 </Steps>
 
 <Callout type="warning">
-  Golem requires a **specific version** of `wasm-tools`, `wit-bindgen` and `cargo-component`. Please
-  make sure the correct version is installed with the commands described above.
+  Golem requires a **specific version** of `wasm-tools`, and `wit-bindgen`. Please make sure the
+  correct version is installed with the commands described above.
 </Callout>
 
 ## Install Zig
