@@ -20,7 +20,7 @@ Exports:
 	golem:component/api.{get-cart-contents}() -> list<record { product-id: string, name: string, price: float32, quantity: u32 }>
 ```
 
-The following API definition exposes the `get-cart-contents` function as a custom http endpoint.
+Here is an example of an API definition, which we will use to expose `get-cart-contents` function (`golem:component/api.{get-cart-contents}` to be more specific) as an HTTP API endpoint.
 
 ```json
 {
@@ -34,11 +34,11 @@ The following API definition exposes the `get-cart-contents` function as a custo
       "binding": {
         "type": "wit-worker",
         "componentId": {
-          "componentId": "94b657f6-238f-4737-9fc3-2b25ff2f60da",
+          "componentId": "dba38841-013a-49fa-a1dc-064949832f0c",
           "version": 0
         },
-        "workerName": "${let user: u64 = request.body.user-id; \"my-worker-${user}\" }",
-        "response": "${let result = golem:it/api.{get-cart-contents}(); {status: 200u64, body: result}}"
+        "workerName": "let user: u64 = request.body.user-id; \"my-worker-${user}\"",
+        "response": "let result = golem:it/api.{get-cart-contents}(); {status: 200u64, body: result}"
       }
     }
   ]
@@ -67,8 +67,10 @@ Let's break down the binding object.
 | `workerName`  | Specifies the Name of the Golem worker responsible for handling the request. Here it is `my-worker-${request.path.user-id}`. The value that is wrapped in code block (starting with `${` and ending with `}`) will be a Rib expression. Here `request.path.user-id` is a valid Rib expression where it selects the field `path` from the `request` block, and further selects `user-id` from it. |
 | `response`    | The `response` field here is a Rib expression (therefore wrapped in a code block) that allows you to call any worker function and manipulates its output.                                                                                                                                                                                                                                        |
 
-Note that anything wrapped in this block is an `Rib Expression` which gets evaluated at runtime and in this case, it gets evaluated to actual user-id which is then concatenated with the text "my-worker-". If you pass complex Rib expressions to be concatenated with a worker-id (for example: It is evaluated to a WASM record) then you will get a response back saying invalid worker-name.
-If your worker name is a constant, you can avoid interpolations `${}` and directly write the worker name as a text.
+Note that workerName and response are actually rib expressions. It gives you the flexibility to make necessary changes to the input and output to a worker function,
+as well as dynamically create a worker name.
+
+If your worker name is a constant, the you can simply make it a constant string such as `"foo"`. Please note that it has to be quoted for it a valid Rib string.
 See the [Rib reference](rib) for the full reference of the binding language.
 
 In this example, the following Rib expression defines the request:
