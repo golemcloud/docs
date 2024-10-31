@@ -1,7 +1,7 @@
 const glob = require("glob")
 const { exec } = require("child_process")
 
-glob("**/go-language-guide/defining-components.mdx", (err, files) => {
+glob("**/rib.mdx", (err, files) => {
   if (err) {
     console.error("Error finding files:", err)
     process.exit(1)

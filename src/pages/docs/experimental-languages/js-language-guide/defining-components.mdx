@@ -60,7 +60,7 @@ export function helloWorld(): string {
 </Callout>
 
 <Callout type="info">
-During [componentization](/docs/experimental-languages/js-language-guide/golem-js-sdk) the exported objects and functions are checked against the `wit` world, eg. if the helloWorld function were not exported, we would get the following error:
+During [componentization](../../../docs/experimental-languages/js-language-guide/golem-js-sdk.mdx) the exported objects and functions are checked against the `wit` world, eg. if the helloWorld function were not exported, we would get the following error:
 
 ```
 (jco componentize) ComponentError: Expected a JS export definition for 'helloWorld'
@@ -104,7 +104,7 @@ export const api = {
 ```
 
 <Callout type="info">
-    During [componentization](/docs/experimental-languages/js-language-guide/golem-js-sdk) the exported objects and functions are checked against the `wit` world, eg. if the get function were not part of the `api` objects, we would get an error similar to this:
+    During [componentization](../../../docs/experimental-languages/js-language-guide/golem-js-sdk.mdx) the exported objects and functions are checked against the `wit` world, eg. if the get function were not part of the `api` objects, we would get an error similar to this:
 
     ```
     Exception while pre-initializing: (new Error(main.js source does not export a golem:component/api get function as expected by the world.
