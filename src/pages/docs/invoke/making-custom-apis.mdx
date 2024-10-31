@@ -20,7 +20,7 @@ Exports:
 	golem:component/api.{get-cart-contents}() -> list<record { product-id: string, name: string, price: float32, quantity: u32 }>
 ```
 
-Here is an example of an API definition, which we will use to expose `get-cart-contents` function (`golem:component/api.{get-cart-contents}` to be more specific) as an HTTP API endpoint.
+Here is an example of an API definition, which we will use to expose an HTTP API over the function `golem:component/api.{get-cart-contents}`.
 
 ```json
 {
