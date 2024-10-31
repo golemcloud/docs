@@ -5,7 +5,7 @@
   "scripts": {
     "postinstall": "lefthook install",
     "dev": "next dev",
-    "build:check": "lefthook run pre-build && bun run check-links",
+    "build:check": "lefthook run pre-build",
     "build": "next build",
     "start": "next start",
     "lint": "next lint --fix",

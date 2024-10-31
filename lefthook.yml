@@ -18,7 +18,7 @@ pre-commit:
       run: git add {staged_files}
     typecheck:
       run: bunx tsc
-    check-links: # New command for link checking
+    check-links:
       run: bun run check-links
 
 pre-build:
@@ -32,6 +32,8 @@ pre-build:
       run: bunx prettier --log-level warn --check {all_files}
     typecheck:
       run: bunx tsc
+    check-links:
+      run: bun run check-links
 
 fix:
   parallel: false
