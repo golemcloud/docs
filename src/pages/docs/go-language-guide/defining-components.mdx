@@ -31,7 +31,7 @@ Golem and the Go toolchain currently requires defining the component's interface
 
 Each new project generated with `golem-cli` contains a `wit` directory with at least one `.wit` file defining a `world`. This world can contain **exports** (exported functions and interfaces) and these exports will be the compiled Golem component's public API.
 
-The first time a component is compiled (see the [Building Components page](/docs/go-language-guide/building-components.mdx) for details), a couple of files get generated in a subdirectory named as your component. This go package contains the definitions of all the data types and interfaces defined in the `WIT` file(s).
+The first time a component is compiled (see the [Building Components page](../../../docs/go-language-guide/building-components.mdx) for details), a couple of files get generated in a subdirectory named as your component. This go package contains the definitions of all the data types and interfaces defined in the `WIT` file(s).
 
 To **implement** the specification written in WIT, the Go code must implement some of these generated interfaces and set them explicitly in the `init` function.
 
@@ -167,7 +167,7 @@ world example {
 }
 ```
 
-Resources can have multiple instances within a worker. Their constructor returns a _handle_ which is then used to call the methods on the resource. Learn more about how resources can be implicitly created and invoked through Golem's APIs in the [Invocations page](/docs/concepts/invocations).
+Resources can have multiple instances within a worker. Their constructor returns a _handle_ which is then used to call the methods on the resource. Learn more about how resources can be implicitly created and invoked through Golem's APIs in the [Invocations page](../docs/concepts/invocations).
 
 To implement the above defined WIT resource in Go a few new steps must be taken:
 
