@@ -461,6 +461,10 @@ Please note that, once you have deployed an API using a specific component-versi
 you may not be able to update the component-version (ex: `golem-cli component update`) unless
 the arguments to the functions used in the Rib script in the deployed API definition is backward compatible.
 
+If there are conflicts (i.e, backward incompatible) then you will get a conflict report message,
+which details especially the missing functions and conflicting functions, where conflicting functions
+detail about existing parameter types, new parameter types, existing return type, and new return type.
+
 ## Support to import OpenAPI spec
 
 Until now, we used the native API definition format of Golem.
