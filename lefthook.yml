@@ -18,6 +18,8 @@ pre-commit:
       run: git add {staged_files}
     typecheck:
       run: bunx tsc
+    check-links: # New command for link checking
+      run: bun run check-links
 
 pre-build:
   parallel: true

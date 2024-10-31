@@ -31,7 +31,7 @@ Golem and the Go toolchain currently requires defining the component's interface
 
 Each new project generated with `golem-cli` contains a `wit` directory with at least one `.wit` file defining a `world`. This world can contain **exports** (exported functions and interfaces) and these exports will be the compiled Golem component's public API.
 
-The first time a component is compiled (see the [Building Components page](/docs/go-language-guide/building-components) for details), a couple of files get generated in a subdirectory named as your component. This go package contains the definitions of all the data types and interfaces defined in the `WIT` file(s).
+The first time a component is compiled (see the [Building Components page](/docs/go-language-guide/building-components.mdx) for details), a couple of files get generated in a subdirectory named as your component. This go package contains the definitions of all the data types and interfaces defined in the `WIT` file(s).
 
 To **implement** the specification written in WIT, the Go code must implement some of these generated interfaces and set them explicitly in the `init` function.
 
@@ -412,7 +412,7 @@ Environment variables can be specified when a worker is **explicitly created**, 
 - `GOLEM_COMPONENT_ID` - the ID of the worker's component
 - `GOLEM_COMPONENT_VERSION` - the version of the component used for this worker
 
-In addition to these, when using [Worker to Worker communication](/docs/go-language-guide/worker-to-worker-communication), workers created by remote calls **inherit the environment variables of the caller**.
+In addition to these, when using [Worker to Worker communication](/docs/go-language-guide/rpc.mdx), workers created by remote calls **inherit the environment variables of the caller**.
 
 This feature makes environment variables a good fit for passing configuration such as hostnames, ports, or access tokens to trees of workers.
 
