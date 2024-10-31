@@ -598,9 +598,13 @@ In this scenario, the third party API Gateway would route incoming requests to G
 This section shows how to integrate with [Tyk API gateway](https://tyk.io).
 
 Note that Tyk allows users to upload OpenAPI spec similar to Golem. You can upload the same OpenAPI spec with worker-gateway info to Tyk,
-with 1 more extra information which is `servers` block with the value of the URL of the Golem Worker Gateway, that tells the API gateway to route the request to worker-gateway.
-Obviously, it depends on how you installed Tyk. If you installed Tyk in the same network as worker-gateway, you can use the localhost as servers. If you are using a separate docker network with Tyk,
-you will need to give the machine IP address to reach the Worker Gateway URL.
+with 1 more extra information which is `servers` block with the value of the URL of the Golem Worker Gateway (which is the URL of the worker-service service in docker),
+that tells the Tyk API gateway of Tyk to route the request to worker-gateway.
+
+Please note, the above set up will work depending on how you installed Tyk.
+If you installed Tyk in the same network as worker-gateway, you can use the localhost as servers.
+
+If you are using a separate docker network with Tyk, you will need to give the machine IP address to reach the Worker Gateway URL.
 
 ```json
 {
@@ -619,9 +623,10 @@ you will need to give the machine IP address to reach the Worker Gateway URL.
   "paths": {
     "/{user-id}/get-cart-contents": {
       "x-golem-worker-bridge": {
-        "worker-name": "worker-${request.path.user-id}",
-        "component-id": "2696abdc-df3a-4771-8215-d6af7aa4c408",
-        "response": "${ { headers: { ContentType: \"json\", userid: \"foo\"}, body: golem:it/api.{get-cart-contents}(), status: 200u64 } }"
+        "worker-name": "\"foo\"",
+        "component-id": "dba38841-013a-49fa-a1dc-064949832f0c",
+        "component-version": 0,
+        "response": "let x = golem:it/api.{checkout}();\nlet status: u64 = 200; {headers : {ContentType: \"json\", userid: \"foo\"}, body: \"foo\", status: status}"
       },
       "get": {
         "summary": "Get Cart Contents",
