@@ -218,25 +218,31 @@ In other words, `Rib` evaluator do expect the values in a sequence to be of the 
 
 ```bash filename="Terminal" copy
 
-{ name: "John", age: 30u32 }
-{ city: "New York", population: 8000000u64 }
-{ country: "France", capital: "Paris" }
-{ fruits: ["apple"", "banana"", "orange""], count: 3u32 }
+{ name: "John", age: 30u16 }
 
+{ city: "New York", population: 8000000u64 }
+
+{ name: "John", age: 30u16, { country: "France", capital: "Paris" } }
 ```
 
-This is parsed as a `WASM` Record. The syntax is inspired from `WASM-WAVE`. The minor difference here is strings are wrapped with single quotes instead of double quotes.
-Note that keys are not considered as variables. They are considered as literals (even in the absence of single quotes) if they are part of Record.
+This is parsed as a `WASM` Record. The syntax is inspired from `WASM-WAVE`.
+
+Note that keys are not considered as variables.
+They are considered as literal strings (representing key name of a record element), even in the absence of quotes.
+
+Why age is `30u16` instead of `30` ? If Rib infers the overall type of record (from the context), then you may not need to explicitly specify the type of `30` in the above example.
+However most of the times, you will need to specify the number types. We will try to be improve this part of Rib
+by providing some flexibility.
 
 ### Tuple
 
-```
+```bash filename="Terminal" copy
 (1u8, 100u32, 20.1f32)
 ```
 
 This is also equivalent to the following in Rib.
 
-```
+```bash filename="Terminal" copy
 let k: (u8, u32, f32) = (1, 100, 20.1);
 k
 ```
