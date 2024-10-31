@@ -60,7 +60,7 @@ The API definition's fields have the following meaning:
 | `path`    | Specifies the URL path pattern for the route. It may include path parameters enclosed in curly braces. Here, the path is `/{user-id}/get-cart-contents`, indicating that this route handles requests to retrieve the contents of a shopping cart for a specific user. |
 | `binding` | This object contains information about how the request should be handled by the Golem worker.                                                                                                                                                                         |
 
-### Golem Worker Binding
+## Golem Worker Binding
 
 Let's break down the binding object.
 
@@ -115,7 +115,7 @@ let response_body = match result {
 The result of the Rib expression is whatever the result of the last line/expression in the above Rib program, similar to many programming languages.
 Note, the last line of Rib is not ending with a `;`.
 
-### Upload API definition
+## Upload API definition
 
 The API definitions can be uploaded to Golem using one of the following methods:
 
@@ -195,7 +195,7 @@ curl -X POST http://localhost:9881/v1/api/definitions -H "Content-Type: applicat
 Here `localhost:9881` is where worker-service (that implements the Worker Gateway) is running, ready to accept these API management requests.
 The docker-compose example (explained in quick-start) currently exposes the port 9881 for worker-service.
 
-### Deploy the API Definition
+## Deploy the API Definition
 
 Using golem-cli, deploying the API definition is straight forward.
 
@@ -229,7 +229,7 @@ Refer to `.env` in docker-examples folder in Golem OSS.
 
 You can test the deployment now, by trying to call the endpoint defined in the API definition.
 
-### Watch out for errors during deployment
+## Watch out for errors during deployment
 
 Please note the following: If you already deployed an API definition before with the same path `/{user-id}/get-cart-contents`,
 then you will receive a conflict error as given below, instead of the response above.
@@ -241,7 +241,7 @@ API deployment definitions conflict error: /{user-id}/get-cart-contents
 This implies, when you update the version, you have to update the path as well, such as `/v5/{user-id}/get-cart-contents`
 under the `path` field in `route`.
 
-### Use the deployed API
+## Use the deployed API
 
 Given, you have successfully deployed, now you can try to invoke the following:
 
@@ -258,7 +258,7 @@ Once it identifies the worker-name, it goes on evaluating the `response` Rib exp
 with empty parameters, and simply get the worker-response (which is a WASM value)
 and converts it to `Json` and sends it back to the client.
 
-### Watch out for errors when using API
+## Watch out for errors when using API
 
 Given the Rib script is strongly typed, tere are chances of failures if you break the types.
 Here is an example:
@@ -290,7 +290,7 @@ and this time client may not get back the reason for error. We will try to impro
 In any case, during development phase, you will need to investigate errors like this by inspecting the logs
 in worker-service docker container.
 
-### REST API to deploy API
+## REST API to deploy API
 
 As of now, we have deployed the API using golem-cli.
 We can do the same using REST APIs as an alternative.
@@ -325,7 +325,7 @@ curl -X POST http://localhost:9881/v1/api/deployments/deploy -H "Content-Type: a
 {"apiDefinitions":[{"id":"my-shopping-cart-v1","version":"0.0.4"}],"createdAt":"2024-10-31T07:59:00.390103588+00:00","site":{"host":"locahost:9006","subdomain":null}}⏎
 ```
 
-### More details on Response Mapping
+## More details on Response Mapping
 
 Response Mapping is under the `response` field under each binding. This is written using [Rib](/docs/rib) to call the worker function and manipulate it's results and return a value that's understandable for each protocol we use.
 
@@ -433,7 +433,7 @@ let body =  match result { success(resp) => resp.order-id, error(msg) => msg };
 Here we manipulate the result from worker function using a match expression. More details on match expression is explained under [Rib](/docs/rib) documentation.
 It matches on `success` and `error` variants because the result type of `golem:it/api.{checkout}` is a variant which can be either success or error.
 
-### Looking up data from the request body and path
+## Looking up data from the request body and path
 
 In the above example, we have an endpoint to add products into the cart.
 
@@ -455,7 +455,13 @@ This implies, the http request should be method `POST` with request body having 
 Worker gateway allows you to look up the values of request path or query variables using `request.path.*` syntax.
 For request body, you can use `request.body.*` syntax. Similarly for headers it is `request.headers.*`
 
-### Support to import OpenAPI spec
+## Constraints on Components after deployment
+
+Please note that, once you have deployed an API using a specific component-version, then
+you may not be able to update the component-version (ex: `golem-cli component update`) unless
+the arguments to the functions used in the Rib script in the deployed API definition is backward compatible.
+
+## Support to import OpenAPI spec
 
 Until now, we used the native API definition format of Golem.
 Golem allows you to import API definition in OpenAPI spec format too.
@@ -467,18 +473,19 @@ The main advantage of this feature is the re-usability of the same endpoint defi
 ```json
 {
   "openapi": "3.0.0",
-  "x-golem-api-definition-version": "0.0.3",
-  "x-golem-api-definition-id": "shopping-cart-v1",
   "info": {
-    "title": "Sample API",
+    "title": "MyOpenAPISpec",
     "version": "1.0.2"
   },
+  "x-golem-api-definition-id": "my-shopping-cart-v1",
+  "x-golem-api-definition-version": "0.0.7",
   "paths": {
     "/{user-id}/get-cart-contents": {
       "x-golem-worker-bridge": {
-        "worker-name": "my-worker",
-        "component-id": "2696abdc-df3a-4771-8215-d6af7aa4c408",
-        "response": "${ { headers: { ContentType: \"json\", userid: \"foo\"}, body: golem:it/api.{get-cart-contents}(), status: 200u64 } }"
+        "worker-name": "\"foo\"",
+        "component-id": "dba38841-013a-49fa-a1dc-064949832f0c",
+        "component-version": 0,
+        "response": "let x = golem:it/api.{checkout}();\nlet status: u64 = 200; {headers : {ContentType: \"json\", userid: \"foo\"}, body: \"foo\", status: status}"
       },
       "get": {
         "summary": "Get Cart Contents",
@@ -536,14 +543,43 @@ To import OpenAPI spec using Golem CLI,
 
 ```bash filename="Terminal" copy
 
-golem-cli api-definition import @open_api_spec.json
+golem-cli api-definition import open_api.json
 
 ```
 
-Alternatively, you can use REST API endpoint
+This will return
 
 ```bash filename="Terminal" copy
-curl -X POST http://localhost:9881/v1/api/definitions/oas -H "Content-Type: application/json"  -d @openapi_spec.json
+
+{
+  "id": "my-shopping-cart-v1",
+  "version": "0.0.7",
+  "routes": [
+    {
+      "method": "Get",
+      "path": "/{user-id}/get-cart-contents",
+      "binding": {
+        "componentId": {
+          "componentId": "dba38841-013a-49fa-a1dc-064949832f0c",
+          "version": 0
+        },
+        "workerName": "\"foo\"",
+        "idempotencyKey": null,
+        "response": "let x = golem:it/api.{checkout}();\nlet status: u64 = 200;\n{headers: {ContentType: \"json\", userid: \"foo\"}, body: \"foo\", status: status}",
+        "responseMappingInput": {
+          "types": {}
+        },
+        "workerNameInput": {
+          "types": {}
+        },
+        "idempotencyKeyInput": null
+      }
+    }
+  ],
+  "draft": true,
+  "createdAt": "2024-10-31T08:56:02.412860043Z"
+}
+
 ```
 
 ## Integrating worker-gateway with existing API Gateways
