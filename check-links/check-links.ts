@@ -116,26 +116,17 @@ const checkLink = async (params: {
     }
 
     // Handle absolute links from `src/pages/docs/`
-    if (link.startsWith("/docs/")) {
+    if (link.startsWith("/")) {
       const docPath = path.join(process.cwd(), "src/pages", link)
       const filePath = await FileExists.check(docPath)
-
-      if (filePath) {
-        return { link, status: "alive", filePath }
-      } else {
-        return { link, status: "dead" }
-      }
+      return filePath !== null ? { link, status: "alive", filePath } : { link, status: "dead" }
     }
 
     // Handle relative links
     if (!link.startsWith("http")) {
       const absolutePath = path.resolve(path.dirname(baseUrl), link)
       const filePath = await FileExists.check(absolutePath)
-      if (filePath) {
-        return { link, status: "alive", filePath }
-      } else {
-        return { link, status: "dead" }
-      }
+      return filePath !== null ? { link, status: "alive", filePath } : { link, status: "dead" }
     }
 
     // Handle external links
