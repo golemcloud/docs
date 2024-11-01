@@ -15,6 +15,13 @@ const docsPrefixPattern = {
   replacement: `${projectBaseUrl}/src/pages/docs/`,
 } as const
 
+const makeBaseUrl = (file: string) =>
+  `file://${
+    process.platform === "win32"
+      ? "/" + path.dirname(path.resolve(file)).replace(/\\/g, "/")
+      : path.dirname(path.resolve(file))
+  }`
+
 const execute = async (files: string[]) => {
   const markdownFiles = files.filter(file => file.endsWith(".mdx") || file.endsWith(".md"))
   console.log(`Checking links in ${markdownFiles.length} files`)
@@ -39,11 +46,7 @@ const execute = async (files: string[]) => {
       const result = await new Promise<CheckFileResult>(async resolve => {
         const file = await fs.readFile(fileStr, "utf8")
 
-        const baseUrl = `file://${
-          process.platform === "win32"
-            ? "/" + path.dirname(path.resolve(fileStr)).replace(/\\/g, "/")
-            : path.dirname(path.resolve(fileStr))
-        }`
+        const baseUrl = makeBaseUrl(fileStr)
 
         markdownLinkCheck(
           file,
@@ -62,8 +65,6 @@ const execute = async (files: string[]) => {
                 result => result.status === "dead" || result.status === "error"
               )
               if (deadLinks.length > 0) {
-                console.log(`Checking links in ${fileStr} with baseUrl=${baseUrl}`)
-
                 resolve({ type: "dead-links", file: fileStr, deadLinks })
               } else {
                 resolve({ type: "success" })
@@ -74,7 +75,7 @@ const execute = async (files: string[]) => {
       })
       return result
     } catch (err) {
-      return Promise.resolve({ type: "fatal", file: fileStr, error: err as Error })
+      return { type: "fatal", file: fileStr, error: err as Error }
     }
   }
 
