@@ -3,13 +3,31 @@ import path from "path"
 import { promises as fs } from "fs"
 import markdownLinkExtractor from "markdown-link-extractor"
 
-type LinkCheckResult = {
-  link: string
-  status: "alive" | "dead" | "error" | "ignored"
-  filePath?: string
-  statusCode?: number
-  error?: Error
-}
+type BaseResult = { link: string }
+
+type LinkCheckResult =
+  | (BaseResult &
+      (
+        | {
+            status: "ignored"
+          }
+        | {
+            status: "alive"
+            filePath?: string
+          }
+      ))
+  | CheckLinkError
+
+type CheckLinkError = BaseResult &
+  (
+    | {
+        status: "dead"
+      }
+    | {
+        status: "error"
+        error: Error
+      }
+  )
 
 type CheckFileResult =
   | {
@@ -18,7 +36,7 @@ type CheckFileResult =
   | {
       type: "dead-links"
       file: string
-      deadLinks: LinkCheckResult[]
+      deadLinks: CheckLinkError[]
     }
   | {
       type: "fatal"
@@ -66,11 +84,11 @@ const extractHeadings = (content: string): string[] => {
   })
 }
 
-namespace FileExists {
-  const fileExistsCache = new Map<string, string | null>()
-  export const check = async (markdownPath: string): Promise<string | null> => {
-    if (fileExistsCache.has(markdownPath)) {
-      return fileExistsCache.get(markdownPath)!
+namespace MarkdownPath {
+  const cache = new Map<string, string | null>()
+  export const resolve = async (markdownPath: string): Promise<string | null> => {
+    if (cache.has(markdownPath)) {
+      return cache.get(markdownPath)!
     }
 
     try {
@@ -85,7 +103,7 @@ namespace FileExists {
       const filePath = await Promise.any(
         variants.map(variant => fs.access(variant).then(() => variant))
       )
-      fileExistsCache.set(markdownPath, filePath)
+      cache.set(markdownPath, filePath)
       return filePath
     } catch {
       return null
@@ -118,14 +136,14 @@ const checkLink = async (params: {
     // Handle absolute links from `src/pages/docs/`
     if (link.startsWith("/")) {
       const docPath = path.join(process.cwd(), "src/pages", link)
-      const filePath = await FileExists.check(docPath)
+      const filePath = await MarkdownPath.resolve(docPath)
       return filePath !== null ? { link, status: "alive", filePath } : { link, status: "dead" }
     }
 
     // Handle relative links
     if (!link.startsWith("http")) {
       const absolutePath = path.resolve(path.dirname(baseUrl), link)
-      const filePath = await FileExists.check(absolutePath)
+      const filePath = await MarkdownPath.resolve(absolutePath)
       return filePath !== null ? { link, status: "alive", filePath } : { link, status: "dead" }
     }
 
@@ -134,7 +152,6 @@ const checkLink = async (params: {
     return {
       link,
       status: response.ok ? "alive" : "dead",
-      statusCode: response.status,
     }
   } catch (error) {
     return {
@@ -163,8 +180,8 @@ const checkFile = async (fileStr: string): Promise<CheckFileResult> => {
       )
     )
 
-    const deadLinks = results.filter(
-      result => result.status === "dead" || result.status === "error"
+    const deadLinks: CheckLinkError[] = results.filter(
+      (result): result is CheckLinkError => result.status === "dead" || result.status === "error"
     )
 
     if (deadLinks.length > 0) {
@@ -191,9 +208,11 @@ const execute = async (files: string[]) => {
         case "dead-links":
           console.error(`- ${error.file}:`)
           error.deadLinks.forEach(link => {
-            console.error(
-              `  - ${link.link} (${link.status}${link.statusCode ? ` - ${link.statusCode}` : ""})`
-            )
+            if (link.status === "error") {
+              console.error(`  - ${link.link} (${link.status} - ${link.error.message})`)
+            } else {
+              console.error(`  - ${link.link} (${link.status})`)
+            }
           })
           break
         case "fatal":
