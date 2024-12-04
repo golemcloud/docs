@@ -118,7 +118,7 @@ identifier_text     ::= letter (letter | digit | "_" | "-")*
 
 type_name           := basic_type | list_type | tuple_type | option_type | result_type
 
-basic_type          ::= "bool" | "s8" | "u8" | "s16" | "u16" | "s32" | "u32" | "s64" | "u64" | "f32" | "f64" | "chr" | "str"
+basic_type          ::= "bool" | "s8" | "u8" | "s16" | "u16" | "s32" | "u32" | "s64" | "u64" | "f32" | "f64" | "char" | "string"
 
 list_type           ::= "list" "<" (basic_type | list_type | tuple_type | option_type | result_type) ">"
 
