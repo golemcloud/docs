@@ -618,7 +618,7 @@ This implies, the http request should be method `POST` with request body having 
 Worker gateway allows you to look up the values of request path or query variables using `request.path.*` syntax.
 For request body, you can use `request.body.*` syntax. Similarly for headers it is `request.headers.*`
 
-## Inferring required inputs for API Endpoint based on Rib script
+## Automatic Inference of required inputs for API Endpoint based on Rib script
 
 Now that, we registered API definitions, and deployed them. As you have seeen Rib script in the response field or worker name
 may try to look up values from the request context. This is auto documented and you can see them in the response when you register an API definition
@@ -641,7 +641,7 @@ Here is a sample response when you register an API definition, where it holds th
         },
         "workerName": "let user: u64 = request.path.user-id;\n\"my-worker-${user}\"",
         "idempotencyKey": null,
-        "response": "let result = golem:it/api.{get-cart-contents}();\n{status: 200u64, body: result}",
+        "response": "let result = golem:it/api.{get-user-name}();\n{status: 200u64, body: result}",
         "responseMappingInput": {
           "types": {
             "request": {
@@ -688,6 +688,23 @@ Here is a sample response when you register an API definition, where it holds th
             }
           }
         },
+        "responseMappingOutput": {
+           "type": "Record",
+           "fields": [
+              {
+                "name": "status",
+                "typ": {
+                  "type": "U64"
+                }
+              },
+              {
+                 "name": "body",
+                  "typ": {
+                    "type": "Str"
+                  }
+              }
+            ]
+        },
         "idempotencyKeyInput": null
       }
     }
@@ -699,6 +716,12 @@ Here is a sample response when you register an API definition, where it holds th
 
 In the above response, you can see the `responseMappingInput` field which holds the required input for the Rib script in the response field,
 as well as `workerNameInput` which holds the required input for the Rib script in the workerName field.
+
+## Automatic inference of output types for API Endpoint based on Rib script
+
+In the same example above, it infers the output types of the response mapping Rib script as well.
+In near future, these auto inferred inputs and outputs can be used to generate OpenAPI spec for the
+API that is deployed in Golem.
 
 ## Constraints on Components after deployment
 
