@@ -22,27 +22,24 @@ Exports:
 
 Here is an example of an API definition, which we will use to expose an HTTP API over the function `golem:component/api.{get-cart-contents}`.
 
-```json
-{
-  "id": "my-shopping-cart-v1",
-  "draft": true,
-  "version": "0.0.4",
-  "routes": [
-    {
-      "method": "Get",
-      "path": "/v4/{user-id}/get-cart-contents",
-      "binding": {
-        "type": "wit-worker",
-        "componentId": {
-          "componentId": "dba38841-013a-49fa-a1dc-064949832f0c",
-          "version": 0
-        },
-        "workerName": "let user: u64 = request.path.user-id; \"my-worker-${user}\"",
-        "response": "let result = golem:it/api.{get-cart-contents}(); {status: 200u64, body: result}"
-      }
-    }
-  ]
-}
+```yaml
+id: my-shopping-cart-v1
+draft: true
+version: 0.0.4
+routes:
+  - method: Get
+    path: /v4/{user-id}/get-cart-contents
+    binding:
+      type: wit-worker
+      componentId:
+        componentId: dba38841-013a-49fa-a1dc-064949832f0c
+        version: 0
+      workerName: |
+        let user: u64 = request.path.user-id;
+        my-worker-${user}
+      response: |
+        let result = golem:it/api.{get-cart-contents}();
+        {status: 200u64, body: result}
 ```
 
 Please use this as a reference instead of using it with zero changes. For example, you might need to give a different
@@ -406,6 +403,56 @@ these call back endpoints manually. This is to avoid any security issues that ma
 Setting up CORS in API gateway is simple. Simplify specify the preflight request endpoint for your resource and all the operations
 under the resource is now CORS enabled. This is mostly inspired from AWS API Gateway approach.
 
+Here is an example of how to setup CORS for your API definition.
+
+```bash filename="Terminal" copy
+    id: users-api
+    version: 0.0.1
+    createdAt: 2024-08-21T07:42:15.696Z
+    routes:
+    - method: Options
+      path: /users/{user-id}
+      binding:
+      bindingType: cors-preflight
+    - method: Get
+      path: /users/{user-id}
+      binding:
+      response: |
+        {status: 200u64, body: "Hello World"}
+```
+
+Here we define the preflight request endpoint for `/users/{user-id}` as `Options` method.
+This is used by browsers to check if the actual request is allowed.
+Registering this API definition will ensure that the other operations (in the above example, Get)
+will also be CORS enabled with required headers in the response.
+
+We can define a custom response for the preflight request as well using Rib as given below
+
+```bash filename="Terminal" copy
+    id: users-api
+    version: 0.0.1
+    createdAt: 2024-08-21T07:42:15.696Z
+    routes:
+    - method: Options
+      path: /users/{user-id}
+      binding:
+      bindingType: cors-preflight
+      response: |
+        {
+          Access-Control-Allow-Origin: "*",
+          Access-Control-Allow-Methods: "GET, POST, PUT, DELETE, OPTIONS",
+          Access-Control-Allow-Headers: "Content-Type, Authorization",
+          Access-Control-Expose-Headers: "Content-Length, X-Requested-With",
+          Access-Control-Allow-Credentials: true,
+          Access-Control-Max-Age: 86400u64
+        }
+    - method: Get
+      path: /users/{user-id}
+      binding:
+      response: |
+        {status: 200u64, body: "Hello World"}
+```
+
 ## REST API to deploy API
 
 As of now, we have deployed the API using golem-cli.
@@ -571,6 +618,88 @@ This implies, the http request should be method `POST` with request body having 
 Worker gateway allows you to look up the values of request path or query variables using `request.path.*` syntax.
 For request body, you can use `request.body.*` syntax. Similarly for headers it is `request.headers.*`
 
+## Inferring required inputs for API Endpoint based on Rib script
+
+Now that, we registered API definitions, and deployed them. As you have seeen Rib script in the response field or worker name
+may try to look up values from the request context. This is auto documented and you can see them in the response when you register an API definition
+Golem Console provides a more user-friendly way to see these inputs.
+
+Here is a sample response when you register an API definition, where it holds the required data in the input http request.
+
+```bash filename="Terminal" copy
+{
+  "id": "my-shopping-cart-v1",
+  "version": "0.0.4",
+  "routes": [
+    {
+      "method": "Get",
+      "path": "/v4/{user-id}/get-cart-contents",
+      "binding": {
+        "componentId": {
+          "componentId": "dba38841-013a-49fa-a1dc-064949832f0c",
+          "version": 0
+        },
+        "workerName": "let user: u64 = request.path.user-id;\n\"my-worker-${user}\"",
+        "idempotencyKey": null,
+        "response": "let result = golem:it/api.{get-cart-contents}();\n{status: 200u64, body: result}",
+        "responseMappingInput": {
+          "types": {
+            "request": {
+              "type": "Record",
+              "fields": [
+                {
+                  "name": "path",
+                  "typ": {
+                    "type": "Record",
+                    "fields": [
+                      {
+                        "name": "user-id",
+                        "typ": {
+                          "type": "U64"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "workerNameInput": {
+          "types": {
+            "request": {
+              "type": "Record",
+              "fields": [
+                {
+                  "name": "path",
+                  "typ": {
+                    "type": "Record",
+                    "fields": [
+                      {
+                        "name": "user-id",
+                        "typ": {
+                          "type": "U64"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "idempotencyKeyInput": null
+      }
+    }
+  ],
+  "draft": true,
+  "createdAt": "2024-10-31T07:40:16.239763054Z"
+}
+```
+
+In the above response, you can see the `responseMappingInput` field which holds the required input for the Rib script in the response field,
+as well as `workerNameInput` which holds the required input for the Rib script in the workerName field.
+
 ## Constraints on Components after deployment
 
 Please note that, once you have deployed an API using a specific component-version, then
@@ -591,72 +720,51 @@ By adding extra details of into the same spec, we can use it as an API definitio
 The main advantage of this feature is the re-usability of the same endpoint definitions across your system. For example, you can use the same file now to register with Golem's Worker Gateway and register with another external API gateway. More on this below. However once deployed, it returns native format then onwards, and updates needs to be done in the native format.
 
 ```json
-{
-  "openapi": "3.0.0",
-  "info": {
-    "title": "MyOpenAPISpec",
-    "version": "1.0.2"
-  },
-  "x-golem-api-definition-id": "my-shopping-cart-v1",
-  "x-golem-api-definition-version": "0.0.7",
-  "paths": {
-    "/{user-id}/get-cart-contents": {
-      "x-golem-worker-bridge": {
-        "worker-name": "\"foo\"",
-        "component-id": "dba38841-013a-49fa-a1dc-064949832f0c",
-        "component-version": 0,
-        "response": "let x = golem:it/api.{checkout}();\nlet status: u64 = 200; {headers : {ContentType: \"json\", userid: \"foo\"}, body: \"foo\", status: status}"
-      },
-      "get": {
-        "summary": "Get Cart Contents",
-        "description": "Get the contents of a user's cart",
-        "parameters": [
-          {
-            "name": "user-id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CartItem"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Contents not found"
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "CartItem": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "price": {
-            "type": "number"
-          }
-        }
-      }
-    }
-  }
-}
+openapi: 3.0.0
+info:
+  title: MyOpenAPISpec
+  version: 1.0.2
+x-golem-api-definition-id: my-shopping-cart-v1
+x-golem-api-definition-version: 0.0.7
+paths:
+  /{user-id}/get-cart-contents:
+    get:
+      x-golem-worker-bridge:
+        worker-name: '"foo"'
+        component-id: dba38841-013a-49fa-a1dc-064949832f0c
+        component-version: 0
+        response: |
+            let x = golem:it/api.{checkout}();
+            let status: u64 = 200; {headers : {ContentType: "json", userid: "foo"}, body: "foo", status: status}
+      summary: Get Cart Contents
+      description: Get the contents of a user's cart
+      parameters:
+        - name: user-id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartItem"
+        404:
+          description: Contents not found
+components:
+  schemas:
+    CartItem:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+
 ```
 
 To import OpenAPI spec using Golem CLI,
@@ -723,77 +831,53 @@ If you installed Tyk in the same network as worker-gateway, you can use the loca
 If you are using a separate docker network with Tyk, you will need to give the machine IP address to reach the Worker Gateway URL.
 
 ```json
-{
-  "openapi": "3.0.0",
-  "x-golem-api-definition-version": "0.0.3",
-  "x-golem-api-definition-id": "shopping-cart-v1",
-  "info": {
-    "title": "Sample API",
-    "version": "1.0.2"
-  },
-  "servers": [
-    {
-      "url": "http://ip-address-of-your-local-machine:9881"
-    }
-  ],
-  "paths": {
-    "/{user-id}/get-cart-contents": {
-      "x-golem-worker-bridge": {
-        "worker-name": "\"foo\"",
-        "component-id": "dba38841-013a-49fa-a1dc-064949832f0c",
-        "component-version": 0,
-        "response": "let x = golem:it/api.{checkout}();\nlet status: u64 = 200; {headers : {ContentType: \"json\", userid: \"foo\"}, body: \"foo\", status: status}"
-      },
-      "get": {
-        "summary": "Get Cart Contents",
-        "description": "Get the contents of a user's cart",
-        "parameters": [
-          {
-            "name": "user-id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CartItem"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Contents not found"
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "CartItem": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "price": {
-            "type": "number"
-          }
-        }
-      }
-    }
-  }
-}
+openapi: 3.0.0
+x-golem-api-definition-version: 0.0.3
+x-golem-api-definition-id: shopping-cart-v1
+info:
+  title: Sample API
+  version: 1.0.2
+servers:
+  - url: http://ip-address-of-your-local-machine:9881
+paths:
+  /{user-id}/get-cart-contents:
+    x-golem-worker-bridge:
+      worker-name: '"foo"'
+      component-id: dba38841-013a-49fa-a1dc-064949832f0c
+      component-version: 0
+      response: |
+        let x = golem:it/api.{checkout}();
+        let status: u64 = 200; {headers : {ContentType: "json", userid: "foo"}, body: "foo", status: status}
+    get:
+      summary: Get Cart Contents
+      description: Get the contents of a user's cart
+      parameters:
+        - name: user-id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartItem"
+        404:
+          description: Contents not found
+components:
+  schemas:
+    CartItem:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+
 ```
 
 The difference here is we added the server's block. You can include this servers block from the beginning
