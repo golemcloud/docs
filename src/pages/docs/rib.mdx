@@ -338,7 +338,7 @@ However, in situations where you have a standalone script such as `request.body`
 to fix the compil time errors is to annotate it the type.
 
 ```
-let x: str = request.body;
+let x: string = request.body;
 x
 
 ```
@@ -355,7 +355,7 @@ Say the request body is a `record` in Json, as given below. `Rib` sees it as a `
 Then we can use Rib language to select the field `user`, as it considers this request's body as a `WASM` Record type.
 
 ```bash filename="Terminal" copy
-let x: str = request.body.user;
+let x: string = request.body.user;
 x
 ```
 
@@ -598,6 +598,26 @@ Or even as simple as:
   let z = x.a > y.b;
   z
 
+```
+
+### List Comprehension
+
+```bash filename="Terminal" copy
+ let x = ["foo", "bar"];
+
+   for p in x {
+     yield p;
+   }
+```
+
+### List Aggregation
+
+```bash filename="Terminal" copy
+let ages: list<u16> = [1, 2, 3];
+
+reduce z, a in ages from 0 {
+  yield z + a;
+}
 ```
 
 As mentioned above, return value of the script is the last expression in the script, and in this case, it is of the type boolean.
