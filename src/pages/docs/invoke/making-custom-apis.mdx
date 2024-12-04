@@ -299,7 +299,7 @@ Currently, this is tested with Google Identity connector.
 
 You can register your app with Google Identity Provider and get a client-id and client-secret for your app that is to be exposed through golem API gateway.
 
-### Here is an example workflow:
+### Setup Security for your API routes in Golem
 
 1. Register your app with Google Identity Provider and get a client-id and client-secret.
 
@@ -328,7 +328,7 @@ the security scheme id and nothing else. If you are using OpenAPI spec, you can 
 but it will simply be discared by Golem but it can be useful for your own documentation purposes.
 
 ```bash filename="Terminal" copy
-id: to-do-app-api
+id: my-todo-api
 version: 0.0.1
 draft: true
 security:
@@ -351,16 +351,60 @@ The list of security schemes at the root level is optional in the API definition
 However, to enable security for a route, you need to specify security scheme under each route (similar to a typical OpenAPI spec).
 In the above example, the security scheme is `my-unique-security-scheme`. This is the same id that you have registered with Golem API Gateway in the previous step.
 
+The response mapping Rib script is expecting an email field in request authentication, which will be available in the context if the user is authenticated.
+More on this below. Before that, let's register and deploy the above API definition stored in api_definition.yaml file.
+
 4. Register the API definition
 
 As explained in previous sections, register the API definition using cloud console or golem-cli.
 
-```
-golem-cli api-definition add ~/api_definition.yaml  --def-format yaml
+```bash filename="Terminal" copy
+golem-cli api-definition add api_definition.yaml  --def-format yaml
 
 ```
 
 4. Deploy the API definition
+
+```bash filename="Terminal" copy
+golem-cli api-deployment deploy --host localhost:9006 --definition my-todo-api/0.0.1
+```
+
+With this setup, your route is accessible only by authenticated users who have logged in with Google Identity Provider.
+
+### Testing the authenticated endpoint in Golem
+
+In your browser, you can try to access the endpoint with the following URL:
+
+```bash filename="Terminal" copy
+http://localhost:9006/foo/1
+```
+
+This should redirect you to Google Identity Provider login page, and once you login,
+you should be redirected back to the original URL which is http://localhost:9006/foo/1 which will now have the claims of the user in the request context,
+which you can lookup using Rib script using `request.auth.name` or `request.auth.email` etc. The claims available depends on the identity provider you are using.
+
+If you are using Google Identity Provider, you can expect `email`, `name` etc should be available in the request context.
+We will be exposing claims available in a later release of Golem to make things easier for you.
+
+#### Redirects and Cookies
+
+Internally, there are a couple of redirects that's going on when you access the protected endpoint.
+The first redirect is to the Google Identity Provider login page as explained below, and internally this is followed by identity provider hitting the redirect URL (
+which is exposed on your behalf by Golem API gateway) with all the details of the user.
+This is followed by another redirect to the original URL that you tried to access, and this time the session-id, tokens/secrets set in a secure Cookie, which your
+browser will resend. Once the browser sends the cookie, Golem API gateway will validate the cookie and allow you to access the protected endpoint.
+
+We will be adding more support for various clients and usecases in future releases based on the user feedback.
+
+#### Unexposed CallBack Endpoint
+
+Note that the callback endpoint is exposed automatically based on the re-direct url specified in the API security scheme. Users cannot customise or add
+these call back endpoints manually. This is to avoid any security issues that may arise due to misconfiguration of the callback endpoint.
+
+## Setting up CORS in API Gateway
+
+Setting up CORS in API gateway is simple. Simplify specify the preflight request endpoint for your resource and all the operations
+under the resource is now CORS enabled. This is mostly inspired from AWS API Gateway approach.
 
 ## REST API to deploy API
 
