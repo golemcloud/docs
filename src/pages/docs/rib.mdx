@@ -605,19 +605,19 @@ Or even as simple as:
 ```bash filename="Terminal" copy
  let x = ["foo", "bar"];
 
-   for p in x {
-     yield p;
-   }
+ for p in x {
+   yield p;
+ }
 ```
 
 ### List Aggregation
 
 ```bash filename="Terminal" copy
-let ages: list<u16> = [1, 2, 3];
+ let ages: list<u16> = [1, 2, 3];
 
-reduce z, a in ages from 0 {
-  yield z + a;
-}
+ reduce z, a in ages from 0 {
+   yield z + a;
+ }
 ```
 
 As mentioned above, return value of the script is the last expression in the script, and in this case, it is of the type boolean.
