@@ -176,3 +176,29 @@ Workers support the following operations:
 
 Details about how to perform these operations can be found in the CLI guide,
 the REST API reference, and language-specific SDK documentation.
+
+### Worker Update
+
+When a new version of a **component** is created (by deploying a new version of the component, changing its type or installing plugins to it), the existing workers continue to run using the version they have been created with. Existing workers have to be explicitly updated to a new version if needed.
+
+Newly created workers are created using the latest version of the component. This also means that for **ephemeral workers** each invocation always runs using the latest version of the component.
+
+There are two ways to update an existing worker to a new version of a component, and the update operation (triggered through the REST API, CLI, Console or host interface) can choose from either of them. These are the following:
+
+- **Automatic update**. Golem tries to automatically update the worker to the new version, and may fail to do so.
+- **Manual update**. For manual update the component author must provide a pair of save/load functions that are used to migrate the state of the worker from the old version to the new version.
+
+#### Automatic update details
+
+Automatic update can be initiated any time, even while the worker is processing an invocation. The executor interrupts the worker, reloads it using the new component version and then replays the worker's oplog from the beginning of time. If the replay succeeds with the new codebase, the worker continues running from where it was interrupted, but now on the new component version. If the replay fails, the worker gets reverted to the original component version and continues running with that.
+
+How can the replay fail? Golem performs **divergence detection** during replaying the oplog. The following situations are considered divergences:
+
+- **Invocation result divergence**. If the new component produces a different result value for a past invocation than the old one
+- **Side effect divergence**. If the new component would perform different side effects (such as HTTP requests, generating random numbers, accessing the current time, etc) than the ones that have been recorded.
+
+Because of these strict requirements, automatic update is only useful when the changed code is minor or it affects code paths that haven't run yet or did not exist at all before.
+
+#### Manual update details
+
+For manual update the old component version must implement the `golem:api/save-snaphot` interface, and the new component version must implement the `golem:api/load-snapshot` interface. The update operation is enqueued the same way as invocations are enqueued, as it can only be performed when the worker is idle. As soon as all the previously enqueued and running invocations are finished, the executor calls the save snapshot function that returns an array of bytes representing the state of the worker. Then the worker gets restarted using the new component version, and the new component's load snapshot functions is called with the saved state. The load snapshot function may return with a failure in which case the worker's component version gets reverted to the original version and it continues running with that. Otherwise if the snapshot was successfully loaded the worker continues running with the new component version.
