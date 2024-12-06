@@ -112,6 +112,22 @@ Invocation results in WAVE format:
 - '5'
 ```
 
+### Ephemeral workers
+
+Invoking **ephemeral components** does not require specifying the worker name, as Golem creates a new instance for each invocation. In this case only the **compnent** must be selected by the URN or URL:
+
+```bash
+golem-cli worker invoke-and-await --worker 'worker:///ephemeral_component' \
+  --function 'demo:worker/api.{test}'
+```
+
+or
+
+```bash
+$ golem-cli worker invoke-and-await --worker urn:worker:d8bc9194-a4a2-4a57-8545-43408fc38799 \
+    --function 'demo:worker/api.{test}'
+```
+
 ### Using idempotency key
 
 If you want to make sure function was called only once even if you called CLI multiple times (for instance due to retries on network errors) you can use `--idempotency-key` parameter for both `invoke` and `invoke-and-await` commands.
