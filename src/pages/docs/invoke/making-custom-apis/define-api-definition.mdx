@@ -83,27 +83,3 @@ That means, we are not manipulating the result returned by the function, and sim
 as Rib is typed and it needs to know the full type of the WASM record. `200u64` is equivalent to `let x: u64 = 200; x;` in Rib.
 
 As mentioned above, see the [Rib reference](/docs/rib) to know more about Rib language.
-
-There are various possibilities here to manipulate the data using Rib
-language, such as selecting only a particular field from the result of the function invocation. Say for example, the result is a WASM `result` which can be `ok` or `err`. In this case you
-can have a complex Rib expression as below
-
-```bash filename="Terminal" copy
-let result = golem:it/api.{get-cart-contents}();
-
-let response_status = match result {
-  ok(_) => 200u32,
-  err(_) => 400u32
-};
-
-let response_body = match result {
-  ok(result) => result,
-  err(msg) => msg
-}
-
-{status: response_status, body: response_body}
-
-```
-
-The result of the Rib expression is whatever the result of the last line/expression in the above Rib program, similar to many programming languages.
-Note, the last line of Rib is not ending with a `;`.
