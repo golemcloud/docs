@@ -7,7 +7,7 @@ By adding extra details of into the same spec, we can use it as an API definitio
 
 The main advantage of this feature is the re-usability of the same endpoint definitions across your system. For example, you can use the same file now to register with Golem's Worker Gateway and register with another external API gateway. More on this below. However once deployed, it returns native format then onwards, and updates needs to be done in the native format.
 
-```json
+```yaml
 openapi: 3.0.0
 info:
   title: MyOpenAPISpec
@@ -22,8 +22,11 @@ paths:
         component-id: dba38841-013a-49fa-a1dc-064949832f0c
         component-version: 0
         response: |
-            let x = golem:it/api.{checkout}();
-            let status: u64 = 200; {headers : {ContentType: "json", userid: "foo"}, body: "foo", status: status}
+          let x = golem:it/api.{checkout}();
+          let status: u64 = 200;
+          let headers = {ContentType: "json", userid: "foo"};
+          let body = "foo";
+          {headers: headers, body: body, status: status}
       summary: Get Cart Contents
       description: Get the contents of a user's cart
       parameters:
@@ -52,7 +55,6 @@ components:
           type: string
         price:
           type: number
-
 ```
 
 To import OpenAPI spec using Golem CLI,
