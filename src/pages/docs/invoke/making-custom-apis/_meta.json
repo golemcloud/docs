@@ -1,0 +1,9 @@
+{
+  "define-api-definition": "Define API definition",
+  "register-api-definition": "Register API definition",
+  "deploy-api-definition": "Deploy API definition",
+  "try-out-deployed-api": "Invoke the deployed API",
+  "authentication": "Make APIs Secure",
+  "trouble-shooting": "Trouble Shooting",
+  "spec-inference": "Automatic API Spec Inference"
+}
