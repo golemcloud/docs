@@ -1,4 +1,11 @@
-## More on writing Rib in API definition
+## Using Rib in API definition
+
+Rib can be used in the API definition to define the response of an API endpoint.
+The `response` field in the API definition is a Rib script that is executed to generate the response for the API endpoint.
+
+With Rib, it is also possible to lookup values from the request context, such as request path, query variables, headers, and JWT token claims.
+
+### Response Mapping
 
 The `response` field under each binding is written using [Rib](/docs/rib) to call the worker function, manipulate its results,
 and return a value that's understandable for each protocol we use. If the protocol is HTTP,
@@ -106,7 +113,7 @@ let response_body = match result {
 The result of the Rib expression is whatever the result of the last line/expression in the above Rib program, similar to many programming languages.
 Note, the last line of Rib is not ending with a `;`.
 
-### Looking up values from the request context
+### Lookup up values from the request context
 
 Rib allow to look up the values of request path or query variables using `request.path.*` syntax.
 For request body, you can use `request.body.*` syntax. Similarly for headers it is `request.headers.*`
