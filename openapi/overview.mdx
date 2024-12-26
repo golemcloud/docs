@@ -1,0 +1,35 @@
+# OpenAPI Export in the Golem Worker Gateway
+
+When you deploy your APIs through the Golem Worker Gateway, you want your clients to be able to easily consume them. That's where our OpenAPI export feature comes in. It automatically converts any API you've deployed through the Gateway into a standardized OpenAPI specification, making it easy for your clients to generate type-safe API clients in their preferred programming languages.
+
+## Understanding the Export Feature
+
+Every time you deploy an API through the Gateway, we capture its complete interface definition - the endpoints, types, security requirements, and more. The OpenAPI export feature takes this definition and transforms it into a standard OpenAPI 3.0 specification. This isn't just a simple format conversion - it's a complete mapping of your API's interface into a format that any OpenAPI-compatible tool can understand.
+
+When you export your API's definition, the system carefully translates every aspect of your service. The RIB types you use in your API implementation are mapped to equivalent OpenAPI schema definitions. Your security schemes, whether they're simple API keys or complex OAuth2 flows, are represented in a way that both documents their requirements and enables automated client generation. Even advanced features like CORS configurations are properly encoded, ensuring that generated clients can seamlessly handle cross-origin requests.
+
+## The Export Process in Detail
+
+The transformation from your deployed API to an OpenAPI specification happens through a sophisticated multi-stage process. Initially, the system analyzes your API definition, breaking it down into its constituent components - routes, types, security schemes, and middleware configurations. Each component then goes through its own specialized conversion process.
+
+Type conversion is particularly intricate, as it must preserve not just the basic structure of your types, but also their constraints, relationships, and semantic meaning. The system handles everything from simple primitive types to complex nested structures, ensuring that the resulting OpenAPI schemas accurately represent your API's data model.
+
+Security schemes undergo a similar careful translation. OAuth2 configurations, complete with their authorization flows and scope requirements, are mapped to equivalent OpenAPI security definitions. API key authentication, bearer tokens, and other security mechanisms are all properly represented, ensuring that client tools can correctly implement the required security measures.
+
+## Interactive Documentation with SwaggerUI
+
+One of the most powerful aspects of OpenAPI export is its integration with SwaggerUI. Rather than just generating static documentation, the system provides an interactive API exploration experience. When your API's clients access its documentation endpoint, they're presented with a fully-featured SwaggerUI interface, customized for your service.
+
+This interface isn't just for reading - it's a complete API workbench. Your clients can explore your endpoints, understand their requirements, and even make test calls directly from their browser. The interface automatically handles authentication, allows parameter input, and displays both successful responses and error conditions in a clear, understandable format.
+
+## Benefits to Your API Clients
+
+The introduction of OpenAPI export transforms how developers can interact with your deployed APIs. Instead of needing specialized knowledge of your API's implementation details, they can work with your services using standard tools and practices they're already familiar with. They can generate client libraries in their preferred programming languages, integrate with their existing API management tools, and use standard testing frameworks.
+
+This standardization brings several concrete benefits:
+
+The most immediate benefit is in documentation. OpenAPI specifications serve as both human-readable documentation and machine-readable API contracts. Your clients can understand your services through familiar tools and interfaces, significantly reducing the learning curve for new API consumers.
+
+Client library generation becomes automated and reliable. Rather than manually crafting HTTP requests or writing client code, your clients can use standard OpenAPI generators to create fully-typed client libraries in virtually any programming language. These generated clients handle all the complexities of HTTP communication, security, and error handling automatically.
+
+Testing and validation become more straightforward. The OpenAPI specification serves as a contract that both clients and servers must adhere to, making it easier to catch integration issues early in the development process. Standard tools can validate requests and responses against the specification, ensuring compliance and reducing runtime errors.

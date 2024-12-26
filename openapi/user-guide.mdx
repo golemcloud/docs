@@ -1,0 +1,151 @@
+# Getting Started with OpenAPI Export & SwaggerUI
+
+So you've built an API that's running on the Golem Worker Gateway, and you want to make it accessible to your team or external developers? You're in the right place. This guide will walk you through everything you need to know about exporting your service to OpenAPI format and setting up beautiful, interactive documentation with SwaggerUI.
+
+## Exporting Your API: The Basics
+
+Let's start with the fundamentals. Any API you've deployed through the Gateway can be exported to a standard OpenAPI specification with a single HTTP request. Here's how you do it:
+
+```bash
+curl https://your-gateway/v1/api/definitions/{api-id}/version/{version}/export
+```
+
+By default, this gives you a JSON format specification. If you prefer YAML (which can be easier to read and diff), just add an Accept header:
+
+```bash
+curl -H "Accept: application/yaml" https://your-gateway/v1/api/definitions/{api-id}/version/{version}/export
+```
+
+What you get back is a complete OpenAPI 3.0 specification that includes everything about your API - all endpoints, their methods, request and response schemas, security requirements, and even CORS configurations. It's a complete contract for your API that any OpenAPI-compatible tool can understand.
+
+## Making the Most of SwaggerUI
+
+One of the best parts of the OpenAPI export feature is the built-in SwaggerUI integration. It turns your API specification into beautiful, interactive documentation that developers can actually use to learn and test your API.
+
+By default, you'll find your API's SwaggerUI documentation at `/docs` on your API's domain. But that's just the start - you can customize almost everything about how SwaggerUI presents your API.
+
+### Customizing Your Documentation
+
+Want to make the documentation feel more like part of your product? You can customize SwaggerUI through the `SwaggerUiConfig`. Here's an example of what you can do:
+
+```rust
+SwaggerUiConfig {
+    enabled: true,
+    path: "/api-docs",  // Want a different URL? No problem
+    title: Some("My API"),  // Your API's name in lights
+    theme: Some("dark"), 
+    api_id: "my-api",
+    version: "1.0"
+}
+```
+
+### The Interactive Experience
+
+SwaggerUI isn't just pretty documentation - it's a complete API workbench. Here's what your developers can do right in their browser:
+
+First, they can browse through all your endpoints, seeing exactly what each one does, what parameters it accepts, and what responses to expect. The documentation is always in sync with your API because it's generated directly from your API definition.
+
+Need to test an endpoint? The "Try it out" button lets developers make actual API calls right from the documentation. They can fill in parameters, see the exact curl command being used, and view the complete response, including headers. It's invaluable for debugging and learning how the API works.
+
+For authenticated endpoints, there's a built-in authorization interface. Developers can input their credentials once and SwaggerUI will automatically include them in all API calls. It supports everything from simple API keys to complex OAuth2 flows.
+
+## Building API Clients
+
+One of the most powerful features of OpenAPI export is automatic client generation. Instead of writing HTTP client code by hand, developers can generate fully-typed API clients in their preferred programming language.
+
+### The Easy Way: SwaggerUI
+
+If you just need a quick client library, SwaggerUI has you covered:
+1. Open your API's SwaggerUI page
+2. Look for the "Generate Client" button
+3. Pick your target language
+4. Download and start coding
+
+### The Power User Way: OpenAPI Generator
+
+For more control over the generated client, you can use the OpenAPI Generator CLI directly. Here's how:
+
+```bash
+# Install the generator if you haven't already
+npm install @openapitools/openapi-generator-cli -g
+
+# Generate a TypeScript client
+openapi-generator generate -i spec.json -g typescript-fetch -o ./client
+```
+
+The generator supports dozens of languages and frameworks, and you can customize almost every aspect of the generated code.
+
+## Security and CORS: The Important Details
+
+### Setting Up Authentication
+
+If your API requires authentication (and most do), you'll need to configure your security schemes properly. The good news is that once you do, both the OpenAPI specification and SwaggerUI will automatically reflect your security requirements.
+
+When developers view your API in SwaggerUI, they'll see an "Authorize" button that lets them configure their credentials. Once authorized, they can test authenticated endpoints directly in the browser.
+
+### Handling CORS
+
+Cross-Origin Resource Sharing (CORS) is crucial for browser-based clients. Your API definition includes all the CORS settings, and when you export to OpenAPI, these settings are preserved. This means that generated clients will automatically know how to handle CORS correctly.
+
+## Troubleshooting Tips
+
+Even the best-designed systems occasionally have issues. Here's how to handle common problems:
+
+### Export Issues
+
+If the export fails, first check:
+1. Are your API ID and version correct?
+2. Do you have the necessary permissions?
+3. Is your API definition valid?
+
+The error response should give you specific information about what went wrong.
+
+### SwaggerUI Problems
+
+Having trouble with SwaggerUI? Try these steps:
+1. Clear your browser cache (SwaggerUI is a browser-based app after all)
+2. Check your CORS settings if you're accessing the API from a different domain
+3. Verify your security configuration if you're having authentication issues
+
+### Client Generation
+
+If you're having trouble with generated clients:
+1. Validate your OpenAPI specification (there are online validators available)
+2. Check that your chosen language/framework is fully supported
+3. Review the generator options - sometimes the defaults aren't quite right
+
+## Best Practices
+
+After helping many teams use this system, here are our recommended best practices:
+
+### API Design
+
+- Use clear, descriptive names for your endpoints
+- Include detailed descriptions in your API definition
+- Provide examples for request/response bodies
+- Keep your security requirements clear and explicit
+
+### Documentation
+
+- Add descriptions to all parameters
+- Include example values where possible
+- Document error cases and their responses
+- Keep your API version information up to date
+
+### Testing
+
+Before releasing your API:
+- Test all endpoints through SwaggerUI
+- Verify authentication flows
+- Check CORS settings if you have browser clients
+- Generate and test client libraries in your target languages
+
+## Getting Help
+
+If you run into issues:
+1. Check the error response - we try to make them descriptive
+2. Look through your API's logs
+3. Review this documentation
+4. Don't hesitate to reach out to Golem support - we're here to help
+
+Remember, the goal of all this tooling is to make your API easier to use and understand. If something's not working the way you expect, let us know! 

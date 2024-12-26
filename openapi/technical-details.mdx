@@ -1,0 +1,66 @@
+# A Deep Dive into OpenAPI Export: How We Built It
+
+When we set out to build OpenAPI export for the Golem Worker Gateway, we knew we were facing an interesting challenge. We needed to take your custom API implementations and translate them into something that the broader API ecosystem could understand and work with. This document walks through how we tackled this challenge and built a robust, reliable export system that works for any API you deploy through the Gateway.
+
+## The Architecture: Three Systems Working in Concert
+
+Rather than building one monolithic converter, we split the system into three distinct but cooperating components. This separation has proven invaluable, making the system both maintainable and extensible. Let me walk you through each part and explain why we designed it this way.
+
+### The Type System Translator: RibConverter
+
+The heart of any API is its type system, and this is where we faced our first major challenge. Your API implementations use RIB (Runtime Interface Builder) for type definitions, which is more expressive than standard OpenAPI schemas in some ways. We needed to preserve all that richness while still producing valid OpenAPI specifications that accurately represent your service's data model.
+
+The RibConverter handles this translation, and it's probably the most complex part of the system. It needs to understand both RIB's type system and OpenAPI's schema system intimately. When you feed it a RIB type, it carefully analyzes the structure and produces an equivalent OpenAPI schema.
+
+Let's take a concrete example. When you have a RIB record type with optional fields, we don't just map it to an OpenAPI object - we carefully preserve the optionality, add the right nullability constraints, and maintain any additional type information that might be important for code generation later.
+
+The converter handles everything from simple boolean flags to complex nested structures with variants (which map to OpenAPI's oneOf constructs). It's also smart about type reuse - if it sees the same structure multiple times, it'll create a reusable component rather than duplicating the definition.
+
+### The Specification Builder: OpenApiConverter
+
+While the RibConverter handles types, the OpenApiConverter manages the overall OpenAPI document. Think of it as the architect that takes all the pieces - endpoints, security schemes, type definitions - and assembles them into a coherent whole.
+
+One of the trickier parts here was handling references correctly. OpenAPI uses JSON References ($ref) extensively, and getting these right is crucial for producing specifications that tools can work with. We spent quite a bit of time ensuring that our reference handling is robust and efficient.
+
+The converter is also responsible for merging specifications. This might not seem important at first, but it becomes crucial when you're dealing with APIs that evolve over time or when you're combining multiple API definitions. We made sure that merging preserves all the important information while avoiding duplication.
+
+### The Export Orchestrator: OpenApiExporter
+
+The OpenApiExporter might seem simple at first - after all, it's just coordinating the other components, right? But it handles some crucial responsibilities that make the whole system practical to use.
+
+It manages the export format (JSON or YAML), handles error cases gracefully, and ensures that the output is always valid according to the OpenAPI specification. It also adds important metadata that helps tools understand the context of the API.
+
+## Security: More Than Just Authentication
+
+One of the most interesting challenges we faced was security scheme translation. It's not just about converting OAuth2 configurations or API key definitions - it's about preserving the semantic meaning of your security requirements.
+
+We built a system that not only translates the technical details of authentication but also preserves information about:
+- The intended use of each security scheme
+- The relationship between schemes when you have multiple options
+- The scope requirements for different operations
+- The flow configurations for OAuth2
+
+This extra information makes a real difference when tools generate client code or documentation.
+
+## CORS: The Devil in the Details
+
+CORS support might seem straightforward, but getting it right required careful attention to detail. We needed to ensure that:
+
+The preflight handling is completely correct - this is crucial for browser-based clients.
+The CORS headers are properly documented in the OpenAPI spec.
+The configuration options are flexible enough for real-world use.
+Generated clients handle CORS correctly without extra configuration.
+
+We ended up building a dedicated CORS configuration system that handles everything from simple "allow-all" setups to complex multi-origin configurations with credential handling.
+
+## Error Handling: Expecting the Unexpected
+
+In production systems, error handling often makes the difference between a feature that works and one that's actually usable. We put a lot of thought into how we handle various failure cases:
+
+When a type can't be converted exactly, we try to provide the closest safe approximation rather than failing outright. When security schemes don't map perfectly to OpenAPI concepts, we preserve the important information in extensions. When CORS configurations are incomplete, we apply sensible defaults.
+
+## Testing: Trust but Verify
+
+We've built several layers of testing to ensure the export system works reliably:
+
+Our unit tests verify each component in isolation, checking edge cases and boundary conditions. Integration tests ensure the components work together correctly.
