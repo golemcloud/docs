@@ -18,6 +18,59 @@ curl -H "Accept: application/yaml" https://your-gateway/v1/api/definitions/{api-
 
 What you get back is a complete OpenAPI 3.0 specification that includes everything about your API - all endpoints, their methods, request and response schemas, security requirements, and even CORS configurations. It's a complete contract for your API that any OpenAPI-compatible tool can understand.
 
+## Understanding Type Conversions
+
+When your API is exported to OpenAPI format, your Rust types are automatically converted to OpenAPI schema definitions. Here's how different types are mapped:
+
+### Basic Types
+- **Boolean**: Maps to OpenAPI boolean type
+- **Integers** (u8, u16, u32, u64, i8, i16, i32, i64): Map to OpenAPI integer type
+- **Floating Point** (f32, f64): Map to OpenAPI number type
+- **String and Char**: Map to OpenAPI string type
+
+### Complex Types
+- **Lists/Arrays**: Map to OpenAPI array type with the appropriate item type schema
+- **Records**: Map to OpenAPI objects with required fields and their corresponding types
+- **Enums**: Map to OpenAPI string type with an enum of possible values
+- **Variants**: Map to OpenAPI objects with discriminator and value fields
+  - The discriminator field is a string enum of variant names
+  - The value field uses oneOf to represent different possible types
+- **Option Types**: Map to OpenAPI objects with an optional value field
+- **Result Types**: Map to OpenAPI objects with optional ok and err fields
+
+Each type conversion preserves type information and includes descriptive strings to help API consumers understand the data structure. For example:
+
+```json
+{
+  "type": "object",
+  "description": "Record type",
+  "properties": {
+    "field1": {
+      "type": "integer",
+      "description": "Integer value"
+    },
+    "status": {
+      "type": "object",
+      "description": "Variant type",
+      "properties": {
+        "discriminator": {
+          "type": "string",
+          "enum": ["Active", "Inactive"]
+        },
+        "value": {
+          "oneOf": [
+            { "type": "null" },
+            { "type": "string" }
+          ]
+        }
+      },
+      "required": ["discriminator", "value"]
+    }
+  },
+  "required": ["field1", "status"]
+}
+```
+
 ## Making the Most of SwaggerUI
 
 One of the best parts of the OpenAPI export feature is the built-in SwaggerUI integration. It turns your API specification into beautiful, interactive documentation that developers can actually use to learn and test your API.

@@ -12,6 +12,46 @@ The heart of any API is its type system, and this is where we faced our first ma
 
 The RibConverter handles this translation, and it's probably the most complex part of the system. It needs to understand both RIB's type system and OpenAPI's schema system intimately. When you feed it a RIB type, it carefully analyzes the structure and produces an equivalent OpenAPI schema.
 
+Here's how the RibConverter maps different types:
+
+#### Basic Type Mapping
+- Boolean values are mapped to OpenAPI boolean type with a "Boolean value" description
+- Integer types (u8 through u64, s8 through s64) become OpenAPI integer type with an "Integer value" description
+- Floating point types (f32, f64) are converted to OpenAPI number type with a "Floating point value" description
+- String and character types map to OpenAPI string type with a "String value" description
+
+#### Complex Type Handling
+- **Records**: Converted to OpenAPI objects with required fields. Each record gets a "Record type" description and maintains its field structure.
+- **Variants**: Transformed into objects with two key fields:
+  - A discriminator field (string enum of variant names)
+  - A value field using oneOf to represent possible types
+  - Includes a "Variant type" description
+- **Options**: Represented as objects with a non-required value field and an "Optional value" description
+- **Results**: Mapped to objects with ok and err fields, including a "Result type" description
+- **Lists**: Converted to OpenAPI arrays with the appropriate item type schema
+
+Each conversion preserves not just the type structure but also includes descriptive strings that help API consumers understand the data model. For example, a variant type conversion might produce:
+
+```json
+{
+  "type": "object",
+  "description": "Variant type",
+  "properties": {
+    "discriminator": {
+      "type": "string",
+      "enum": ["Success", "Error"]
+    },
+    "value": {
+      "oneOf": [
+        { "type": "string", "description": "String value" },
+        { "type": "null" }
+      ]
+    }
+  },
+  "required": ["discriminator", "value"]
+}
+```
+
 Let's take a concrete example. When you have a RIB record type with optional fields, we don't just map it to an OpenAPI object - we carefully preserve the optionality, add the right nullability constraints, and maintain any additional type information that might be important for code generation later.
 
 The converter handles everything from simple boolean flags to complex nested structures with variants (which map to OpenAPI's oneOf constructs). It's also smart about type reuse - if it sees the same structure multiple times, it'll create a reusable component rather than duplicating the definition.
