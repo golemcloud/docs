@@ -28,13 +28,53 @@ response: |
 ```
 
 Parameters:
-| Parameter | Required | Type | Description |
+
+| Parameter               | Required | Type   | Description                                                                                                                                                                                                                                                         |
 | ----------------------- | -------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| componentId.componentId | true | string | ID of the component to invoke |
-| componentId.version | true | number | Version of the component to invoke |
-| workerName | false | rib | Script used to compute the name of the worker that will be invoked. The script has access to the request input. If not provided, an ephemeral worker is used. |
-| idempotencyKey | false | rib | Script used to compute the idempotency key. The script has access to the request input. If not provided an idempotency key will be generated. |
-| response | true | rib | Script that is used to compute the response that will be returned to the user. The script has access to the request and worker inputs and can call worker functions. The result of the script has to be an object with status and optional headers and body fields. |
+| componentId.componentId | true     | string | ID of the component to invoke                                                                                                                                                                                                                                       |
+| componentId.version     | true     | number | Version of the component to invoke                                                                                                                                                                                                                                  |
+| workerName              | false    | rib    | Script used to compute the name of the worker that will be invoked. The script has access to the request input. If not provided, an ephemeral worker is used.                                                                                                       |
+| idempotencyKey          | false    | rib    | Script used to compute the idempotency key. The script has access to the request input. If not provided an idempotency key will be generated.                                                                                                                       |
+| response                | true     | rib    | Script that is used to compute the response that will be returned to the user. The script has access to the request and worker inputs and can call worker functions. The result of the script has to be an object with status and optional headers and body fields. |
+
+### Cors Binding Type
+
+This binding type is used to add CORS support to an api. To use this binding type, install it to a separate route with the same
+path as your main api and an OPTIONS method. Any OPTIONS requests will be automatically answered with the configured cors headers.
+
+Any requests to your actual api will also include the CORS response headers.
+
+The documentation you are already familiar with CORS and what the function of each of the headers are. For more information
+regarding CORS, see the [mdn docs](https://developer.mozilla.org/en-US/docs/Glossary/CORS).
+
+Example:
+
+```yaml
+id: users-api
+version: 0.0.1
+createdAt: 2024-08-21T07:42:15.696Z
+routes:
+  - method: Options
+    path: /users/{user-id}
+    binding:
+      bindingType: cors-preflight
+  - method: Get
+    path: /users/{user-id}
+    binding:
+      response: |
+        {status: 200u64, body: "Hello World"}
+```
+
+Parameters:
+
+| Parameter        | Required | Type   | Description                                                                                                      |
+| ---------------- | -------- | ------ | ---------------------------------------------------------------------------------------------------------------- |
+| allowOrigin      | false    | string | Value of the Access-Control-Allow-Origin header. Defaults to "\*" if not provided.                               |
+| allowMethods     | false    | string | Value of the Access-Control-Allow-Methods header. Defaults to "GET, POST, PUT, DELETE, OPTIONS" if not provided. |
+| allowHeaders     | false    | string | Value of the Access-Control-Allow-Headers header. Defaults to "Content-Type, Authorization" if not provided.     |
+| exposeHeaders    | false    | string | Value of the Access-Control-Expose-Headers.                                                                      |
+| maxAge           | false    | string | Value of the Access-Control-Max-Age header.                                                                      |
+| allowCredentials | false    | string | Value of the Access-Control-Allow-Credentials header.                                                            |
 
 ### File Server
 
@@ -56,13 +96,14 @@ response: 'let file: string = request.path.file; "/files/${{file}}"'
 ```
 
 Parameters:
-| Parameter | Required | Type | Description |
-| ----------------------- | -------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| componentId.componentId | true | string | ID of the component to invoke |
-| componentId.version | true | number | Version of the component to invoke |
-| workerName | false | rib | Script used to compute the name of the worker that will be invoked. The script has access to the request input. If not provided, an ephemeral worker is used. |
-| idempotencyKey | false | rib | Script used to compute the idempotency key. The script has access to the request input. If not provided an idempotency key will be generated. |
-| response | true | rib | Script that is used to compute the file to retrieve and the response to send to users. See the dedicatedc [section](#file-server-response-object) for more details. |
+
+| Parameter               | Required | Type   | Description                                                                                                                                                         |
+| ----------------------- | -------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| componentId.componentId | true     | string | ID of the component to invoke                                                                                                                                       |
+| componentId.version     | true     | number | Version of the component to invoke                                                                                                                                  |
+| workerName              | false    | rib    | Script used to compute the name of the worker that will be invoked. The script has access to the request input. If not provided, an ephemeral worker is used.       |
+| idempotencyKey          | false    | rib    | Script used to compute the idempotency key. The script has access to the request input. If not provided an idempotency key will be generated.                       |
+| response                | true     | rib    | Script that is used to compute the file to retrieve and the response to send to users. See the dedicatedc [section](#file-server-response-object) for more details. |
 
 #### File Server Response Object
 
@@ -96,9 +137,10 @@ response: 'let file: string = request.path.file; "/files/${{file}}"'
 ```
 
 Parameters:
-| Parameter | Required | Type | Description |
+
+| Parameter               | Required | Type   | Description                                                                                                                                                   |
 | ----------------------- | -------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| componentId.componentId | true | string | ID of the component to invoke |
-| componentId.version | true | number | Version of the component to invoke |
-| workerName | false | rib | Script used to compute the name of the worker that will be invoked. The script has access to the request input. If not provided, an ephemeral worker is used. |
-| idempotencyKey | false | rib | Script used to compute the idempotency key. The script has access to the request input. If not provided an idempotency key will be generated. |
+| componentId.componentId | true     | string | ID of the component to invoke                                                                                                                                 |
+| componentId.version     | true     | number | Version of the component to invoke                                                                                                                            |
+| workerName              | false    | rib    | Script used to compute the name of the worker that will be invoked. The script has access to the request input. If not provided, an ephemeral worker is used. |
+| idempotencyKey          | false    | rib    | Script used to compute the idempotency key. The script has access to the request input. If not provided an idempotency key will be generated.                 |
