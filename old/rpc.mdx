@@ -17,7 +17,7 @@ Golem instead introduces a new way to do worker-to-worker communication, using a
 The low-level host interface this technique uses is defined in [wasm-rpc.wit](https://github.com/golemcloud/golem-wit/blob/main/wit/deps/wasm-rpc/wasm-rpc.wit) as the following:
 
 ```rust
-package golem:rpc@0.1.0;
+package golem:rpc@0.1.2;
 
 interface types {
   use wasi:io/poll@0.2.0.{pollable};
@@ -71,6 +71,8 @@ interface types {
     invoke: func(function-name: string, function-params: list<wit-value>) -> result<_, rpc-error>;
 
     async-invoke-and-await: func(function-name: string, function-params: list<wit-value>) -> future-invoke-result;
+
+    schedule-invocation: func(scheduled-time: datetime, function-name: string, function-params: list<wit-value>) -> ();
   }
 }
 
