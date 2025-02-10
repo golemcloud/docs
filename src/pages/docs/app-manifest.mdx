@@ -8,7 +8,7 @@ import {
   FieldReleases,
   Release,
 } from "@/components/app-manifest-schema"
-import {MultiPlatformCommand} from "@/components/multi-platform-command"
+import { MultiPlatformCommand } from "@/components/multi-platform-command"
 
 # Golem Application Manifest Reference
 
@@ -56,8 +56,8 @@ There are three main build steps.
 - Generates required client WIT packages for Worker to Worker communication based on <FieldLink path="components.<component-name>.sourceWit"/> and <FieldLink path="dependencies"/>.
 - In case of `static-wasm-rpc` dependencies it also generates and builds the required client components.
 - Generates <FieldLink path="components.<component-name>.generatedWit"/>.
-using <FieldLink path="components.<component-name>.sourceWit"/>, <FieldLink path="dependencies"/>
-and <FieldLink path="witDeps"/>.
+  using <FieldLink path="components.<component-name>.sourceWit"/>, <FieldLink path="dependencies"/>
+  and <FieldLink path="witDeps"/>.
 
 **`componentize`**:
 
@@ -264,35 +264,41 @@ Available naming related string transforming functions:
 
   </Field>
 
-  <Field
-    meta={{
-      path: "components.<component-name>.files[*].sourcePath",
-    }}
-  >
-    ***Required source path*** of the file to be added to the _Initial File System_. The path can be a
-    _file path_ relative to the manifest document or an _URL_.
-  </Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "components.<component-name>.files[*].targetPath",
-    }}
-  >
-    ***Required target path*** of the file in the _Initial File System_. The path must be an absolute
-    path.
-  </Field>
+<Field
+  meta={{
+    path: "components.<component-name>.files[*].sourcePath",
+  }}
+>
+  ***Required source path*** of the file to be added to the _Initial File System_. The path can be a
+  _file path_ relative to the manifest document or an _URL_.
+</Field>
 
-  <Field
-    meta={{
-      path: "components.<component-name>.files[*].permissions",
-    }}
-  >
-    ***Optional string enum*** which controls file permissions. Accepted values:
-    <EnumValues>
-      <EnumValue meta={{value: "read-only", isDefault: true}}></EnumValue>
-      <EnumValue meta={{value: "read-write"}}></EnumValue>
-    </EnumValues>
-  </Field>
+{" "}
+
+<Field
+  meta={{
+    path: "components.<component-name>.files[*].targetPath",
+  }}
+>
+  ***Required target path*** of the file in the _Initial File System_. The path must be an absolute
+  path.
+</Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "components.<component-name>.files[*].permissions",
+  }}
+>
+  ***Optional string enum*** which controls file permissions. Accepted values:
+  <EnumValues>
+    <EnumValue meta={{ value: "read-only", isDefault: true }}></EnumValue>
+    <EnumValue meta={{ value: "read-write" }}></EnumValue>
+  </EnumValues>
+</Field>
 
   <Field meta={{
     path: "components.<component-name>.sourceWit",
@@ -407,14 +413,16 @@ Available naming related string transforming functions:
 
   </Field>
 
-  <Field
-    meta={{
-      path: "components.<component-name>.build[*].command",
-    }}
-  >
-    ***Required external command*** that will be used as a build step for creating
-    <FieldLink path="components.<component-name>.componentWasm"/>.
-  </Field>
+{" "}
+
+<Field
+  meta={{
+    path: "components.<component-name>.build[*].command",
+  }}
+>
+  ***Required external command*** that will be used as a build step for creating
+  <FieldLink path="components.<component-name>.componentWasm" />.
+</Field>
 
   <Field meta={{
     path: "components.<component-name>.build[*].dir",
@@ -538,47 +546,61 @@ Available naming related string transforming functions:
 
   </Field>
 
-  <Field
-    meta={{
-      path: "components.<component-name>.customCommands.<command-name>[*].dir",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "components.<component-name>.customCommands.<command-name>[*].rmdirs",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "components.<component-name>.customCommands.<command-name>[*].dir",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "components.<component-name>.customCommands.<command-name>[*].mkdirs",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "components.<component-name>.customCommands.<command-name>[*].mkdirs",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "components.<component-name>.customCommands.<command-name>[*].rmdirs",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "components.<component-name>.customCommands.<command-name>[*].sources",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "components.<component-name>.customCommands.<command-name>[*].targets",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "components.<component-name>.customCommands.<command-name>[*].mkdirs",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "components.<component-name>.clean",
-    }}
-  ></Field>
+{" "}
+
+<Field
+  meta={{
+    path: "components.<component-name>.customCommands.<command-name>[*].mkdirs",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "components.<component-name>.customCommands.<command-name>[*].sources",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "components.<component-name>.customCommands.<command-name>[*].targets",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "components.<component-name>.clean",
+  }}
+></Field>
 
   <Field meta={{
     path: "components.<component-name>.profiles",
@@ -631,149 +653,197 @@ Available naming related string transforming functions:
 
   </Field>
 
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.componentType",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.files",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "components.<component-name>.profiles.<profile-name>.componentType",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.files[*].sourcePath",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.files[*].targetPath",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "components.<component-name>.profiles.<profile-name>.files",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.files[*].permissions",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.sourceWit",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "components.<component-name>.profiles.<profile-name>.files[*].sourcePath",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.generatedWit",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.componentWasm",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "components.<component-name>.profiles.<profile-name>.files[*].targetPath",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.linkedWasm",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.build",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "components.<component-name>.profiles.<profile-name>.files[*].permissions",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.build[*].command",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.build[*].dir",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "components.<component-name>.profiles.<profile-name>.sourceWit",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.build[*].rmdirs",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.build[*].mkdirs",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "components.<component-name>.profiles.<profile-name>.generatedWit",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.build[*].sources",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.build[*].targets",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "components.<component-name>.profiles.<profile-name>.componentWasm",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.customCommands",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.customCommands.<command-name>[*].dir",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "components.<component-name>.profiles.<profile-name>.linkedWasm",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.customCommands.<command-name>[*].rmdirs",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.customCommands.<command-name>[*].mkdirs",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "components.<component-name>.profiles.<profile-name>.build",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.customCommands.<command-name>[*].mkdirs",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.customCommands.<command-name>[*].sources",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "components.<component-name>.profiles.<profile-name>.build[*].command",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.customCommands.<command-name>[*].targets",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.clean",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "components.<component-name>.profiles.<profile-name>.build[*].dir",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "components.<component-name>.profiles.<profile-name>.build[*].rmdirs",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "components.<component-name>.profiles.<profile-name>.build[*].mkdirs",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "components.<component-name>.profiles.<profile-name>.build[*].sources",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "components.<component-name>.profiles.<profile-name>.build[*].targets",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "components.<component-name>.profiles.<profile-name>.customCommands",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "components.<component-name>.profiles.<profile-name>.customCommands.<command-name>[*].dir",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "components.<component-name>.profiles.<profile-name>.customCommands.<command-name>[*].rmdirs",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "components.<component-name>.profiles.<profile-name>.customCommands.<command-name>[*].mkdirs",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "components.<component-name>.profiles.<profile-name>.customCommands.<command-name>[*].mkdirs",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "components.<component-name>.profiles.<profile-name>.customCommands.<command-name>[*].sources",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "components.<component-name>.profiles.<profile-name>.customCommands.<command-name>[*].targets",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "components.<component-name>.profiles.<profile-name>.clean",
+  }}
+></Field>
 
   <Field meta={{
     path: "dependencies",
@@ -1004,311 +1074,413 @@ Available naming related string transforming functions:
 
   </Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.componentType",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.files",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "templates.<template-name>.componentType",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.files[*].sourcePath",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.files[*].targetPath",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "templates.<template-name>.files",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.files[*].permissions",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.sourceWit",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "templates.<template-name>.files[*].sourcePath",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.generatedWit",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.componentWasm",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "templates.<template-name>.files[*].targetPath",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.linkedWasm",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.build",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "templates.<template-name>.files[*].permissions",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.build[*].command",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.build[*].dir",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "templates.<template-name>.sourceWit",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.build[*].rmdirs",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.build[*].mkdirs",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "templates.<template-name>.generatedWit",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.build[*].sources",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.build[*].targets",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "templates.<template-name>.componentWasm",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.customCommands",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.customCommands.<command-name>[*].dir",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "templates.<template-name>.linkedWasm",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.customCommands.<command-name>[*].rmdirs",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.customCommands.<command-name>[*].mkdirs",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "templates.<template-name>.build",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.customCommands.<command-name>[*].mkdirs",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.customCommands.<command-name>[*].sources",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "templates.<template-name>.build[*].command",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.customCommands.<command-name>[*].targets",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.clean",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "templates.<template-name>.build[*].dir",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "templates.<template-name>.build[*].rmdirs",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.componentType",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.files",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "templates.<template-name>.build[*].mkdirs",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.files[*].sourcePath",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.files[*].targetPath",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "templates.<template-name>.build[*].sources",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.files[*].permissions",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.sourceWit",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "templates.<template-name>.build[*].targets",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.generatedWit",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.componentWasm",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "templates.<template-name>.customCommands",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.linkedWasm",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.build",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "templates.<template-name>.customCommands.<command-name>[*].dir",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.build[*].command",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.build[*].dir",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "templates.<template-name>.customCommands.<command-name>[*].rmdirs",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.build[*].rmdirs",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.build[*].mkdirs",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "templates.<template-name>.customCommands.<command-name>[*].mkdirs",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.build[*].sources",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.build[*].targets",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "templates.<template-name>.customCommands.<command-name>[*].mkdirs",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.customCommands",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.customCommands.<command-name>",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "templates.<template-name>.customCommands.<command-name>[*].sources",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.customCommands.<command-name>[*].dir",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.customCommands.<command-name>[*].rmdirs",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "templates.<template-name>.customCommands.<command-name>[*].targets",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.customCommands.<command-name>[*].mkdirs",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.customCommands.<command-name>[*].mkdirs",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "templates.<template-name>.clean",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.customCommands.<command-name>[*].sources",
-    }}
-  ></Field>
+{" "}
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.customCommands.<command-name>[*].targets",
-    }}
-  ></Field>
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles",
+  }}
+></Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.clean",
-    }}
-  ></Field>
+{" "}
+
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles.<profile-name>",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles.<profile-name>.componentType",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles.<profile-name>.files",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles.<profile-name>.files[*].sourcePath",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles.<profile-name>.files[*].targetPath",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles.<profile-name>.files[*].permissions",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles.<profile-name>.sourceWit",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles.<profile-name>.generatedWit",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles.<profile-name>.componentWasm",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles.<profile-name>.linkedWasm",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles.<profile-name>.build",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles.<profile-name>.build[*].command",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles.<profile-name>.build[*].dir",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles.<profile-name>.build[*].rmdirs",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles.<profile-name>.build[*].mkdirs",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles.<profile-name>.build[*].sources",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles.<profile-name>.build[*].targets",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles.<profile-name>.customCommands",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles.<profile-name>.customCommands.<command-name>",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles.<profile-name>.customCommands.<command-name>[*].dir",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles.<profile-name>.customCommands.<command-name>[*].rmdirs",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles.<profile-name>.customCommands.<command-name>[*].mkdirs",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles.<profile-name>.customCommands.<command-name>[*].mkdirs",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles.<profile-name>.customCommands.<command-name>[*].sources",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles.<profile-name>.customCommands.<command-name>[*].targets",
+  }}
+></Field>
+
+{" "}
+
+<Field
+  meta={{
+    path: "templates.<template-name>.profiles.<profile-name>.clean",
+  }}
+></Field>
 
   <Field meta={{
     path: "templates.<template-name>.defaultProfile",
@@ -1334,8 +1506,10 @@ Available naming related string transforming functions:
 
   </Field>
 
-  ## Fields and changes by releases
+## Fields and changes by releases
 
-  <FieldReleases></FieldReleases>
+{" "}
+
+<FieldReleases></FieldReleases>
 
 </Fields>
