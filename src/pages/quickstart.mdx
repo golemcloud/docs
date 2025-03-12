@@ -1,5 +1,4 @@
-import { Callout } from "nextra/components"
-import { Card, Cards } from "nextra/components"
+import { Callout, Card, Cards, Tabs } from "nextra/components"
 
 # Quickstart
 
@@ -10,97 +9,54 @@ This guide will get you up and running in Golem in minutes.
 Golem CLI is a command-line application that allows you to deploy components,
 create and invoke workers, and otherwise manage your Golem applications.
 
-There are **precompiled binaries** of `golem-cli` (and its other variants) for
-various platforms. Alternatively, you can build Golem CLI for yourself.
+There are **precompiled binaries** of `golem` (and its other variants) for
+various platforms. Alternatively, you can [build Golem CLI for yourself](/cli/install-from-source).
 
-<Callout type="info">
-To build `golem-cli` you need to use `cargo`, Rust's build tool, and the build will require `protoc`, the [protobuf](https://github.com/protocolbuffers/protobuf) compiler.
+#### Precompiled binaries
 
-To get `cargo` on your system, we recommend using [rustup](https://rustup.rs/):
-
-```bash filename="Terminal" copy
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-rustup install stable
-rustup default stable
-```
-
-To install `protoc` see [https://grpc.io/docs/protoc-installation/](https://grpc.io/docs/protoc-installation/).
-Make sure to install version **3.15 or higher**.
-
-</Callout>
-
-#### Recommended CLI
-
-You can download the universal version of `golem-cli` from the following page:
+You can download the full version of `golem` from the following page:
 
 <Cards num={1}>
   <Card
-    title="Golem Cloud Releases"
-    href="https://github.com/golemcloud/golem-cloud-releases/releases"
+    title="Golem CLI Releases"
+    href="https://github.com/golemcloud/golem-cli/releases"
   />
 </Cards>
 
-Alternatively, you can build and install the universal version of `golem-cli`
-with the following command:
+There are precompiled binaries of two variants of the CLI here:
 
-```bash filename="Terminal" copy
-cargo install --locked --features universal golem-cloud-cli
+- `golem` is the full version of the command line interface, including a locally runnable version of Golem itself.
+- `golem-cli` is a lightweight version of the command line interface, requiring a running Golem cluster
+
+In this documentation we will use the `golem` command in the snippets. The available commands of (except the one for starting up the local Golem cluster) are the same in both variants.
+
+### Running Golem
+
+It is possible to test Golem locally without installing anything else than the above described `golem` executable. To use it, start the local Golem cluster by running the following command:
+
+```shell copy
+golem start -v
 ```
 
-This command installs both universal `golem-cli` (with support for cloud and
-open source versions) and the cloud-specific `golem-cloud-cli`.
+To use the open source version of Golem in production you will need to deploy it in your own infrastructure. See the [deployment](deploy) page for available deployment options.
 
-#### Alternative Versions
-
-There are alternative versions of `golem-cli`. Please read the [CLI page](cli) for more information.
-
-### Setup
-
-To use the open source version of Golem you need to deploy it in your own infrastructure.
-
-To get started we recommend using the Docker Compose file from the [Golem Docker examples](https://github.com/golemcloud/golem/tree/main/docker-examples). You will need to have [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) installed on your system.
-
-Once you have Docker Compose installed, you can make use of docker-compose file in Golem repository to spin up Golem.
-
-```bash filename="Terminal" copy
-# Download an example docker-compose file along with .env file that has a few common configurations
-curl -O https://raw.githubusercontent.com/golemcloud/golem/main/docker-examples/published-postgres/compose.yaml -O  https://raw.githubusercontent.com/golemcloud/golem/main/docker-examples/published-postgres/.env
-
-# Start Golem with backend storage as PostgreSQL and Redis
-docker compose -f compose.yaml up
-```
-
-Note that, here we are making use of an example docker-compose file. You may
-need to modify it to suit your needs, or refer other examples in Golem
-[repository](https://github.com/golemcloud/golem/tree/main/docker-examples).
-That said, the example docker-compose file along with .env file should be enough
-to get you started.
-
-If you are running into any port conflicts, you can modify the `.env` file that
-was downloaded as part of the above `curl` command.
-
-<Callout type="info">If you are using the hosted version of Golem, you can skip this step.</Callout>
-
-See also [deployment](deploy) page for additional deployment
-options.
+It is also possible to use our _hosted version_ of Golem, available at [https://console.golem.cloud].
 
 ### Creating a Profile
 
 To specify the Golem service location, run the following command:
 
-```bash filename="Terminal" copy
-golem-cli init
+```shell copy
+golem init
 ```
 
 This command starts an interactive configuration process. For non-interactive options - see [Golem CLI](cli) page.
 
 On the first step you'll see 3 options:
 
-- Golem Default. Use this options for default local docker compose installation.
-- Golem. Use this option in case of a customised Golem installation, i.e. a custom `GOLEM_ROUTER_PORT` in `.env` file.
+- Golem Default. Use this options if you have started Golem locally using `golem start`.
+- Golem. Use this option in case of a customised Golem installation in your own infrastructure.
 - Golem Cloud. Use this option for a hosted version of Golem.
-
-If you can't see `Golem Cloud` option - you are using an open source specific version of `golem-cli` instead of universal `golem-cli`.
 
 ### Building an Example
 
@@ -111,44 +67,83 @@ To deploy to Golem, you must first build a [component](concepts/components)
 using any programming language and toolchain that can build WebAssembly
 components.
 
-To get started quickly, you can use Golem CLI to create a component from an
-existing example:
+The `golem` command line interface provides integrates a set of commands to create, build, and deploy components.
 
-```bash filename="Terminal" copy
-golem-cli new --example rust-example-shopping-cart shopping-cart
-```
+To get started, you create a component using your chosen programming language with the `golem new-app-component` command.
 
-This will generate a new `shopping_cart` directory in the current directory with
-the example for your component.
+<Tabs items={["Rust", "TypeScript", "Go", "Python", "C", "JavaScript", "Zig", "MoonBit", "Scala.js"]}>
+  <Tabs.Tab>
+  ```shell copy
+  golem new-app-component --language rust example:app
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```shell copy
+  golem new-app-component --language ts example:app
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```shell copy
+  golem new-app-component --language go example:app
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```shell copy
+  golem new-app-component --language python example:app
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```shell copy
+  golem new-app-component --language c example:app
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```shell copy
+  golem new-app-component --language js example:app
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```shell copy
+  golem new-app-component --language zig example:app
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```shell copy
+  golem new-app-component --language moonbit example:app
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```shell copy
+  golem new-app-component --language scalajs example:app
+  ```
+  </Tabs.Tab>
+</Tabs>
 
-To **build** the newly created component, you need some development tools
-installed. Which tools you need depend on the language you are using. You can
-find more information on the [components](concepts/components) explainer.
+This will generate a new component in the current, ready to be compiled and deployed to Golem.
 
-Once you have that, navigate to the `shopping_cart`, and run:
-
-```bash filename="Terminal" copy
-cargo component build --release
-```
-
-This will write the resulting component to `shopping_cart/target/wasm32-wasip1/release/shopping_cart.wasm`.
-
-<Callout>
-  The `golem-cli new` command prints out the necessary steps to build your component exactly as you
-  have to type them - using your custom component and package names and the selected example's
-  language specific tools.
+<Callout type="warn">
+    Each supported programming language may require additional setup before you can build your component. Refer to the [language specific guides](/develop-overview) for more information.
 </Callout>
+
+To **build** the newly created component, use the following command:
+
+```shell copy
+golem app build
+```
+
+This compiles the newly created application, which consists of a _single Golem component_ at the moment. An application can have multiple components and they can depend on each other. New components can be added to the application by using the `golem new-app-component` command.
 
 ### Uploading Your Component
 
-To upload your component to Golem, you can use the `component add` command. Navigate to `shopping_cart/target/wasm32-wasip1/release` and then do:
+To upload your component to Golem, you can use the `component add` command.
 
-```bash filename="Terminal" copy
-golem-cli component add --component-name shopping-cart shopping_cart.wasm
+```shell copy
+golem-cli component add
 ```
 
-Uploading a component to Golem does not actually execute the component. Instead, it only makes it available for execution to Golem
-.
+When you add a component you will see some basic information about the component such as its name, unique identifier, version, and size. In addition, you will see a list of exports. These are the public API of your worker and can be used to call it with the CLI or REST API, as we will see below.
+
+Uploading a component to Golem does not actually execute the component. Instead, it only makes it available for execution to Golem.
 
 Every separate execution of your component is referred to as a _worker_ based on that component.
 
@@ -158,35 +153,33 @@ In Golem, every worker has a unique id, which is arbitrary text that you define.
 
 Once you have chosen a worker id, you can launch the worker either explicitly, or by invoking any function on the worker (for example, a “main” function).
 
-Here, we creating a new worker `shopping-cart-1` :
+Here, we creating a new worker `test-1` :
 
-```bash filename="Terminal" copy
-golem-cli worker add \
-  --worker-name shopping-cart-1 \
-  --component-name shopping-cart
+```shell copy
+golem worker add --worker-name test-1
 ```
 
-When you add a component you will see some basic information about the component such as its name, unique identifier, version, and size. In addition, you will see a list of exports. These are the public API of your worker and can be used to call it with the CLI or REST API, as we will see below.
+We don't have to specify _which_ component to use, because `golem` detects that the current directory belongs to a Golem application consisting of a single component.
 
 ### Invoking Workers
 
 Thanks to the WebAssembly component model, your Golem applications are not just an executable. Rather, they may export functions that can be called from the outside. Exported functions allow your workers to be given instructions or queried for their state.
 
-Here, we invoke the function `initialize_cart` on the worker with a single string parameter:
+The default template used by the above commands for each language creates a component that exports a simple _counter_ interface. To use it, we can invoke the `add` and `get` functions, using their fully quialified names:
 
-```bash filename="Terminal" copy
-golem-cli worker invoke-and-await \
-    --component-name shopping-cart \
-    --worker-name shopping-cart-1 \
-    --function 'golem:component/api.{initialize-cart}' \
-    --arg '"test-user"'
+```shell copy
+golem worker add 'test-1/example:app/api.{add} -- 2
+golem worker add 'test-1/example:app/api.{add} -- 3
+golem worker add 'test-1/example:app/api.{get}
 ```
 
 If a worker of the specified name has not been created, then when you attempt to invoke a function on the worker, it will first be created.
 
-The parameters are either listed one by one with separate `--arg` options using the [WAVE format](https://github.com/lann/wasm-wave), or as a single JSON array using `--parameters`.
+<Callout type="info">
+The parameters are either listed one by one and are using the [WAVE format](https://github.com/bytecodealliance/wasm-tools/tree/main/crates/wasm-wave)
+</Callout>
 
-Check the [Invoke section](invoke) to learn about how to figure out the **function name** and how to encode your parameters in JSON.
+Check the [Invoke section](invoke) to learn about more about where the fully qualified **function names** are coming from and what other ways you have to interact with workers.
 
 ### Next Steps
 
