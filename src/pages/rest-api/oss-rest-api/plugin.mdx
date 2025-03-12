@@ -1,16 +1,19 @@
 # Plugin API
 
 ## Lists all the registered plugins (including all versions of each).
+Path|Method|Protected
+---|---|---
+`/v1/plugins`|GET|No
 
-| Path          | Method | Protected |
-| ------------- | ------ | --------- |
-| `/v1/plugins` | GET    | No        |
+
 
 **Query Parameters**
 
-| Name  | Type                                    | Required | Description |
-| ----- | --------------------------------------- | -------- | ----------- |
-| scope | #/components/schemas/DefaultPluginScope | No       | -           |
+Name|Type|Required|Description
+---|---|---|---
+scope|#/components/schemas/DefaultPluginScope|No|-
+
+
 
 **Example Response JSON**
 
@@ -20,7 +23,9 @@
     "name": "string",
     "version": "string",
     "description": "string",
-    "icon": [0],
+    "icon": [
+      0
+    ],
     "homepage": "string",
     "specs": {
       "type": "ComponentTransformer",
@@ -38,19 +43,23 @@
 ```
 
 ## Registers a new plugin
+Path|Method|Protected
+---|---|---
+`/v1/plugins`|POST|No
 
-| Path          | Method | Protected |
-| ------------- | ------ | --------- |
-| `/v1/plugins` | POST   | No        |
+
+
+
 
 **Example Request JSON**
-
 ```json copy
 {
   "name": "string",
   "version": "string",
   "description": "string",
-  "icon": [0],
+  "icon": [
+    0
+  ],
   "homepage": "string",
   "specs": {
     "type": "ComponentTransformer",
@@ -72,10 +81,15 @@
 ```
 
 ## Lists all the registered versions of a specific plugin identified by its name
+Path|Method|Protected
+---|---|---
+`/v1/plugins/{name}`|GET|No
 
-| Path                 | Method | Protected |
-| -------------------- | ------ | --------- |
-| `/v1/plugins/{name}` | GET    | No        |
+
+
+
+
+
 
 **Example Response JSON**
 
@@ -85,7 +99,9 @@
     "name": "string",
     "version": "string",
     "description": "string",
-    "icon": [0],
+    "icon": [
+      0
+    ],
     "homepage": "string",
     "specs": {
       "type": "ComponentTransformer",
@@ -102,11 +118,92 @@
 ]
 ```
 
-## Gets a registered plugin by its name and version
+## Registers a new library plugin
+Path|Method|Protected
+---|---|---
+`/v1/library-plugins`|POST|No
 
-| Path                           | Method | Protected |
-| ------------------------------ | ------ | --------- |
-| `/v1/plugins/{name}/{version}` | GET    | No        |
+
+
+
+
+**Request Form**: `multipart/form-data`
+
+> Make sure to include `Content-Type: multipart/form-data` Header
+
+**Field `name`**: string undefined
+
+**Field `version`**: string undefined
+
+**Field `description`**: string undefined
+
+**Field `icon`**: string binary
+
+**Field `homepage`**: string undefined
+
+**Field `scope`**: JSON
+```json copy
+{
+  "type": "Global"
+}
+```
+
+**Field `wasm`**: string binary
+
+**Example Response JSON**
+
+```json copy
+{}
+```
+
+## Registers a new app plugin
+Path|Method|Protected
+---|---|---
+`/v1/app-plugins`|POST|No
+
+
+
+
+
+**Request Form**: `multipart/form-data`
+
+> Make sure to include `Content-Type: multipart/form-data` Header
+
+**Field `name`**: string undefined
+
+**Field `version`**: string undefined
+
+**Field `description`**: string undefined
+
+**Field `icon`**: string binary
+
+**Field `homepage`**: string undefined
+
+**Field `scope`**: JSON
+```json copy
+{
+  "type": "Global"
+}
+```
+
+**Field `wasm`**: string binary
+
+**Example Response JSON**
+
+```json copy
+{}
+```
+
+## Gets a registered plugin by its name and version
+Path|Method|Protected
+---|---|---
+`/v1/plugins/{name}/{version}`|GET|No
+
+
+
+
+
+
 
 **Example Response JSON**
 
@@ -115,7 +212,9 @@
   "name": "string",
   "version": "string",
   "description": "string",
-  "icon": [0],
+  "icon": [
+    0
+  ],
   "homepage": "string",
   "specs": {
     "type": "ComponentTransformer",
@@ -132,24 +231,27 @@
 ```
 
 ## Deletes a registered plugin by its name and version
+Path|Method|Protected
+---|---|---
+`/v1/plugins/{name}/{version}`|DELETE|No
 
-| Path                           | Method | Protected |
-| ------------------------------ | ------ | --------- |
-| `/v1/plugins/{name}/{version}` | DELETE | No        |
+
+
+
+
+
 
 **Example Response JSON**
 
 ```json copy
 {}
 ```
-
 ## Plugin API Errors
-
-| Status Code | Description | Body                    |
-| ----------- | ----------- | ----------------------- |
-| 400         |             | `{"errors":["string"]}` |
-| 401         |             | `{"error":"string"}`    |
-| 403         |             | `{"error":"string"}`    |
-| 404         |             | `{"error":"string"}`    |
-| 409         |             | `{"error":"string"}`    |
-| 500         |             | `{"error":"string"}`    |
+Status Code|Description|Body
+---|---|---
+400||`{"errors":["string"]}`
+401||`{"error":"string"}`
+403||`{"error":"string"}`
+404||`{"error":"string"}`
+409||`{"error":"string"}`
+500||`{"error":"string"}`

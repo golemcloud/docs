@@ -1,18 +1,19 @@
 # Component API
 
 ## Get all components
-
-| Path             | Method | Protected |
-| ---------------- | ------ | --------- |
-| `/v1/components` | GET    | No        |
+Path|Method|Protected
+---|---|---
+`/v1/components`|GET|No
 
 Gets all components, optionally filtered by component name.
 
 **Query Parameters**
 
-| Name           | Type   | Required | Description |
-| -------------- | ------ | -------- | ----------- |
-| component-name | string | No       | -           |
+Name|Type|Required|Description
+---|---|---|---
+component-name|string|No|-
+
+
 
 **Example Response JSON**
 
@@ -124,13 +125,14 @@ Gets all components, optionally filtered by component name.
 ```
 
 ## Create a new component
-
-| Path             | Method | Protected |
-| ---------------- | ------ | --------- |
-| `/v1/components` | POST   | No        |
+Path|Method|Protected
+---|---|---
+`/v1/components`|POST|No
 
 The request body is encoded as multipart/form-data containing metadata and the WASM binary.
 If the component type is not specified, it will be considered as a `Durable` component.
+
+
 
 **Request Form**: `multipart/form-data`
 
@@ -139,7 +141,6 @@ If the component type is not specified, it will be considered as a `Durable` com
 **Field `name`**: string undefined
 
 **Field `componentType`**: JSON
-
 ```json copy
 "Durable"
 ```
@@ -147,7 +148,6 @@ If the component type is not specified, it will be considered as a `Durable` com
 **Field `component`**: string binary
 
 **Field `filesPermissions`**: JSON
-
 ```json copy
 {
   "values": [
@@ -162,7 +162,6 @@ If the component type is not specified, it will be considered as a `Durable` com
 **Field `files`**: string binary
 
 **Field `dynamicLinking`**: JSON
-
 ```json copy
 {
   "dynamicLinking": {
@@ -292,22 +291,22 @@ If the component type is not specified, it will be considered as a `Durable` com
 ```
 
 ## Update a component
+Path|Method|Protected
+---|---|---
+`/v1/components/{component_id}/upload`|PUT|No
 
-| Path                                   | Method | Protected |
-| -------------------------------------- | ------ | --------- |
-| `/v1/components/{component_id}/upload` | PUT    | No        |
+
 
 **Query Parameters**
 
-| Name           | Type                               | Required | Description                                                                                   |
-| -------------- | ---------------------------------- | -------- | --------------------------------------------------------------------------------------------- |
-| component_type | #/components/schemas/ComponentType | No       | Type of the new version of the component - if not specified, the type of the previous version |
-
+Name|Type|Required|Description
+---|---|---|---
+component_type|#/components/schemas/ComponentType|No|Type of the new version of the component - if not specified, the type of the previous version
 is used.
 
 **Request Body**: `WASM Binary File`
-
 > Make sure to include `Content-Type: application/octet-stream` Header
+
 
 **Example Response JSON**
 
@@ -417,17 +416,19 @@ is used.
 ```
 
 ## Update a component
+Path|Method|Protected
+---|---|---
+`/v1/components/{component_id}/updates`|POST|No
 
-| Path                                    | Method | Protected |
-| --------------------------------------- | ------ | --------- |
-| `/v1/components/{component_id}/updates` | POST   | No        |
+
+
+
 
 **Request Form**: `multipart/form-data`
 
 > Make sure to include `Content-Type: multipart/form-data` Header
 
 **Field `componentType`**: JSON
-
 ```json copy
 "Durable"
 ```
@@ -435,7 +436,6 @@ is used.
 **Field `component`**: string binary
 
 **Field `filesPermissions`**: JSON
-
 ```json copy
 {
   "values": [
@@ -450,7 +450,6 @@ is used.
 **Field `files`**: string binary
 
 **Field `dynamicLinking`**: JSON
-
 ```json copy
 {
   "dynamicLinking": {
@@ -580,26 +579,26 @@ is used.
 ```
 
 ## Download a component
-
-| Path                                     | Method | Protected |
-| ---------------------------------------- | ------ | --------- |
-| `/v1/components/{component_id}/download` | GET    | No        |
+Path|Method|Protected
+---|---|---
+`/v1/components/{component_id}/download`|GET|No
 
 Downloads a specific version of the component's WASM.
 
 **Query Parameters**
 
-| Name    | Type    | Required | Description |
-| ------- | ------- | -------- | ----------- |
-| version | integer | No       | -           |
+Name|Type|Required|Description
+---|---|---|---
+version|integer|No|-
+
+
 
 **Response Body:** `WASM Binary File`
 
 ## Get the metadata for all component versions
-
-| Path                            | Method | Protected |
-| ------------------------------- | ------ | --------- |
-| `/v1/components/{component_id}` | GET    | No        |
+Path|Method|Protected
+---|---|---
+`/v1/components/{component_id}`|GET|No
 
 Each component can have multiple versions. Every time a new WASM is uploaded for a given component id, that creates a new version.
 This endpoint returns a list of all versions for the component id provided as part of the URL. Each element of the response describes a single version of a component, but does not contain the binary (WASM) itself:
@@ -610,6 +609,10 @@ This endpoint returns a list of all versions for the component id provided as pa
 - `metadata` contains information extracted from the WASM itself
 - `metadata.exports` is a list of exported functions, including their parameter's and return value's types
 - `metadata.producers` is a list of producer information added by tooling, each consisting of a list of fields associating one or more values to a given key. This contains information about what compilers and other WASM related tools were used to construct the Golem component.
+
+
+
+
 
 **Example Response JSON**
 
@@ -721,12 +724,15 @@ This endpoint returns a list of all versions for the component id provided as pa
 ```
 
 ## Get the version of a given component
-
-| Path                                               | Method | Protected |
-| -------------------------------------------------- | ------ | --------- |
-| `/v1/components/{component_id}/versions/{version}` | GET    | No        |
+Path|Method|Protected
+---|---|---
+`/v1/components/{component_id}/versions/{version}`|GET|No
 
 Gets the version of a component.
+
+
+
+
 
 **Example Response JSON**
 
@@ -836,12 +842,15 @@ Gets the version of a component.
 ```
 
 ## Get the latest version of a given component
-
-| Path                                   | Method | Protected |
-| -------------------------------------- | ------ | --------- |
-| `/v1/components/{component_id}/latest` | GET    | No        |
+Path|Method|Protected
+---|---|---
+`/v1/components/{component_id}/latest`|GET|No
 
 Gets the latest version of a component.
+
+
+
+
 
 **Example Response JSON**
 
@@ -951,10 +960,15 @@ Gets the latest version of a component.
 ```
 
 ## Gets the list of plugins installed for the given component version
+Path|Method|Protected
+---|---|---
+`/v1/components/{component_id}/versions/{version}/plugins/installs`|GET|No
 
-| Path                                                                | Method | Protected |
-| ------------------------------------------------------------------- | ------ | --------- |
-| `/v1/components/{component_id}/versions/{version}/plugins/installs` | GET    | No        |
+
+
+
+
+
 
 **Example Response JSON**
 
@@ -974,13 +988,15 @@ Gets the latest version of a component.
 ```
 
 ## Installs a new plugin for this component
+Path|Method|Protected
+---|---|---
+`/v1/components/{component_id}/latest/plugins/installs`|POST|No
 
-| Path                                                    | Method | Protected |
-| ------------------------------------------------------- | ------ | --------- |
-| `/v1/components/{component_id}/latest/plugins/installs` | POST   | No        |
+
+
+
 
 **Example Request JSON**
-
 ```json copy
 {
   "name": "string",
@@ -1009,13 +1025,15 @@ Gets the latest version of a component.
 ```
 
 ## Updates the priority or parameters of a plugin installation
+Path|Method|Protected
+---|---|---
+`/v1/components/{component_id}/versions/latest/plugins/installs/{installation_id}`|PUT|No
 
-| Path                                                                               | Method | Protected |
-| ---------------------------------------------------------------------------------- | ------ | --------- |
-| `/v1/components/{component_id}/versions/latest/plugins/installs/{installation_id}` | PUT    | No        |
+
+
+
 
 **Example Request JSON**
-
 ```json copy
 {
   "priority": 0,
@@ -1033,24 +1051,27 @@ Gets the latest version of a component.
 ```
 
 ## Uninstalls a plugin from this component
+Path|Method|Protected
+---|---|---
+`/v1/components/{component_id}/latest/plugins/installs/{installation_id}`|DELETE|No
 
-| Path                                                                      | Method | Protected |
-| ------------------------------------------------------------------------- | ------ | --------- |
-| `/v1/components/{component_id}/latest/plugins/installs/{installation_id}` | DELETE | No        |
+
+
+
+
+
 
 **Example Response JSON**
 
 ```json copy
 {}
 ```
-
 ## Component API Errors
-
-| Status Code | Description | Body                    |
-| ----------- | ----------- | ----------------------- |
-| 400         |             | `{"errors":["string"]}` |
-| 401         |             | `{"error":"string"}`    |
-| 403         |             | `{"error":"string"}`    |
-| 404         |             | `{"error":"string"}`    |
-| 409         |             | `{"error":"string"}`    |
-| 500         |             | `{"error":"string"}`    |
+Status Code|Description|Body
+---|---|---
+400||`{"errors":["string"]}`
+401||`{"error":"string"}`
+403||`{"error":"string"}`
+404||`{"error":"string"}`
+409||`{"error":"string"}`
+500||`{"error":"string"}`
