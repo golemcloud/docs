@@ -48,6 +48,14 @@ If the invoked worker does not exist, it is automatically created by the invocat
 
 When using the resource constructor syntax (see [the function name syntax page](/function-names)), if the resource with the given constructor parameters does not exist yet, it is automatically created by the invocation.
 
+## Cancelling pending invocations
+
+As invocations are executed sequentially, it is possible to cancel a pending invocation before it starts executing. This can be done using the cancel invocation endpoint:
+
+```
+DELETE /v1/components/{component_id}/workers/{worker_name}/invocations/{idempotency_key}
+```
+
 ## Typed JSON values
 
 Typed JSON values are JSON **objects** with two fields:
@@ -55,7 +63,7 @@ Typed JSON values are JSON **objects** with two fields:
 - `typ` describes the type of the value
 - `value` is the actual value
 
-The invocation API **requires** type information beside the values.
+The invocation API **does not require** type information beside the values, but providing it makes the invocation much faster. Invocations without provided type information are intended to be used only for testing, as they involve gathering the missing information for each invocation separately.
 
 ### Value format
 

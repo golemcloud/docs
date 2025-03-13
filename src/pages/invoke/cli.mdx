@@ -49,3 +49,11 @@ The `--connect` option's output (and also the `connect` subcommand) can be custo
 - `--colors=yes|no` to enable/disable colors for the `text` format
 - `--show-timestamps=yes|no` to enable/disable showing timestamps for each log line
 - `--show-level=yes|no` to enable/disable showing the log level (or stdout/stderr) for each log line
+
+## Cancelling pending invocations
+
+As invocations are executed sequentially, it is possible to cancel a pending invocation before it starts executing. This can be done using the command line interface by running the `worker cancel-invocation` subcommand:
+
+```shell copy
+golem worker cancel-invocation --worker urn:worker:<component-id>/<worker-name> --idempotency-key <idempotency-key>
+```
