@@ -19,6 +19,8 @@
   "ccpp-language-guide": "C/C++ Language Guide",
   "python-language-guide": "Python Language Guide",
   "go-language-guide": "Go Language Guide",
+  "js-language-guide": "JavaScript Language Guide",
+  "ts-language-guide": "TypeScript Language Guide",
   "experimental-languages": "Experimental Languages",
   "wasi-http": "WASI HTTP Incoming Handler",
   "-- Usage": {
@@ -30,6 +32,9 @@
   },
   "invoke": {
     "title": "Invoke"
+  },
+  "debug": {
+    "title": "Debug"
   },
   "operate": {
     "title": "Operate"
