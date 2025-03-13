@@ -4,31 +4,18 @@ import { Callout } from "nextra/components"
 
 ## Creating a project
 
-The simplest way to create a new Golem project is to use `cargo component new` to create a **library** project:
-
-```shell
-$ cargo component new helloworld --lib
-```
-
-This will create a new Rust project in a `helloworld` directory that implements a Golem component exporting a single, parameterless function which returns the string `"Hello, World!"`.
-
-Using Golem's **command line interface** instead provides a set of predefined, Golem-specific **examples** to choose from as a starting point.
+Although Golem components are just regular WASM components, we recommend to use the `golem` command line interface to create new projects. It provides a set of predefined, Golem-specific **templates** to choose from as a starting point, and enables advanced features such as [worker to worker communication](/concepts/worker-to-worker-communication).
 
 To see the available examples for Rust, run:
 
-```shell
-$ golem-cli list-examples --language rust
+```shell copy
+golem list-examples --language rust
 ```
-
-<Callout type="info">
-  The set of examples provided by Golem CLI is defined in the open-source repository
-  [golem-examples](http://github.com/golemcloud/golem-examples).
-</Callout>
 
 Then to create a new project based on the default Rust example, run:
 
 ```shell
-$ golem-cli new --language rust --package-name 'golem:demo' example
+golem new --language rust --package-name 'golem:demo' example
 ```
 
 The command will create a new Golem project in the `example` directory, and print short, language-specific instructions on how to build the project.
