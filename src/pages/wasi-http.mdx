@@ -34,8 +34,8 @@ Generating bindings for example (src/bindings.rs)
 
 Once we have the wasm file, we need to upload it to the Golem platform. To do this using the Golem CLI, run the following command:
 
-```bash
-$ golem-cli component add --component-name example-component component.wasm
+```shell
+$ golem component add --component-name example-component component.wasm
 
 {"componentUrn":"urn:component:fd13822e-b8fd-4c58-a87a-909feeea63ec","componentVersion":0,"componentName":"example-component","componentSize":103873,"createdAt":"2025-01-29T19:31:53.874584665Z","exports":["wasi:http/incoming-handler@0.2.3.{handle}(request: handle<0>, response-out: handle<1>)","golem:http/incoming-handler.{handle}(request: record { method: variant { GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS, TRACE, PATCH, custom(string) }, scheme: variant { HTTP, HTTPS, custom(string) }, authority: string, path-and-query: string, headers: list<tuple<string, list<u8>>>, body-and-trailers: option<record { content: list<u8>, trailers: option<list<tuple<string, list<u8>>>> }> }) -> record { status: u16, headers: list<tuple<string, list<u8>>>, body-and-trailers: option<record { content: list<u8>, trailers: option<list<tuple<string, list<u8>>>> }> }"],"dynamicLinking":{}}
 ```
@@ -69,8 +69,8 @@ Next the api needs to be uploaded and deployed to Golem. This can be done using 
 
 1. This registers the api definition with Golem and makes it available for other commands:
 
-   ```bash
-   $ golem-cli api-definition add api.yaml
+   ```shell
+   $ golem api-definition add api.yaml
 
    {
      "id": "example-api",
@@ -106,8 +106,8 @@ Next the api needs to be uploaded and deployed to Golem. This can be done using 
 
 2. Now we can deploy the api to our host (localhost in this example):
 
-   ```bash
-   $ golem-cli api-deployment deploy --definition example-api/0.1.0 --host localhost:9093
+   ```shell
+   $ golem api-deployment deploy --definition example-api/0.1.0 --host localhost:9093
 
    {
      "apiDefinitions": [

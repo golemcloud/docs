@@ -24,9 +24,9 @@ We call these details "Api Security Scheme" in Golem API Gateway.
 
 Make sure you name your security scheme uniquely, and provide the client-id, client-secret and redirect-url as given below.
 
-```bash filename="Terminal" copy
+```shell copy
 
-golem-cli api-security-scheme create --scheme.id shopping-cart-security-scheme --provider.type google --client.id $GOOGLE_CLIENT_ID --client.secret $GOOGLE_CLIENT_SECRET --redirect.url http://localhost:9006/auth/callback --scopes openid,email,profile
+golem api-security-scheme create --scheme.id shopping-cart-security-scheme --provider.type google --client.id $GOOGLE_CLIENT_ID --client.secret $GOOGLE_CLIENT_SECRET --redirect.url http://localhost:9006/auth/callback --scopes openid,email,profile
 
 ```
 
@@ -65,17 +65,16 @@ More on this below. Before that, let's register and deploy the above API definit
 
 4. Register the API definition
 
-As explained in previous sections, register the API definition using cloud console or golem-cli.
+As explained in previous sections, register the API definition using cloud console or golem.
 
-```bash filename="Terminal" copy
-golem-cli api-definition add api_definition.yaml  --def-format yaml
-
+```shell copy
+golem api-definition add api_definition.yaml  --def-format yaml
 ```
 
 4. Deploy the API definition
 
-```bash filename="Terminal" copy
-golem-cli api-deployment deploy --host localhost:9006 --definition my-todo-api/0.0.1
+```shell copy
+golem api-deployment deploy --host localhost:9006 --definition my-todo-api/0.0.1
 ```
 
 With this setup, your route is accessible only by authenticated users who have logged in with Google Identity Provider.

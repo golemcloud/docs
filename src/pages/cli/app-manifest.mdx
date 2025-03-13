@@ -2,7 +2,7 @@ import { Callout } from "nextra/components"
 
 # Golem Application Manifest
 
-The _Golem Application Manifest_ document format is used by `golem-cli`, usually stored in files named `golem.yaml`, which can help working with components. Currently, the Application Manifest covers:
+The _Golem Application Manifest_ document format is used by `golem`, usually stored in files named `golem.yaml`, which can help working with components. Currently, the Application Manifest covers:
 
 - defining components and their metadata, including:
   - component type
@@ -18,19 +18,19 @@ The Application Manifest uses _YAML_ format, see the [reference](/app-manifest) 
 
 # Application Manifest Quickstart
 
-Application manifest documents can be explicitly passed as `golem-cli` arguments, but the recommended way to use them is with _auto discovery_ mode: when `golem-cli` is called with an application manifest compatible command it keeps searching for `golem.yaml` documents in current working directory and parent directories. Once it found the top level `golem.yaml` document, more documents are searched using the [includes](/app-manifest#fields_includes) field.
+Application manifest documents can be explicitly passed as `golem` arguments, but the recommended way to use them is with _auto discovery_ mode: when `golem` is called with an application manifest compatible command it keeps searching for `golem.yaml` documents in current working directory and parent directories. Once it found the top level `golem.yaml` document, more documents are searched using the [includes](/app-manifest#fields_includes) field.
 
 Once all manifest documents are found, the paths in them are resolved based on their directory, and then the documents are merged. For the field specific merge rules see the [field reference](/app-manifest#field-reference).
 
 ## Using composable templates
 
-Golem example projects can be created with `golem-cli new` command, these are stand-alone project, usually containing one component. To help with setting up multi-component projects, the CLI now includes a new command, `new-app-component`, which can be used in empty or existing projects to add new components. E.g.: let's add a new _cpp_ and _ts_ component in a new and empty directory:
+Golem example projects can be created with `golem new` command, these are stand-alone project, usually containing one component. To help with setting up multi-component projects, the CLI now includes a new command, `new-app-component`, which can be used in empty or existing projects to add new components. E.g.: let's add a new _cpp_ and _ts_ component in a new and empty directory:
 
 ```sh
 mkdir app-demo
 cd app-demo
-golem-cli new-app-component --language cpp app:component-a
-golem-cli new-app-component --language ts app:component-b
+golem new-app-component --language cpp app:component-a
+golem new-app-component --language ts app:component-b
 ```
 
 When using the `new-app-component` command, it will create:
@@ -47,11 +47,11 @@ When using the `new-app-component` command, it will create:
 Now that we added our components, let's use the `app` command list our project metadata:
 
 ```shell
-$ golem-cli app
+$ golem app
 
 Build components with application manifests
 
-Usage: golem-cli app [OPTIONS] [COMMAND]
+Usage: golem app [OPTIONS] [COMMAND]
 
 Commands:
   build  Run component build steps
@@ -88,9 +88,9 @@ Custom commands:
 Because the _ts_ components use npm, we have to use `npm install` before building the components. We can also see that this has a wrapper custom command in the manifest called `npm-install`. Let's use that, then build our components:
 
 ```sh
-$ golem-cli app npm-install
+$ golem app npm-install
 <..>
-$ golem-cli app build
+$ golem app build
 Collecting sources
   Found sources: /Users/<...>/app-demo/common-cpp/golem.yaml, /Users/<...>/app-demo/common-ts/golem.yaml, /Users/<...>/app-demo/components-cpp/app-component-a/golem.yaml, /Users/<...>/app-demo/components-ts/app-component-b/golem.yaml, /Users/<...>/app-demo/golem.yaml
 Collecting components
@@ -116,14 +116,14 @@ app_component_a_debug.wasm app_component_b.wasm
 
 To deploy (add or update) or components we can use
 
-```sh
-$ golem-cli component add
+```sh copy
+golem component add
 ```
 
 or
 
-```sh
-$ golem-cli component update
+```sh copy
+golem component update
 ```
 
 in the project root folder, and the CLI will add or update all or components.
@@ -132,7 +132,7 @@ If we want to only update some components, we can do so by explicitly selecting 
 
 ```
 $ cd components-cpp
-$ golem-cli app
+$ golem app
 <...>
 Components:
   app:component-a

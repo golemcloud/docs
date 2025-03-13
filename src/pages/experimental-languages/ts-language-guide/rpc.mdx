@@ -11,20 +11,20 @@ Make sure that all required tools are installed according to the [setup](/experi
 
 ## Setup with using example RPC TypeScript project
 
-The `golem-cli new` command can be used to generate an example project which contains multiple components that are calling each other.
+The `golem new` command can be used to generate an example project which contains multiple components that are calling each other.
 It also has higher level build scripts for adding, connecting, deploying and testing components.
 
 To create such an example use the following command:
 
-```shell
-$ golem-cli new --example ts-multi-rpc --package-name golem:demo ts-example
+```shell copy
+golem new --example ts-multi-rpc --package-name golem:demo ts-example
 ```
 
 The command will create a new Golem project in the `ts-example` directory, and print short, language-specific instructions on how to build the project. It also contains documentation in the generated `README.md` with more details about managing components and worker to worker communication.
 
-In case you prefer manually setting up your project, or if you want to learn more about how `golem-cli stubgen` works, see the next section.
+In case you prefer manually setting up your project, or if you want to learn more about how `golem stubgen` works, see the next section.
 
-## Setup with directly using golem-cli stubgen
+## Setup with directly using golem stubgen
 
 A project building two Golem components where one can call the other can be set up with the following primary steps:
 
@@ -36,17 +36,17 @@ First create two TypeScript components using the techniques described in the [de
 <Callout type="warning">
     It is important to **use a different package name** for each component, otherwise the stub generator will fail.
 
-    This can be done by using the `--package-name` parameter of `golem-cli new` for example `--package-name rpcdemo:component1` and `--package-name rpcdemo:component2`.
+    This can be done by using the `--package-name` parameter of `golem new` for example `--package-name rpcdemo:component1` and `--package-name rpcdemo:component2`.
 
     It is also important to use different exported interface names in the component WIT worlds, otherwise there will be name clashes in the generated bindings.
 
 </Callout>
 
-In this document we will use the `golem-cli new` command for creating the components:
+In this document we will use the `golem new` command for creating the components:
 
 ```shell
-$ golem-cli new --example ts-default --package-name rpcdemo:component1 component1
-$ golem-cli new --example ts-default --package-name rpcdemo:component2 component2
+golem new --example ts-default --package-name rpcdemo:component2 component2
+golem new --example ts-default --package-name rpcdemo:component1 component1
 ```
 
 Then to avoid naming problems, we rename the exported interfaces in both component's wit definition.
@@ -95,10 +95,10 @@ To initialize dependencies, use `npm install` in both component's directory.
 
 All components that we want to call from another component will require client stub definitions and components.
 
-Let's create one for component2 using `golem-cli stubgen build`:
+Let's create one for component2 using `golem stubgen build`:
 
-```shell
-$ golem-cli stubgen build --source-wit-root component2/wit --dest-wasm component2-stub/component2_stub.wasm --dest-wit-root component2-stub/wit
+```shell copy
+$ golem stubgen build --source-wit-root component2/wit --dest-wasm component2-stub/component2_stub.wasm --dest-wit-root component2-stub/wit
 ```
 
 The above command will place the generated **WIT** definitions and **WASM** component into the `component2-stub` folder:
@@ -118,10 +118,10 @@ component2-stub
 
 ### Add the stub dependency to the caller project
 
-Now we add the generated stub definition to the caller project with the `golem-cli stubgen add-stub-dependency`
+Now we add the generated stub definition to the caller project with the `golem stubgen add-stub-dependency`
 
-```shell
-golem-cli stubgen add-stub-dependency --stub-wit-root component2-stub/wit  --dest-wit-root component1/wit --overwrite
+```shell copy
+golem stubgen add-stub-dependency --stub-wit-root component2-stub/wit  --dest-wit-root component1/wit --overwrite
 ```
 
 After this step the stub definitions will be present in the `component1/wit/deps` directory:
@@ -263,8 +263,8 @@ npm run componentize
 
 Then compose the components:
 
-```shell
-golem-cli stubgen compose --source-wasm out/component1.wasm --stub-wasm ../component2-stub/component2_stub.wasm --dest-wasm component1-with-component2-stub.wasm
+```shell copy
+golem stubgen compose --source-wasm out/component1.wasm --stub-wasm ../component2-stub/component2_stub.wasm --dest-wasm component1-with-component2-stub.wasm
 ```
 
 `component1-with-component2-stub.wasm` is now ready to be deployed to golem.

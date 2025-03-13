@@ -24,7 +24,7 @@ The command will create a new Golem project in the `example` directory, and prin
 
 Golem and the Rust toolchain currently requires defining the component's interface using the **WebAssembly Interface Type (WIT)** format. See [the official documentation of this format](https://component-model.bytecodealliance.org/design/wit.html) for reference.
 
-Each new project generated with `golem-cli` (or `cargo component new --lib`) contains a `wit` directory with at least one `.wit` file defining a `world`. This world can contain **exports** (exported functions and interfaces) and these exports will be the compiled Golem component's public API.
+Each new project generated with `golem` (or `cargo component new --lib`) contains a `wit` directory with at least one `.wit` file defining a `world`. This world can contain **exports** (exported functions and interfaces) and these exports will be the compiled Golem component's public API.
 
 The first time a component is compiled (see the [Building Components page](/rust-language-guide/building-components) for details), a `bindings.rs` file gets generated in the `src` directory. This module contains the Rust definitions of all the data types and interfaces defined in the `WIT` file(s).
 
@@ -322,7 +322,7 @@ When exporting a WIT resource, it is possible to have a per-instance `RefCell` h
 
 ## Logging
 
-Anything written to the **standard output** or **standard error** streams by a Golem worker is captured and can be observed using the worker connect API or the `golem-cli worker connect` command.
+Anything written to the **standard output** or **standard error** streams by a Golem worker is captured and can be observed using the worker connect API or the `golem worker connect` command.
 
 The `log` crate https://crates.io/crates/log can be used for advanced logging by using the `wasi-logger` implementation https://crates.io/crates/wasi-logger.
 

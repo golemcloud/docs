@@ -1,9 +1,9 @@
 # Invoke using Golem CLI
 
-The `golem-cli` tool exposes two invocation subcommands:
+The `golem` command line interface exposes two invocation subcommands:
 
-- `golem-cli worker invoke` triggers a function invocation on a worker without waiting for its completion
-- `golem-cli worker invoke-and-await` invokes a function on a worker and awaits its result
+- `golem worker invoke` triggers a function invocation on a worker without waiting for its completion
+- `golem worker invoke-and-await` invokes a function on a worker and awaits its result
 
 ## Specifying what to invoke
 
@@ -30,7 +30,7 @@ The function to be invoked is selected by the `--function` parameter. Read the [
 The CLI provides three ways to define the invocation **parameters**:
 
 - Passing a JSON array of **typed JSON values** to `--parameters`. This is the same format as used [on the HTTP invocation API](/invoke/http).
-- Passing a JSON array of **JSON values** only, without type information, to `--parameters`. The format for encoding WebAssembly values in JSON is [described on the JSON WAVE Mapping page](/json-wave-mapping). In this case `golem-cli` assumes that the invocation targets the latest version of the selected component, queries it's metadata and uses the selected function's type information for interpreting the provided JSON values.
+- Passing a JSON array of **JSON values** only, without type information, to `--parameters`. The format for encoding WebAssembly values in JSON is [described on the JSON WAVE Mapping page](/json-wave-mapping). In this case `golem` assumes that the invocation targets the latest version of the selected component, queries it's metadata and uses the selected function's type information for interpreting the provided JSON values.
 - Using the [WebAssembly Value Encoding](https://github.com/bytecodealliance/wasm-tools/tree/main/crates/wasm-wave) with one or more `--arg` parameter (one for each invocation parameter).
 
 ## Getting results
@@ -41,7 +41,7 @@ This can be changed with `--format json` or `--format yaml` to print the invocat
 
 ## Logs
 
-Both invocation commands accept an optional `--connect` flag for conneting to the invoked worker's event stream and showing its logs. This works the same as running a separate `golem-cli worker connect` command during the invocation. The logs consists of everything the worker writes to its standard output and standard error, as well as through the WASI Logging API.
+Both invocation commands accept an optional `--connect` flag for conneting to the invoked worker's event stream and showing its logs. This works the same as running a separate `golem worker connect` command during the invocation. The logs consists of everything the worker writes to its standard output and standard error, as well as through the WASI Logging API.
 
 The `--connect` option's output (and also the `connect` subcommand) can be customized with the following parameters:
 

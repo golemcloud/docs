@@ -1,9 +1,10 @@
 ## Define an API definition
 
-To begin with, let's build an API over the functions in the _shopping cart example_ (available via `golem-cli new --example rust-example-shopping-cart`):
+To begin with, let's build an API over the functions in the _shopping cart example_ (available via `golem new --example rust-example-shopping-cart`):
 
+```shell copy
+golem component get --component-name cart
 ```
-$ golem-cli component get --component-name cart
 
 Component with URN urn:component:c57de1ee-fbe5-4068-a67d-908addc8aa44. Version: 0. Component size is 2900607 bytes.
 Component name: cart.
@@ -40,7 +41,7 @@ routes:
 
 Please use this as a reference instead of using it with zero changes. For example, you might need to give a different
 version, componentId etc (explained below). You can get the `component` details including `componentId`
-by running `golem-cli component list` command.
+by running `golem component list` command.
 
 The API definition's fields have the following meaning:
 

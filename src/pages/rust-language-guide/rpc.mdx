@@ -9,7 +9,7 @@ See the [Worker to Worker communication page](/concepts/worker-to-worker-communi
 
 For doing worker to worker communication between Golem components implemented in Rust, in addition to the Rust compiler and the `cargo-component` tool described in the [setup page](/rust-language-guide/setup), we need two additional dependencies:
 
-- The `golem-cli` tool which automates some steps of setting up the communication between workers.
+- The `golem` tool which automates some steps of setting up the communication between workers.
 - The `cargo-make` crate task runner used to further automate the build steps.
 
 Install `cargo-make` by running:
@@ -30,7 +30,7 @@ First create two Rust components using the techniques described in the [defining
 <Callout type="warning">
 It is important to **use a different package name** for each component, otherwise the stub generator will fail.
 
-This can be done by using the `--package-name` parameter of `golem-cli new` for example `--package-name rpcdemo:component1` and `--package-name rpcdemo:component2`.
+This can be done by using the `--package-name` parameter of `golem new` for example `--package-name rpcdemo:component1` and `--package-name rpcdemo:component2`.
 
 </Callout>
 
@@ -68,12 +68,12 @@ Creating component target/wasm32-wasip1/debug/component1.wasm
 
 ### Set up the Golem WASM-RPC stub generator
 
-In the next step we use `golem-cli` to modify our cargo workspace and add a `cargo-make` task description file to automate the build steps.
+In the next step we use `golem` to modify our cargo workspace and add a `cargo-make` task description file to automate the build steps.
 
 This can be done by running:
 
 ```
-$ golem-cli stubgen initialize-workspace --targets component1 --callers component2
+$ golem stubgen initialize-workspace --targets component1 --callers component2
 ...
 Writing updated Cargo.toml to "/Users/golem/tmp/doc-temp/rpc/Cargo.toml"
 Done

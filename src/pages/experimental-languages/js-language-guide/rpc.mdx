@@ -9,7 +9,7 @@ See the [Worker to Worker communication page](/concepts/worker-to-worker-communi
 
 Make sure that all required tools are installed according to the [setup](/experimental-languages/ts-language-guide/setup) page, including the _Worker to Worker communication_ parts.
 
-## Setup project with golem-cli
+## Setup project with golem
 
 A project building two Golem components where one can call the other can be set up with the following primary steps:
 
@@ -21,17 +21,17 @@ First create two JavaScript components using the techniques described in the [de
 <Callout type="warning">
     It is important to **use a different package name** for each component, otherwise the stub generator will fail.
 
-    This can be done by using the `--package-name` parameter of `golem-cli new` for example `--package-name rpcdemo:component1` and `--package-name rpcdemo:component2`.
+    This can be done by using the `--package-name` parameter of `golem new` for example `--package-name rpcdemo:component1` and `--package-name rpcdemo:component2`.
 
     It is also important to use different exported interface names in the component WIT worlds, otherwise there will be name clashes in the generated bindings.
 
 </Callout>
 
-In this document we will use the `golem-cli new` command for creating the components:
+In this document we will use the `golem new` command for creating the components:
 
 ```shell
-$ golem-cli new --example js-default --package-name rpcdemo:component1 component1
-$ golem-cli new --example js-default --package-name rpcdemo:component2 component2
+golem new --example js-default --package-name rpcdemo:component1 component1
+golem new --example js-default --package-name rpcdemo:component2 component2
 ```
 
 Then to avoid naming problems, we rename the exported interfaces in both component's wit definition.
@@ -80,10 +80,10 @@ To initialize dependencies, use `npm install` in both component's directory.
 
 All components that we want to call from another component will require client stub definitions and components.
 
-Let's create one for component2 using `golem-cli stubgen build`:
+Let's create one for component2 using `golem stubgen build`:
 
-```shell
-$ golem-cli stubgen build --source-wit-root component2/wit --dest-wasm component2-stub/component2_stub.wasm --dest-wit-root component2-stub/wit
+```shell copy
+$ golem stubgen build --source-wit-root component2/wit --dest-wasm component2-stub/component2_stub.wasm --dest-wit-root component2-stub/wit
 ```
 
 The above command will place the generated **WIT** definitions and **WASM** component into the `component2-stub` folder:
@@ -103,10 +103,10 @@ component2-stub
 
 ### Add the stub dependency to the caller project
 
-Now we add the generated stub definition to the caller project with the `golem-cli stubgen add-stub-dependency`
+Now we add the generated stub definition to the caller project with the `golem stubgen add-stub-dependency`
 
-```shell
-golem-cli stubgen add-stub-dependency --stub-wit-root component2-stub/wit  --dest-wit-root component1/wit --overwrite
+```shell copy
+golem stubgen add-stub-dependency --stub-wit-root component2-stub/wit  --dest-wit-root component1/wit --overwrite
 ```
 
 After this step the stub definitions will be present in the `component1/wit/deps` directory:
@@ -239,8 +239,8 @@ npm run componentize
 
 Then compose the components:
 
-```shell
-golem-cli stubgen compose --source-wasm out/component1.wasm --stub-wasm ../component2-stub/component2_stub.wasm --dest-wasm component1-with-component2-stub.wasm
+```shell copy
+golem stubgen compose --source-wasm out/component1.wasm --stub-wasm ../component2-stub/component2_stub.wasm --dest-wasm component1-with-component2-stub.wasm
 ```
 
 `component1-with-component2-stub.wasm` is now ready to be deployed to golem.

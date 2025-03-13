@@ -4,14 +4,14 @@ import { Callout } from "nextra/components"
 
 [Golem components](/concepts/components) are WASM components deployed to Golem for execution.
 
-To create, list and update component you can use `golem-cli component` command.
+To create, list and update component you can use `golem component` command.
 
 ## Component creation
 
 To create a new component, use `component add` command in the following way:
 
-```bash
-golem-cli component add --component-name my-component counters.wasm
+```shell copy
+golem component add --component-name my-component counters.wasm
 ```
 
 ```
@@ -41,8 +41,8 @@ The returned output contains the following information:
 
 Components created are **durable** by default. To create an **ephemeral component** instead, use the `--ephemeral` flag:
 
-```bash
-golem-cli component add --ephemeral --component-name my-component counters.wasm
+```shel copy
+golem component add --ephemeral --component-name my-component counters.wasm
 ```
 
 ## Component search
@@ -51,14 +51,14 @@ golem-cli component add --ephemeral --component-name my-component counters.wasm
 
 If you know component URN you can always get the component metadata using `component get --component` command or the top level `get` command:
 
-```bash
-golem-cli get urn:component:d8bc9194-a4a2-4a57-8545-43408fc38799
-golem-cli component get --component urn:component:d8bc9194-a4a2-4a57-8545-43408fc38799
+```shell copy
+golem get urn:component:d8bc9194-a4a2-4a57-8545-43408fc38799
+golem component get --component urn:component:d8bc9194-a4a2-4a57-8545-43408fc38799
 ```
 
 <Callout>
   Note that for referencing any Golem resource, using the `URN` is always the fastest option with
-  `golem-cli`.
+  `golem`.
 </Callout>
 
 ### Using component name and the latest version
@@ -67,15 +67,15 @@ If you want to get the latest version of the component using its name you can ei
 
 For component name `my-component` and the latest version URL would be `component:///my-component` - you can use URL the same way as URN:
 
-```bash
-golem-cli get component:///my-component
-golem-cli component get --component component:///my-component
+```shell
+golem get component:///my-component
+golem component get --component component:///my-component
 ```
 
 Alternatively you could use `--component-name` argument this way:
 
-```bash
-golem-cli component get --component-name my-component
+```shell copy
+golem component get --component-name my-component
 ```
 
 ### Using component name and specific version
@@ -84,29 +84,29 @@ If you want to get the specific version of the component using its name you can 
 
 For component name `my-component` and version `0` URL would be `component:///my-component/0` - you can use URL the same way as URN:
 
-```bash
-golem-cli get component:///my-component/0
-golem-cli component get --component component:///my-component/0
+```shell
+golem get component:///my-component/0
+golem component get --component component:///my-component/0
 ```
 
 Alternatively you could use `--component-name` argument this way:
 
-```bash
-golem-cli component get --component-name my-component --version 0
+```shell copy
+golem component get --component-name my-component --version 0
 ```
 
 ### Getting component list
 
 To get all component versions for specific component name you can use `component list` command with `--component-name` this way:
 
-```bash
-golem-cli component list --component-name my-component
+```shell copy
+golem component list --component-name my-component
 ```
 
 To get all component available you can use `component list` command this way:
 
-```bash
-golem-cli component list
+```shell copy
+golem component list
 ```
 
 <Callout>
@@ -120,10 +120,10 @@ golem-cli component list
 To update component you can use `component update` command. This command creates a new version for existing component.
 To identify component you can use URN, URL and component name:
 
-```bash
-golem-cli component update --component urn:component:d8bc9194-a4a2-4a57-8545-43408fc38799 counters-v1.wasm
-golem-cli component update --component component:///my-component counters-v1.wasm
-golem-cli component update --component-name my-component counters-v1.wasm
+```shell
+golem component update --component urn:component:d8bc9194-a4a2-4a57-8545-43408fc38799 counters-v1.wasm
+golem component update --component component:///my-component counters-v1.wasm
+golem component update --component-name my-component counters-v1.wasm
 ```
 
 If you want to trigger an update all worker to the new latest version right after creating this version you can use `--try-update-workers` option.
@@ -131,8 +131,8 @@ If you want to trigger an update all worker to the new latest version right afte
 It is possible to change the **component's type** (from durable to ephemeral, or from ephemeral to durable) when
 updating the component. To do this, use the `--ephemeral` or `--durable` flags:
 
-```bash
-golem-cli component update --durable --component-name my-component counters-v2.wasm
+```shell copy
+golem component update --durable --component-name my-component counters-v2.wasm
 ```
 
 ## Updating workers
@@ -141,11 +141,11 @@ If you want to update all workers you can use `component try-update-workers` com
 
 This command gets all workers for the component that are not using the latest version and triggers an update for them one by one:
 
-```bash
-golem-cli component try-update-workers --component urn:component:d8bc9194-a4a2-4a57-8545-43408fc38799
+```shell copy
+golem component try-update-workers --component urn:component:d8bc9194-a4a2-4a57-8545-43408fc38799
 ```
 
-The update request is enqueued and processed by the workers asynchronously, `golem-cli` cannot await for the update to finish.
+The update request is enqueued and processed by the workers asynchronously, `golem` cannot await for the update to finish.
 
 <Callout type="warning">
   Note that automatic worker update is not guaranteed to succeed, if the updated component differs
@@ -162,8 +162,8 @@ This is different from updating the workers as they will loose their state, but 
 
 This workflow is supported by the `component redeploy` command:
 
-```bash
-golem-cli component redeploy --component urn:component:d8bc9194-a4a2-4a57-8545-43408fc38799
+```shell copy
+golem component redeploy --component urn:component:d8bc9194-a4a2-4a57-8545-43408fc38799
 ```
 
 This command deletes all workers that are not using the latest version of component and re-creates them with the same name, parameters and environment variables.
