@@ -9,17 +9,19 @@ Rib uses the [WAVE (WebAssembly Value Encoding)](https://github.com/bytecodealli
 `rib-expr` below defines the grammar of **Rib**.
 
 ```bash filename="Terminal" copy
-rib_expr         ::= simple_expr rib_expr_rest
 
-rib_expr_rest    ::= (binary_op simple_expr)*
+rib_expr          ::= rib_expr_untyped (":" type_name)?
 
-simple_expr ::=
+rib_expr_untyped  ::= simple_expr rib_expr_rest
+
+simple_expr       ::= simple_expr_untyped (":" type_name)?
+
+simple_expr_untyped ::=
       list_comprehension
     | list_reduce
     | pattern_match
     | let_binding
     | conditional
-    | selection_expr
     | flag
     | record
     | code_block
@@ -32,7 +34,30 @@ simple_expr ::=
     | result
     | identifier
     | call
-    | number
+    | signed_num
+
+
+rib_expr_rest       ::= binary_rest | method_invocation | select_field_rest | select_index_res | number_rest  |  range_rest
+
+select_field_rest   ::=  ("." select_field)*
+
+binary_rest         ::=  (binary_op simple_expr)*
+
+number_rest         ::=  "." fraction
+
+method_invocation   ::= "." call
+
+call                ::= function_name ("(" argument ("," argument)* ")")?
+
+function_name       ::= variant | enum | worker_function_call
+
+select_index_rest   ::= ("[" select_index "]")*
+
+binary_op           ::=  ">=" | "<=" | "==" | "<" | ">" | "&&" | "||" | "+" | "-" | "*" | "/"
+
+range_rest          ::= ".." ("="? pos_num | pos_num? )
+
+fraction            ::= digits (('e' | 'E') ('+' | '-')? digits)?
 
 let_binding         ::= "let" let_variable (":" type_name)? "=" rib_expr
 
@@ -42,7 +67,7 @@ selection_expr      ::= select_field | select_index
 
 select_field        ::= selection_base_expr "." identifier
 
-select_index        ::= selection_base_expr "[" pos_num "]"
+select_index        ::= pos_num
 
 nested_indices      ::= "[" pos_num "]" ("," "[" pos_num "]")*
 
@@ -70,10 +95,6 @@ tuple               ::= "("  ib_expr ("," rib_expr)* ")"
 
 sequence            ::= "["  rib_expr ("," rib_expr)* "]"
 
-call                ::= function_name ("(" argument ("," argument)* ")")?
-
-function_name       ::= variant | enum | worker_function_call
-
 enum                ::= identifier
 
 variant             ::= identifier ( "(" rib_expr ")" )   ?
@@ -90,13 +111,13 @@ list_reduce         ::= "reduce" identifier_text"," identifier_text "in" expr "f
                        "yield" expr ";"
                      "}"
 
-binary_op           ::=  ">=" | "<=" | "==" | "<" | ">" | "&&" | "||" | "+" | "-" | "*" | "/"
-
 text                ::= letter (letter | digit | "_" | "-")*
 
 pos_num             ::= digit+
 
-number              ::= pos_num (":" type_name)?
+digits              ::= [0-9]+
+
+signed_num          ::= ("+" | "-")? pos_num
 
 literal             ::= "\"" (static_term | dynamic_term)* "\""
 
@@ -112,9 +133,13 @@ option              ::= "some" "(" rib_expr ")" | "none"
 
 result              ::= "ok" "(" rib_expr ")" | "error" "(" rib_expr ")"
 
-identifier          ::= identifier_text
+identifier          ::= any_text
 
-identifier_text     ::= letter (letter | digit | "_" | "-")*
+function_name       ::= variant | enum | instance | text
+
+instance            ::= "instance"
+
+any_text            ::= letter (letter | digit | "_" | "-")*
 
 type_name           := basic_type | list_type | tuple_type | option_type | result_type
 
@@ -129,6 +154,8 @@ option_type         ::= "option" "<" (basic_type | list_type | tuple_type | opti
 result_type         ::= "result" "<" (basic_type | list_type | tuple_type | option_type | result_type) "," (basic_type | list_type | tuple_type | option_type | result_type) ">"
 
 ```
+
+The grammar is mainly to give a high level overview of the syntax of Rib. 
 
 The following sections show some examples of each construct.
 
