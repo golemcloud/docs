@@ -19,7 +19,7 @@ Here is an example of how to set up CORS for your API definition.
       path: /users/{user-id}
       binding:
         response: |
-          {status: 200u64, body: "Hello World"}
+          {status: 200, body: "Hello World"}
 ```
 
 Here, we define the preflight request endpoint for `/users/{user-id}` as the OPTIONS method.
@@ -51,5 +51,5 @@ We can define a custom response for the preflight request as well using Rib as g
       path: /users/{user-id}
       binding:
       response: |
-        {status: 200u64, body: "Hello World"}
+        {status: 200, body: "Hello World"}
 ```
