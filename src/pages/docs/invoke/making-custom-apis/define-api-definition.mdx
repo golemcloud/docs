@@ -17,6 +17,7 @@ Exports:
 ```
 
 Here is an example of an API definition, which we will use to expose an HTTP API over the function `golem:component/api.{get-cart-contents}`.
+We use [Rib](/docs/rib) to define the API definition. Please refer to the [Rib reference](/docs/rib) for more details on the syntax.
 
 ```yaml
 id: my-shopping-cart-v1
@@ -30,12 +31,11 @@ routes:
       componentId:
         componentId: dba38841-013a-49fa-a1dc-064949832f0c
         version: 0
-      workerName: |
-        let user: u64 = request.path.user-id;
-        my-worker-${user}
       response: |
-        let result = golem:it/api.{get-cart-contents}();
-        {status: 200u64, body: result}
+        let user: u64 = request.path.user-id;
+        let worker = instance(my-worker-${user});
+        let result = worker.get-cart-contents();
+        {status: 200, body: result}
 ```
 
 Please use this as a reference instead of using it with zero changes. For example, you might need to give a different
@@ -61,25 +61,35 @@ Let's break down the binding object.
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `type`        | Specifies the type of binding. Here, it is set to "wit-worker", indicating that the binding involves a Golem worker.                                                                                                                                                                                                                                                                             |
 | `componentId` | Provides the component ID associated with the worker binding. As you can see the the golem-worker                                                                                                                                                                                                                                                                                                |
-| `workerName`  | Specifies the Name of the Golem worker responsible for handling the request. Here it is `my-worker-${request.path.user-id}`. The value that is wrapped in code block (starting with `${` and ending with `}`) will be a Rib expression. Here `request.path.user-id` is a valid Rib expression where it selects the field `path` from the `request` block, and further selects `user-id` from it. |
 | `response`    | The `response` field here is a Rib expression that allows you to call any worker function and manipulates its output.                                                                                                                                                                                                                                                                            |
 
-Note that workerName and response are actually rib expressions. It gives you the flexibility to make necessary changes to the input and output to a worker function,
-as well as dynamically create a worker name.
 
 If your worker name is a constant, the you can simply make it a constant string such as `"foo"`. Please note that it has to be quoted for it a valid Rib string.
 See the [Rib reference](/docs/rib) for the full reference of the binding language.
 
+
+### Ephemeral and Durable worker invocation
+
+The worker can be ephemeral or durable depending on whether you passed the worker-name argument into the `instance` function. You can find more details about the `instance` function in the [Rib reference](/docs/rib).
+
 In this example, the following Rib expression defines the request:
 
 ```
-let result = golem:it/api.{get-cart-contents}();
-{status: 200u64, body: result}
+let user: u64 = request.path.user-id;
+let worker = instance(my-worker-${user});
+let result = worker.get-cart-contents();
+{status: 200, body: result}
 
 ```
 
-The first line is about calling the worker-function and assigning its result to the variable `result`. The last line is a WASM record where you are mapping to the response. Here body is `result` itself.
-That means, we are not manipulating the result returned by the function, and simply forward it as response body. Status is 200u64. `u64` is the type of the number
-as Rib is typed and it needs to know the full type of the WASM record. `200u64` is equivalent to `let x: u64 = 200; x;` in Rib.
+The first line is about extracting the `user-id` from the path and assigning it to the variable `user`.
+The second line is about creating a worker instance with the name `my-worker-${user}`.
+The third line is about calling the function `get-cart-contents`  in the component, and it will be invoked  against the worker `my-worker-${user}`.
+Note that the real fully qualified function name (the one that is listed in component metadata is `golem:it/api.{get-cart-contents}`) however,
+you can should use the shorter `get-cart-contents` as shown in the example. Please find more details about the `instance` function in the [Rib reference](/docs/rib).
+
+The third line assigns the result of the worker function to the variable `result`. The last line is a WASM record where you are mapping to the response. Here body is `result` itself.
+That means, we are not manipulating the result returned by the function, and simply forward it as response body. Status is 200. Sometimes you need to specify the type of such as `200: u64`
+to help out with the compiler
 
 As mentioned above, see the [Rib reference](/docs/rib) to know more about Rib language.

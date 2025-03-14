@@ -51,8 +51,9 @@ routes:
     componentId:
       componentId: 0b6d9cd8-f373-4e29-8a5a-548e61b868a5
       version: 0
-    workerName: "\"shopping-cart\""
-    response: "let email: string = request.auth.email; email"
+    response: |
+      let email: string = request.auth.email;
+      email
 ```
 
 The list of security schemes at the root level is optional in the API definition. You can choose to have it or not.

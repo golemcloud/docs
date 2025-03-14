@@ -25,14 +25,14 @@ where it always routes to the backend regardless of wrong inputs.
 
 Here is an example:
 
-Based on the below Rib script which is part of `workerName` in API definition, the `user-id` in the path
-should be of the type `u64`.
-
 ```bash filename="Terminal" copy
-let user: u64 = request.path.user-id; \"my-worker-${user}\""
+let user: u64 = request.path.user-id;
+let my-worker = instance("my-worker-${user}");
+my-worker.add-cart(request.body.product);
 ```
 
-This implies Rib expects the input `user-id` to be `u64`. Otherwise, it will fail with BadRequestError
+Here we expect the request body to have a product field, with all the fields of the record type that `add-cart` function expects.
+If the request body is wrong, we get a bad request error as shown below.
 
 ```bash filename="Terminal" copy
 >
@@ -44,10 +44,7 @@ This implies Rib expects the input `user-id` to be `u64`. Otherwise, it will fai
 <
 * Connection #1 to host localhost left intact
 Input request details don't match the requirements for rib expression to execute: Invalid value for the key path.
-Error: Invalid value for the key user-id. Error: Expected function parameter type is u64. But found string.
-Requirements. Record(TypeRecord { fields: [NameTypePair { name: "path", typ: Record(TypeRecord { fields: [NameTypePair { name: "user-id", typ: U64(TypeU64) }] }) }] })%
+Error: Invalid value for the key product. Error: Expected function parameter type is u64. But found string.
+Requirements. Record(TypeRecord { fields: [NameTypePair { name: "product-id", typ: U64)%
 
 ```
-
-This implies the `request` input should have a field called `path` in it, which in turn has a field called `user-id`,
-and its type _should be_ u64.

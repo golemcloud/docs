@@ -30,12 +30,13 @@ servers:
 paths:
   /{user-id}/get-cart-contents:
     x-golem-worker-bridge:
-      worker-name: '"foo"'
       component-id: dba38841-013a-49fa-a1dc-064949832f0c
       component-version: 0
       response: |
-        let x = golem:it/api.{checkout}();
-        let status: u64 = 200; {headers : {ContentType: "json", userid: "foo"}, body: "foo", status: status}
+        let worker = instance("foo");
+        let x = worker.checkout();
+        let status: u64 = 200;
+        {headers : {ContentType: "json", userid: "foo"}, body: "foo", status: status}
     get:
       summary: Get Cart Contents
       description: Get the contents of a user's cart
