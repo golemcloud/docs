@@ -35,31 +35,35 @@ routes:
     path: "/{user-id}/get-cart-contents"
     binding:
       response: |
-        let result = golem:it/api.{get-cart-contents}();
+        let worker = instance();
+        let result = worker.get-cart-contents();
         {status: 200u64, body: result}
   - method: Post
     path: "/{user-id}/initialize-cart"
     binding:
       response: |
         let empty: list<u16> = [];
-        golem:it/api.{initialize-cart}(request.path.user-id);
+        let worker = instance("my-worker-${request.path.user-id}");
+        worker.initialize-cart(request.path.user-id);
         {status: 200u64, body: empty}
   - method: Post
     path: "/{user-id}/add-item"
     binding:
       response: |
+        let worker = instance("my-worker-${request.path.user-id}");
         let quantity: f64 = request.body.quantity;
         let product_id: u64 = request.body.product-id;
         let name: string = request.body.name;
         let price: f64 = request.body.price;
         let input = {product-id: product_id, name: name, price: price, quantity: quantity};
-        golem:it/api.{add-item}(input);
+        worker.add-item(input);
         {status: 200u64, body: success}
   - method: Post
     path: "/{user-id}/checkout"
     binding:
       response: |
-        let result = golem:it/api.{checkout}();
+        let worker = instance("my-worker-${request.path.user-id}");
+        let result = worker.checkout();
         let status = 200u64;
         let body =  match result { success(resp) => resp.order-id, error(msg) => msg };
         {status: status, body: body}
