@@ -15,44 +15,44 @@ First of all, to install `wasm-tools` via `cargo`, you need to install the lates
 
 Install rustup
 
-```bash copy
+```shell copy
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
 Install the latest stable version of Rust
 
-```bash copy
+```shell copy
 rustup install stable && rustup default stable
 ```
 
 Add the WASI target
 
-```bash copy
+```shell copy
 rustup target add wasm32-wasip1
 ```
 
 ### Install `wasm-tools`
 
-```bash copy
+```shell copy
 cargo install --force --locked  wasm-tools@1.223.0
 ```
 
 Confirm the installation:
 
-```bash
+```shell
 wasm-tools --version
 wasm-tools 1.223.0
 ```
 
 ### Install `wit-bindgen`
 
-```bash copy
+```shell copy
 cargo install --force --locked wit-bindgen-cli@0.37.0
 ```
 
 Confirm the installation:
 
-```bash
+```shell
 wit-bindgen --version
 wit-bindgen-cli 0.37.0
 ```

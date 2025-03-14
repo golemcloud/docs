@@ -9,7 +9,7 @@ Golem's **command line interface** provides a set of predefined, Golem-specific 
 To see the available examples for C, run:
 
 ```shell copy
-golem list-examples --language c
+golem app new --lang c
 ```
 
 <Callout type="info">
@@ -20,10 +20,10 @@ golem list-examples --language c
 Then to create a new project based on one the default C example, run:
 
 ```shell copy
-golem new --language c --package-name 'golem:demo' example
+golem app new 'golem:demo' c
 ```
 
-The command will create a new Golem project in the `example` directory, and print short, language-specific instructions on how to build the project.
+The command will create a new Golem project in the `golem:demo` directory, and print short, language-specific instructions on how to build the project.
 
 ## Specification-first approach
 
