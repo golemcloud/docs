@@ -4,21 +4,26 @@ import { Callout } from "nextra/components"
 
 ## Creating a project
 
-Although Golem components are just regular WASM components, we recommend to use the `golem` command line interface to create new projects. It provides a set of predefined, Golem-specific **templates** to choose from as a starting point, and enables advanced features such as [worker to worker communication](/concepts/worker-to-worker-communication).
+Golem's **command line interface** provides a set of predefined, Golem-specific **templates** to choose from as a starting point.
 
-To see the available examples for Rust, run:
+To get started from scratch, first create a new application using the `Rust` template:
 
 ```shell copy
-golem list-examples --language rust
+golem app new my-app rust
+cd my-app
 ```
 
-Then to create a new project based on the default Rust example, run:
+An application can consist of multiple components. Add a new component by choosing from one of the available templates. To see the list of available templates, run:
 
-```shell
-golem new --language rust --package-name 'golem:demo' example
+```shell copy
+golem component new
 ```
 
-The command will create a new Golem project in the `example` directory, and print short, language-specific instructions on how to build the project.
+Then create a new component using the chosen template:
+
+```shell copy
+golem component new rust my-component
+```
 
 ## Specification-first approach
 

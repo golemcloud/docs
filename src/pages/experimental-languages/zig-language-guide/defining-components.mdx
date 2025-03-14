@@ -4,26 +4,26 @@ import { Callout } from "nextra/components"
 
 ## Creating a project
 
-Golem's **command line interface** provides a set of predefined, Golem-specific **examples** to choose from as a starting point.
+Golem's **command line interface** provides a set of predefined, Golem-specific **templates** to choose from as a starting point.
 
-To see the available examples for Zig, run:
-
-```shell copy
-golem list-examples --language zig
-```
-
-<Callout type="info">
-  The set of examples provided by Golem CLI is defined in the open-source repository
-  [golem-examples](http://github.com/golemcloud/golem-examples).
-</Callout>
-
-Then to create a new project based on one the default Zig example, run:
+To get started from scratch, first create a new application using the `C` template:
 
 ```shell copy
-golem new --language zig --package-name 'golem:demo' example
+golem app new my-app zig
+cd my-app
 ```
 
-The command will create a new Golem project in the `example` directory, and print short, language-specific instructions on how to build the project.
+An application can consist of multiple components. Add a new component by choosing from one of the available templates. To see the list of available templates, run:
+
+```shell copy
+golem component new
+```
+
+Then create a new component using the chosen template:
+
+```shell copy
+golem component new zig my-component
+```
 
 ## Specification-first approach
 

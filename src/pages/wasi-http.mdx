@@ -20,24 +20,26 @@ The way we are going to do this using Golem is by defining an [api-definition](/
 
 ## Building and uploading the component
 
-The first step is to build your application into a wasm component file. The way to do this depends on your language and toolchain, but
-using Rust and Cargo the command might look like this:
+The first step is to create a new Golem component implementing the incoming handler interface. Tthe `golem` command line interface contains templates for several supported languages, using the template name `wasi-http`.
 
-```bash
-$ cargo component build --release
+For example to create one in Rust into a competely new application, use the following commands:
 
-Generating bindings for example (src/bindings.rs)
- Compiling example v0.1.0 (/Users/golem/tmp/doc-temp/example)
- Finished `release` profile [optimized] target(s) in 0.33s
- Creating component target/wasm32-wasip1/release/example.wasm
+```shell copy
+golem app new my-app rust
+cd my-app
+golem component new rust/wasi-http golem:example
 ```
 
-Once we have the wasm file, we need to upload it to the Golem platform. To do this using the Golem CLI, run the following command:
+Then build it using `golem app build`:
 
-```shell
-$ golem component add --component-name example-component component.wasm
+```shell copy
+golem app build
+```
 
-{"componentUrn":"urn:component:fd13822e-b8fd-4c58-a87a-909feeea63ec","componentVersion":0,"componentName":"example-component","componentSize":103873,"createdAt":"2025-01-29T19:31:53.874584665Z","exports":["wasi:http/incoming-handler@0.2.3.{handle}(request: handle<0>, response-out: handle<1>)","golem:http/incoming-handler.{handle}(request: record { method: variant { GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS, TRACE, PATCH, custom(string) }, scheme: variant { HTTP, HTTPS, custom(string) }, authority: string, path-and-query: string, headers: list<tuple<string, list<u8>>>, body-and-trailers: option<record { content: list<u8>, trailers: option<list<tuple<string, list<u8>>>> }> }) -> record { status: u16, headers: list<tuple<string, list<u8>>>, body-and-trailers: option<record { content: list<u8>, trailers: option<list<tuple<string, list<u8>>>> }> }"],"dynamicLinking":{}}
+The next step is to deploy the component to Golem:
+
+```shell copy
+golem app deploy
 ```
 
 Once the component is uploaded, we need to take note of the component id (fd13822e-b8fd-4c58-a87a-909feeea63ec) and version (0), we'll need them in the next step.
@@ -70,7 +72,7 @@ Next the api needs to be uploaded and deployed to Golem. This can be done using 
 1. This registers the api definition with Golem and makes it available for other commands:
 
    ```shell
-   $ golem api-definition add api.yaml
+   $ golem api definition add api.yaml
 
    {
      "id": "example-api",
@@ -107,7 +109,7 @@ Next the api needs to be uploaded and deployed to Golem. This can be done using 
 2. Now we can deploy the api to our host (localhost in this example):
 
    ```shell
-   $ golem api-deployment deploy --definition example-api/0.1.0 --host localhost:9093
+   $ golem api deployment deploy --definition example-api/0.1.0 --host localhost:9093
 
    {
      "apiDefinitions": [

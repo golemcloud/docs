@@ -13,16 +13,16 @@ To manage them programmatically, check [the token API](/rest-api/cloud-rest-api/
 
 The following command lists all the tokens associated with your account:
 
-```bash filename="Terminal" copy
-golem-cloud-cli token list
+```shell copy
+golem token list
 ```
 
 ### Creating a new token
 
 To create a new token, use the following command:
 
-```bash filename="Terminal" copy
-golem-cloud-cli token add
+```shell copy
+golem token add
 ```
 
 ```
@@ -37,8 +37,8 @@ Optionally, an expiration date can be specified with `--expires-at`. If not spec
 
 Each token has a **token ID**. Use the `token delete` command to remove a token using it's identifier:
 
-```bash filename="Terminal" copy
-golem-cloud-cli token delete 08bc0eac-5c51-40a5-8bc6-5c8928efb475
+```shell copy
+golem token delete 08bc0eac-5c51-40a5-8bc6-5c8928efb475
 ```
 
 ## Project sharing
@@ -49,16 +49,16 @@ On **Golem Cloud** components are organized into **projects**.
 
 Existing projects can be listed using the `project list` subcommand:
 
-```bash filename="Terminal" copy
-golem-cloud-cli project list
+```shell copy
+golem project list
 ```
 
 ### Adding projects
 
 A new project can be created using `project add`. The command expects a project name and description:
 
-```bash filename="Terminal" copy
-golem-cloud-cli project add --project-name "Golem Demo" --project-description "A new project for demonstrating the project feature"
+```shell copy
+golem project add --project-name "Golem Demo" --project-description "A new project for demonstrating the project feature"
 ```
 
 When creating components or workers, the project can be specified with the `--project-name` flag. Every user has a **default project** which is used when no explicit project is specified.
@@ -69,8 +69,8 @@ Projects can be shared among multiple Golem Cloud accounts.
 
 To share a project, use the `share` subcommand:
 
-```bash filename="Terminal" copy
-golem-cloud-cli share --project-name "Golem Demo" --recipient-account-id 08bc0eac-5c51-40a5-8bc6-5c8928efb475 --project-actions ViewWorker --project-actions ViewComponent
+```shell copy
+golem share --project-name "Golem Demo" --recipient-account-id 08bc0eac-5c51-40a5-8bc6-5c8928efb475 --project-actions ViewWorker --project-actions ViewComponent
 ```
 
 This example shares the "Golem Demo" project with the account identified by `08bc0eac-5c51-40a5-8bc6-5c8928efb475` and grants component and worker **view** permissions for it.

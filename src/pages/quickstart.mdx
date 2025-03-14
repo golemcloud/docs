@@ -69,52 +69,70 @@ components.
 
 The `golem` command line interface provides integrates a set of commands to create, build, and deploy components.
 
-To get started, you create a component using your chosen programming language with the `golem new-app-component` command.
+To get started, you create an application and a single component using your chosen programming language with the `golem app new` and `golem component new` commands.
 
 <Tabs items={["Rust", "TypeScript", "Go", "Python", "C", "JavaScript", "Zig", "MoonBit", "Scala.js"]}>
   <Tabs.Tab>
   ```shell copy
-  golem new-app-component --language rust example:app
+  golem app new example rust
+  cd example
+  golem component new example:component
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```shell copy
-  golem new-app-component --language ts example:app
+  golem app new example ts
+  cd example
+  golem component new ts example:component
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```shell copy
-  golem new-app-component --language go example:app
+  golem app new example go
+  cd example
+  golem component new go example:component
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```shell copy
-  golem new-app-component --language python example:app
+  golem app new example python
+  cd example
+  golem component new python example:component
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```shell copy
-  golem new-app-component --language c example:app
+  golem app new example c
+  cd example
+  golem component new c example:component
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```shell copy
-  golem new-app-component --language js example:app
+  golem app new example js
+  cd example
+  golem component new js example:component
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```shell copy
-  golem new-app-component --language zig example:app
+  golem app new example zig
+  cd example
+  golem component new zig example:component
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```shell copy
-  golem new-app-component --language moonbit example:app
+  golem app new example moonbit
+  cd example
+  golem component new moonbit example:component
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```shell copy
-  golem new-app-component --language scalajs example:app
+  golem app new example scalajs
+  cd example
+  golem component new scalajs example:component
   ```
   </Tabs.Tab>
 </Tabs>
@@ -131,14 +149,14 @@ To **build** the newly created component, use the following command:
 golem app build
 ```
 
-This compiles the newly created application, which consists of a _single Golem component_ at the moment. An application can have multiple components and they can depend on each other. New components can be added to the application by using the `golem new-app-component` command.
+This compiles the newly created application, which consists of a _single Golem component_ at the moment. An application can have multiple components and they can depend on each other. New components can be added to the application by using the `golem component new` command.
 
 ### Uploading Your Component
 
-To upload your component to Golem, you can use the `component add` command.
+To upload your component to Golem, you can use the `component deploy` command.
 
 ```shell copy
-golem component add
+golem component deploy
 ```
 
 When you add a component you will see some basic information about the component such as its name, unique identifier, version, and size. In addition, you will see a list of exports. These are the public API of your worker and can be used to call it with the CLI or REST API, as we will see below.
@@ -156,7 +174,7 @@ Once you have chosen a worker id, you can launch the worker either explicitly, o
 Here, we creating a new worker `test-1` :
 
 ```shell copy
-golem worker add --worker-name test-1
+golem worker new test-1
 ```
 
 We don't have to specify _which_ component to use, because `golem` detects that the current directory belongs to a Golem application consisting of a single component.
@@ -168,9 +186,9 @@ Thanks to the WebAssembly component model, your Golem applications are not just 
 The default template used by the above commands for each language creates a component that exports a simple _counter_ interface. To use it, we can invoke the `add` and `get` functions, using their fully quialified names:
 
 ```shell copy
-golem worker add 'test-1/example:app/api.{add} -- 2
-golem worker add 'test-1/example:app/api.{add} -- 3
-golem worker add 'test-1/example:app/api.{get}
+golem worker invoke test-1 'example:component/api.{add}' 2
+golem worker invoke test-1 'example:component/api.{add}' 3
+golem worker invoke test-1 'example:component/api.{get}'
 ```
 
 If a worker of the specified name has not been created, then when you attempt to invoke a function on the worker, it will first be created.

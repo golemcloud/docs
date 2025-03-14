@@ -14,7 +14,7 @@ the result of Rib is converted to an HTTP response.
 Example: Below is a Rib script where the result type is a record with two fields: `status` and `body`,
 along with headers, which correspond to the status code, response headers, and body in an HTTP response.
 
-```bash filename="Terminal" copy
+```rib copy
 
  let result = golem:it/api.{get-cart-contents}();
  { status: 200u64, body: result, headers: { Content-Type: "application/json" } }
@@ -75,7 +75,7 @@ Most of the above examples are self explanatory, but worth pointing out a few de
 
 For example, in the `initialize-cart` endpoint, we pass the `user-id` from the request path to the worker function.
 
-```bash filename="Terminal" copy
+```rib copy
 
 golem:it/api.{initialize-cart}(request.path.user-id)
 
@@ -85,7 +85,7 @@ Here Rib compiler knows the requirement of initialize-cart function and infers t
 This is a hint, that Rib is aware of the types in the code. In places where it find hard to infer these types, you may face
 some compile time errors (when uploading API definition), and the best solution is to be explicit about types. For example
 
-```bash filename="Terminal" copy
+```rib copy
 let user_id: u64 = request.path.user-id;
 golem:it/api.{initialize-cart}(user_id)
 
@@ -97,7 +97,7 @@ There are various possibilities here to manipulate the data using Rib
 language, such as selecting only a particular field from the result of the function invocation. Say for example, the result is a WASM `result` which can be `ok` or `err`. In this case you
 can have a complex Rib expression as below
 
-```bash filename="Terminal" copy
+```rib copy
 let result = golem:it/api.{get-cart-contents}();
 
 let response_status = match result {

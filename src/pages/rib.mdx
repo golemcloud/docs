@@ -8,8 +8,7 @@ Rib uses the [WAVE (WebAssembly Value Encoding)](https://github.com/bytecodealli
 
 `rib-expr` below defines the grammar of **Rib**.
 
-```bash filename="Terminal" copy
-
+```grammar
 rib_expr          ::= rib_expr_untyped (":" type_name)?
 
 rib_expr_untyped  ::= simple_expr rib_expr_rest
@@ -170,38 +169,35 @@ shouldn't end with a `;`, as this is a syntax error.
 
 ### Numbers
 
-```bash filename="Terminal" copy
+```rib copy
 1
 ```
 
 You can annotate a type to Rib expression to make it specific, otherwise, it will get inferred as u64
 for a positive integer, s64 for a signed integer, and f64 for a floating point number.
 
-```bash filename="Terminal" copy
+```rib copy
 1: u64
 ```
 
 ### Assign to a variable
 
-```
+```rib copy
 let x = 1;
 ```
 
 We can annotate the type of the variable as well.
 
 
-```bash filename="Terminal" copy
-
+```rib copy
 let x: u64 = 1;
-
 ```
 
 If you are passing this variable to a worker function, then you may not need to specify the type of the variable.
 
 ### String
 
-```bash filename="Terminal" copy
-
+```rib copy
 "foo"
 ```
 
@@ -209,7 +205,7 @@ If you are passing this variable to a worker function, then you may not need to 
 
 This is similar to languages like `scala` where you start with `${` and end with `}`
 
-```bash filename="Terminal" copy
+```rib copy
 let x = "foo";
 let y = "bar";
 let z = "${x}-and-${y}";
@@ -219,7 +215,7 @@ Evaluating this Rib will result in "foo-and-bar". The type of `z` is a string.
 
 ### Identifier
 
-```bash filename="Terminal" copy
+```rib copy
 foo
 ```
 
@@ -239,17 +235,17 @@ More on global inputs to follow.
 
 ### Boolean
 
-```bash filename="Terminal" copy
+```rib copy
 true
 ```
 
-```bash filename="Terminal" copy
+```rib copy
 false
 ```
 
 ### Sequence
 
-```bash filename="Terminal" copy
+```rib copy
 # Sequence of numbers
 [1, 2, 3]
 ```
@@ -258,17 +254,15 @@ You can annotate the type of the sequence as well.
 
 
 
-```bash filename="Terminal" copy
-
+```rib copy
 let x: list<s32> = [1, 2, 3];
-
 ```
 
-```bash filename="Terminal" copy
+```rib copy
 ["foo", "bar", "baz"]
 ```
 
-```bash filename="Terminal" copy
+```rib copy
 # Sequence of record
 [{a: "foo"}, {b : "bar"}]
 ```
@@ -278,8 +272,7 @@ In other words, `Rib` evaluator do expect the values in a sequence to be of the 
 
 ### Record
 
-```bash filename="Terminal" copy
-
+```rib copy
 { name: "John", age: 30 }
 
 { city: "New York", population: 8000000 }
@@ -295,14 +288,14 @@ Note that keys are not considered as variables. Also note that keys in a WASM re
 
 ### Tuple
 
-```bash filename="Terminal" copy
+```rib copy
 (1, 20.1, "foo")
 ```
 
 This is also equivalent to the following in Rib.
 You can be specific about the types just like in any rib expression.
 
-```bash filename="Terminal" copy
+```rib copy
 let k: (u64, f64, string) = (1, 20.1, "foo");
 k
 ```
@@ -311,13 +304,13 @@ Unlike `sequence`, the values in a tuple can be of different types.
 
 Here is another example:
 
-```bash filename="Terminal" copy
+```rib copy
 ("foo", 1, {a: "bar"})
 ```
 
 ### Flags
 
-```bash filename="Terminal" copy
+```rib copy
 { Foo, Bar, Baz }
 ```
 
@@ -328,7 +321,7 @@ This is of a flag type.
 A field can be selected from an `Rib` expression if it is a `Record` type. For example, `foo.user`
 is a valid selection given `foo` is a variable that gets evaluated to a record value.
 
-```bash filename="Terminal" copy
+```rib copy
 let foo = { name: "John", age: 30 };
 foo.name
 ```
@@ -337,14 +330,14 @@ foo.name
 
 This is selecting an index from a sequence value.
 
-```bash filename="Terminal" copy
+```rib copy
 let x = [1, 2, 3];
 x[0]
 ```
 
 You can also inline as given below
 
-```bash filename="Terminal" copy
+```rib copy
 [1, 2, 3][0]
 ```
 
@@ -354,15 +347,15 @@ You can also inline as given below
 
 A `Result` can be `Ok` of a value, or an `Err` of a value.
 
-```bash filename="Terminal" copy
+```rib copy
  ok(1)
 ```
 
-```bash filename="Terminal" copy
+```rib copy
  err("error")
 ```
 
-```bash filename="Terminal" copy
+```rib copy
 
 {
   "user": "ok(Alice)",
@@ -376,11 +369,11 @@ A `Result` can be `Ok` of a value, or an `Err` of a value.
 
 An `Option` can be `Some` of a value, or `None`.
 
-```bash filename="Terminal" copy
+```rib copy
  some(1)
 ```
 
-```bash filename="Terminal" copy
+```rib copy
  none
 ```
 
@@ -388,7 +381,7 @@ The syntax is inspired from wasm wave.
 
 ### Comparison (Boolean)
 
-```bash filename="Terminal" copy
+```rib copy
 let x: u8 = 1;
 let y: u8 = 2;
 x == y
@@ -400,7 +393,7 @@ Both operands should be a valid Rib code that points/evaluated to a number or st
 
 ### Arithmetic
 
-```bash filename="Terminal" copy
+```rib copy
 let x: u8 = 1;
 let y: u8 = 2;
 x + y
@@ -410,22 +403,18 @@ x + y
 
 ### Conditional Statement
 
-```bash filename="Terminal" copy
-
+```rib copy
  let id: u32 = 10;
  if id > 3 then "higher" else "lower"
-
 ```
 
 The structure of the conditional statement is `if <condition> then <then-rib-expr> else <else-rib-expr>`,
 where `condition-expr` is an expr that should get evaluated to boolean.
 The `then-rib-expr` or `else-rib-expr` can be an any valid rib code, which could be another `if else` itself
 
-```bash filename="Terminal" copy
-
+```rib copy
  let id: u32 = request.user.id;
  if id > 3 then "higher" else if id == 3 then "equal" else "lower"
-
 ```
 
 You must ensure that the branches (then branch and else branch) resolve to the same type. Otherwise, Rib
@@ -433,21 +422,19 @@ will fail to compile.
 
 ### Pattern Matching
 
-```bash filename="Terminal" copy
-
+```rib copy
 let res: result<str, str> = ok("foo");
 
 match res {
     ok(v) => v,
     err(msg) => msg
 }
-
 ```
 
 This would probably be your go-to construct when you are dealing with complex data structures like `result` or `option` or other custom `variant` (WASM Variant)
 that comes out as the response of a worker function
 
-```bash filename="Terminal" copy
+```rib copy
   let worker_result = my_worker_function_name(1, "jon");
   match worker_result {
      ok(x) => "foo",
@@ -461,7 +448,7 @@ If the pattern match is not exhaustive, then it will throw compilation errors
 
 Example: The following pattern matching is invalid
 
-```bash filename="Terminal" copy
+```rib copy
   match worker_result {
     some(x) => "found",
   }
@@ -469,7 +456,7 @@ Example: The following pattern matching is invalid
 
 This will result in following error:
 
-```bash filename="Terminal" copy
+```
 Error: Non-exhaustive pattern match. The following patterns are not covered: `none`.
 To ensure a complete match, add these patterns or cover them with a wildcard (`_`) or an identifier.
 ```
@@ -484,7 +471,7 @@ Variants can be thought of as tagged unions as well.
 Given you are using Rib through worker bridge, which knows about component metadata,
 then, let's say we have a variant of type as given below responded from the `worker`, when invoking a function called `foo`:
 
-```bash filename="Terminal" copy
+```rib copy
 variant my_variant {
     bar( {a: u32,b: string }),
     foo(list<string>),
@@ -493,7 +480,7 @@ variant my_variant {
 
 then, the following will work:
 
-```
+```rib copy
 let x = foo("abc");
 
 match x {
@@ -512,7 +499,7 @@ These variables are bound to the value that is being matched.
 
 Example, given the worker response is ok(1), the following match expression will result in `2`.
 
-```bash filename="Terminal" copy
+```rib copy
    let result = my-worker-function("foo");
 
    match result {
@@ -524,7 +511,7 @@ Example, given the worker response is ok(1), the following match expression will
 The following match expression will result in "c", if the worker response was variant value `foo(["a", "b", "c"])`,
 and will result in "a" if the `worker.response` was variant value `bar({a: 1, b: "a"})`.
 
-```bash filename="Terminal" copy
+```rib copy
   let result = my-worker-function();
 
   match result {
@@ -538,7 +525,7 @@ and will result in "a" if the `worker.response` was variant value `bar({a: 1, b:
 
 In some of the above examples, the binding variables are unused. We can use `_` as a wildcard pattern to indicate that we don't care about the value.
 
-```bash filename="Terminal" copy
+```rib copy
   match worker.response {
     bar(_) => "bar",
     foo(_) => "foo"
@@ -548,7 +535,7 @@ In some of the above examples, the binding variables are unused. We can use `_` 
 
 ### List Comprehension
 
-```bash filename="Terminal" copy
+```rib copy
  let x = ["foo", "bar"];
 
  for p in x {
@@ -558,7 +545,7 @@ In some of the above examples, the binding variables are unused. We can use `_` 
 
 ### List Aggregation
 
-```bash filename="Terminal" copy
+```rib copy
  let ages: list<u16> = [1, 2, 3];
 
  reduce z, a in ages from 0 {
@@ -571,14 +558,11 @@ In some of the above examples, the binding variables are unused. We can use `_` 
 Ranges can be right exclusive or right inclusive. The right exclusive range is denoted by `..` and right inclusive range is denoted by `..=`.
 
 
-```bash filename="Terminal" copy
-
+```rib copy
 1..10;
-
 ```
 
-```bash filename="Terminal" copy
-
+```rib copy
 let initial: u32 = 1;
 let final: u32 = 10;
 
@@ -587,22 +571,18 @@ let x = initial..final;
 for i in x {
   yield i
 }
-
 ```
 
 Similarly, you can use `..=` to include the last number in the range.
 
 
 
-```bash filename="Terminal" copy
-
+```rib copy
 1..=10;
-
 ```
 
 
-```bash filename="Terminal" copy
-
+```rib copy
 let initial: u32 = 1;
 let final: u32 = 10;
 
@@ -611,7 +591,6 @@ let x = initial..=final;
 for i in x {
   yield i
 }
-
 ```
 
 Please note that, you may need to help Rib compiler with type annotations for the numbers involved in the range.
@@ -619,70 +598,60 @@ This depends on the context. We will improve these aspects as we go.
 
 You can also create infinite range, where you skip the right side of `..`
 
-```bash filename="Terminal" copy
-
+```rib copy
 1..;
-
 ```
 
 However, note that as of now Rib interpreter (runtime) will spot any infinite loop and will throw an error.
 Example: The following will throw an error.
 
-```bash filename="Terminal" copy
-
+```rib copy
 let x = 1:u8..;
 
 for i in x {
   yield i
 }
-
 ```
 
 However, you can use infinite ranges to select a segment of the list without worrying about the end index.
 
-```bash filename="Terminal" copy
-
+```rib copy
 let x: list<u32> = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 for i in x[1..] {
   yield i
 }
-
 ```
 
 
 ## Http Request Input and Field Selection
 
-If you are using [worker-gateway](/docs/invoke/making-custom-apis) to write through http APIs,
+If you are using [worker-gateway](/invoke/making-custom-apis) to write through http APIs,
 you can use the variable `request` in your Rib script, and that will be considered as a global input.
 `worker-gateway` will ensure to pass the value of `request` to the rib evaluator internally.
 
 Please refer to worker-gateway documents for more details.
 
-```bash filename="Terminal" copy
+```rib copy
 request
 ```
 
 To select the body field in request,
 
-```bash filename="Terminal" copy
-
+```rib copy
 request.body
 ```
 
 To select a header from the request
 
-```bash filename="Terminal" copy
-
+```rib copy
 request.headers
-
 ```
 
 To select the value of a path or query variable in your http request.
 
-```bash filename="Terminal" copy
+```rib copy
 request.path.user
-
 ```
 
 The `request.path.*` and `request.headers.*` will be inferred as `string` unless you specify it using type annotation.
@@ -701,15 +670,14 @@ Rib is mainly used to write script to manipulate the input and call worker funct
 will be automatically inferred. Otherwise, there will be a compilation error, asking the developer to annotate the types and help the compiler.
 
 
-```bash filename="Terminal" copy
+```rib copy
 let x: string = request.body;
 x
-
 ```
 
 Say the request body is a `record` in Json, as given below. `Rib` sees it as a `WASM` Record type.
 
-```bash filename="Terminal" copy
+```rib copy
 {
   "user": "Alice",
   "age": 30u32
@@ -718,7 +686,7 @@ Say the request body is a `record` in Json, as given below. `Rib` sees it as a `
 
 Then we can use Rib language to select the field `user`, as it considers this request's body as a `WASM` Record type.
 
-```bash filename="Terminal" copy
+```rib copy
 let x: string = request.body.user;
 x
 ```
@@ -727,21 +695,20 @@ x
 ## Invoke worker functions
 
 Rib is mainly used to write scripts to manipulate the input and call worker functions.
-Refer to the [worker-gateway](/docs/invoke/making-custom-apis) documentation for more on how you use Rib to invoke worker functions.
+Refer to the [worker-gateway](/invoke/making-custom-apis) documentation for more on how you use Rib to invoke worker functions.
 This is useful to expose some http APIs on top of these worker functions running in golem platform, and you don't want to keep
 updating or change the components and expose additional APIs, as you can write a simple Rib script to do the necessary changes to the input
 and pass it to the worker functions. Invoking functions is similar to any other languages.
 
 ### Durable worker function invocation
 
-```bash filename="Terminal" copy
-
+```rib copy
 let my_worker = instance("my-worker");
 let result = my_worker.get-cart-contents();
 
 result
-
 ```
+
 Rib is evaluated in the context of a particular component (this is taken care by worker-gateway that it evaluates Rib in the context of a wasm component).
 
 In this script, first you create an instance (instance of a component) using `instance` function. `instance` function takes
@@ -751,22 +718,17 @@ worker name as the argument. Once you created the instance, the functions in the
 
 The only difference here is that you don't need to pass an argument to the `instance` function.
 
-```bash filename="Terminal" copy
-
+```rib copy
 let my_worker_instance = instance();
 let result = my_worker.get-cart-contents();
 result
-
 ```
 
 You can avoid an unnecessary let-binding here too.
 
-
-```bash filename="Terminal" copy
-
+```rib copy
 let my_worker_instance = instance();
 my_worker.get-cart-contents();
-
 ```
 
 In this case the return value of the script is the last expression in the script, and in this case, it is of the result type of `get-cart-contents`.
@@ -776,33 +738,29 @@ In this case the return value of the script is the last expression in the script
 
 Let's say there exists a  function `add-to-cart` which takes a product as the argument, where product is a wasm record
 
-```bash filename="Terminal" copy
-
+```rib copy
 let my_worker_instance = instance("my-worker");
 
 let product = {product-id: 1, quantity: 2, name: "mac"};
 my_worker.add-to-cart(input);
-
 ```
 
 Similarly you can pass multiple arguments to the worker function and they should be separated by `,`.
 
 Say you need to pass the username along with with the product details.
 
-```bash filename="Terminal" copy
-
+```rib copy
 let my_worker_instance = instance("my-worker");
 
 let product = {product-id: 1, quantity: 2, name: "mac"};
 let username = "foo";
 
 my_worker.add-to-cart(username, product);
-
 ```
 
 You can inline the arguments as well.
 
-```bash filename="Terminal" copy
+```rib copy
 let my_worker_instance = instance("my-worker");
 
 let product = {product-id: 1, quantity: 2, name: "mac"};
@@ -819,7 +777,7 @@ rather than a function. Now you have the resource available to call methods on i
 Please note that, everything prior to a real function call is lazy. i.e, you are not reusing the same resource at runtime
 to call these functions.
 
-```bash filename="Terminal" copy
+```rib copy
   let worker = instance("my-worker");
   let cart = worker.cart("bar");
   cart.add-item({product-id: "mac", name: "apple", quantity: 1, price: 1});
@@ -837,8 +795,7 @@ In this case, you can specify the interface as a type parameter when invoking me
 
 Example:
 
-```bash filename="Terminal" copy
-
+```rib copy
 let my_worker_instance = instance("my-worker");
 
 let product = {product-id: 1, quantity: 2, name: "mac"};
@@ -846,7 +803,6 @@ let product = {product-id: 1, quantity: 2, name: "mac"};
 let result = my_worker.add-to-cart[api1](product);
 
 result
-
 ```
 
 If you are not specifying type parameter that narrows down the context, then compiler will return an error similar to the below one:
@@ -864,8 +820,7 @@ Let's say a function name `add-to-cart` exists in multiple packages. In this cas
 as a type parameter. Let's say you care only about the package `amazon:shopping-cart`.
 
 
-```bash filename="Terminal" copy
-
+```rib copy
 let my_worker_instance = instance("my-worker");
 
 let product = {product-id: 1, quantity: 2, name: "mac"};
@@ -873,14 +828,13 @@ let product = {product-id: 1, quantity: 2, name: "mac"};
 let result = my_worker.add-to-cart[amazon:shopping-cart](product);
 
 result
-
 ```
 
 ### Handle conflicts at instance level
 
 You can also include this type parameter at instance level such that every method invocation will be resolved to that package or interface.
 
-```bash filename="Terminal" copy
+```rib copy
 let my_worker_instance = instance[amazon:shopping-cart]("my-worker");
 
 let product = {product-id: 1, quantity: 2, name: "mac"};
@@ -894,7 +848,7 @@ If there exist a function `add-to-cart` in multiple interfaces within multiple p
 fully qualified package name and interface as given below. As mentioned above, this can be either at instance level
 (which will get applied to all method calls on that instance) or at method level
 
-```bash filename="Terminal" copy
+```rib copy
 let my_worker_instance = instance[amazon:shopping-cart/api]("my-worker");
 
 let product = {product-id: 1, quantity: 2, name: "mac"};
@@ -910,7 +864,7 @@ these functions will get executed against the worker again and doesn't cache any
 
 Let's say we want to accumulate the contents of a shopping cart from user-id 1 to user-id 5.
 
-```bash filename="Terminal" copy
+```rib copy
   let worker = instance("my-worker");
   let cart = worker.cart[golem:it/api]("bar");
 
@@ -928,7 +882,7 @@ Let's say we want to accumulate the contents of a shopping cart from user-id 1 t
 
 Currently Rib is not durable. Also it hasn't been tested with complex use-cases such as invoking multiple functions,
 or invoke functions against multiple workers. This is because, Rib's primary use-case in golem platform is for users to write reasonably simple
-scripts in the context of [worker-gateway](/docs/invoke/making-custom-apis) to manipulate the http input and call worker functions.
+scripts in the context of [worker-gateway](/invoke/making-custom-apis) to manipulate the http input and call worker functions.
 
 ## Limitations
 

@@ -25,7 +25,7 @@ where it always routes to the backend regardless of wrong inputs.
 
 Here is an example:
 
-```bash filename="Terminal" copy
+```rib copy
 let user: u64 = request.path.user-id;
 let my-worker = instance("my-worker-${user}");
 my-worker.add-cart(request.body.product);
@@ -34,7 +34,7 @@ my-worker.add-cart(request.body.product);
 Here we expect the request body to have a product field, with all the fields of the record type that `add-cart` function expects.
 If the request body is wrong, we get a bad request error as shown below.
 
-```bash filename="Terminal" copy
+```bash copy
 >
 * Request completely sent off
 < HTTP/1.1 400 Bad Request

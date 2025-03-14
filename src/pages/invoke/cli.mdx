@@ -1,41 +1,41 @@
 # Invoke using Golem CLI
 
-The `golem` command line interface exposes two invocation subcommands:
+The `golem` command line interface exposes one invocation subcommand:
 
-- `golem worker invoke` triggers a function invocation on a worker without waiting for its completion
-- `golem worker invoke-and-await` invokes a function on a worker and awaits its result
+- `golem worker invoke` triggers a function invocation on a worker and awaits its result
+- `golem worker invoke --enqueue` just enqueues an invocation and returns immediately
 
 ## Specifying what to invoke
 
-Both commands require specifying which worker to invoke, and the name of the function.
+The command requires specifying which worker to invoke, and the name of the function.
 
 There are multiple options for selecting the worker:
 
 **Durable workers identified by a component ID and a worker name**:
 
-- `--worker urn:worker:<component-id>/<worker-name>`
-- `--worker worker:///<component_name>/<worker-name>`
-- `--component urn:component:<component-id> --worker-name <worker-name>`
-- `--component component:///<component-name> --worker-name <worker-name>`
+- `worker-name`
+- `component-name/worker-name`
+- `project-name/component-name/worker-name`
+- `account-name/project-name/component-name/worker-name`
 
-**Ephemeral workers identified by just a component ID**:
+**Ephemeral workers identified by just a component**:
 
-- `--worker urn:worker:<component-id>`
-- `--worker worker:///<component_name>`
+- `-`
+- `component-name/-`
+- `project-name/component-name/-`
+- `account-name/project-name/component-name/-`
 
-The function to be invoked is selected by the `--function` parameter. Read the [invocation function name syntax page](/function-names) for more information about the possible function names.
+Note that you can only omit the component name if it can be inferred from the context, for example if the current directory is a component directory or the application root with a single component only.
+
+The function to be invoked is selected by the second parameter. Read the [invocation function name syntax page](/function-names) for more information about the possible function names.
 
 ## Encoding parameters
 
-The CLI provides three ways to define the invocation **parameters**:
-
-- Passing a JSON array of **typed JSON values** to `--parameters`. This is the same format as used [on the HTTP invocation API](/invoke/http).
-- Passing a JSON array of **JSON values** only, without type information, to `--parameters`. The format for encoding WebAssembly values in JSON is [described on the JSON WAVE Mapping page](/json-wave-mapping). In this case `golem` assumes that the invocation targets the latest version of the selected component, queries it's metadata and uses the selected function's type information for interpreting the provided JSON values.
-- Using the [WebAssembly Value Encoding](https://github.com/bytecodealliance/wasm-tools/tree/main/crates/wasm-wave) with one or more `--arg` parameter (one for each invocation parameter).
+The CLI requires you to encode the function parameters using the [WebAssembly Value Encoding](https://github.com/bytecodealliance/wasm-tools/tree/main/crates/wasm-wave) with one or more parameters following the function name (one for each invocation parameter).
 
 ## Getting results
 
-When using `invoke-and-await`, the CLI awaits the result of the invocation and prints the result value to the standard output. By default it uses the `text` format, in which case it prints the result value using the [WebAssembly Value Encoding](https://github.com/bytecodealliance/wasm-tools/tree/main/crates/wasm-wave).
+When using `invoke` without the `--enqueue` flag, the CLI awaits the result of the invocation and prints the result value to the standard output. By default it uses the `text` format, in which case it prints the result value using the [WebAssembly Value Encoding](https://github.com/bytecodealliance/wasm-tools/tree/main/crates/wasm-wave).
 
 This can be changed with `--format json` or `--format yaml` to print the invocation result in JSON or YAML, using the [mapping described on the JSON WAVE Mapping page](/json-wave-mapping).
 
@@ -55,5 +55,5 @@ The `--connect` option's output (and also the `connect` subcommand) can be custo
 As invocations are executed sequentially, it is possible to cancel a pending invocation before it starts executing. This can be done using the command line interface by running the `worker cancel-invocation` subcommand:
 
 ```shell copy
-golem worker cancel-invocation --worker urn:worker:<component-id>/<worker-name> --idempotency-key <idempotency-key>
+golem worker cancel-invocation <component-name>/<worker-name> --idempotency-key <idempotency-key>
 ```

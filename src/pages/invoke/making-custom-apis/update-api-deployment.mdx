@@ -9,7 +9,7 @@ Example: Let's say we have an API definition with ID/version `my-shopping-cart/0
 and we want to deploy another registered definition `my-todo-app/0.0.1` to the same domain.
 
 ```shell copy
-golem api-deployment deploy --host localhost:9006 --definition my-todo-app/0.0.1
+golem api deployment deploy --host localhost:9006 --definition my-todo-app/0.0.1
 ```
 
 API deployment on localhost:9006 with definition my-shopping-cart/0.0.1
@@ -26,7 +26,7 @@ then you will get a conflict error.
 Example:
 
 ```shell copy
-$ golem api-deployment deploy --host localhost:9006 --definition my-todo-app/0.0.1
+$ golem api deployment deploy --host localhost:9006 --definition my-todo-app/0.0.1
 
 API deployment definitions conflict error: /v1/healthcheck
 ```
@@ -37,7 +37,7 @@ Let's say you want to update the existing API definition that is already deploye
 version number.
 
 ```shell copy
-$ golem api-definition update  my-shopping-cart --def-format my-shopping-cart.yaml
+$ golem api definition update  my-shopping-cart --def-format my-shopping-cart.yaml
 
 API definition is not draft: my-shopping-cart
 ```
@@ -56,8 +56,8 @@ In the below example, lets assume we bumped up the version number from 0.0.1 to 
 (and also updated its routes such that they don't conflict)
 
 ```shell copy
-$ golem api-definition add  my-shopping-cart.yaml --def-format yaml
-$ golem api-deployment deploy --host localhost:9006 --definition my-shopping-cart/0.0.2                          Tue 10 Dec 14:57:22 2024
+$ golem api definition add  my-shopping-cart.yaml --def-format yaml
+$ golem api deployment deploy --host localhost:9006 --definition my-shopping-cart/0.0.2                          Tue 10 Dec 14:57:22 2024
 
 API deployment on localhost:9006 with definition my-shopping-cart/0.0.1
 API deployment on localhost:9006 with definition my-shopping-cart/0.0.2
