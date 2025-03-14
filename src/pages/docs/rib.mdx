@@ -155,7 +155,7 @@ result_type         ::= "result" "<" (basic_type | list_type | tuple_type | opti
 
 ```
 
-The grammar is mainly to give a high level overview of the syntax of Rib. 
+The grammar is mainly to give a high level overview of the syntax of Rib.
 
 The following sections show some examples of each construct.
 
@@ -171,47 +171,61 @@ shouldn't end with a `;`, as this is a syntax error.
 ### Numbers
 
 ```bash filename="Terminal" copy
-1u16
+1
 ```
 
-Most of the time you need to specify the type of the number as it can be u8, u16, f32 or any of the WASM types representing numbers.
+You can annotate a type to Rib expression to make it specific, otherwise, it will get inferred as u64
+for a positive integer, s64 for a signed integer, and f64 for a floating point number.
 
-Another way to annotate type is
+```bash filename="Terminal" copy
+1: u64
+```
+
+### Assign to a variable
 
 ```
-let x: f64 = 1;
+let x = 1;
 ```
 
-This is a parsed as a number of type u64. Similarly `-1` is parsed as a number of type i64 and `1.1` is parsed as a number of type f64.
+We can annotate the type of the variable as well.
 
-Sometimes, you may not need to explicitly specify the type if you are passing the variable to a function
-that expects a specific number type. In this case, Rib can infer the types. Otherwise, you need to explicitly mention it.
+
+```bash filename="Terminal" copy
+
+let x: u64 = 1;
+
+```
+
+If you are passing this variable to a worker function, then you may not need to specify the type of the variable.
 
 ### String
 
 ```bash filename="Terminal" copy
 
-"Hello"
+"foo"
 ```
 
-This is parsed as a string literal.
-If the strings are not wrapped with quotes, then it is considered as a identifier.
+### String Interpolation (concatenation)
 
-### Boolean
+This is similar to languages like `scala` where you start with `${` and end with `}`
 
 ```bash filename="Terminal" copy
-true
+let x = "foo";
+let y = "bar";
+let z = "${x}-and-${y}";
 ```
 
-This is parsed as a boolean true. Similarly `false` is parsed as a boolean literal.
+Evaluating this Rib will result in "foo-and-bar". The type of `z` is a string.
 
-### Variable identifier
+### Identifier
 
 ```bash filename="Terminal" copy
 foo
 ```
 
-This is parsed as a `Rib` variable expression and evaluating such an expression can fail if the value of this variable is not available in the context of evaluation.
+Here `foo` is an identifier. Note that identifiers are not wrapped with quotes.
+
+Such an expression can fail if the value of this variable is not available in the context of evaluation.
 This implies, if you are running Rib specifying a wasm `component` through `worker-gateway` in `golem`, then `Rib` has the access to look at component metadata.
 If `Rib` finds this variable `foo` in the component metadata,then it tries to infer its types.
 
@@ -221,6 +235,18 @@ A global input is nothing but `Rib` expects `foo` to be passed in to the evaluat
 Since you are using `Rib` from the worker-gateway part of `golem` the only valid global variable supported is `request` and nothing else.
 This would mean, it will fail compilation.
 
+More on global inputs to follow.
+
+### Boolean
+
+```bash filename="Terminal" copy
+true
+```
+
+```bash filename="Terminal" copy
+false
+```
+
 ### Sequence
 
 ```bash filename="Terminal" copy
@@ -228,8 +254,17 @@ This would mean, it will fail compilation.
 [1, 2, 3]
 ```
 
+You can annotate the type of the sequence as well.
+
+
+
 ```bash filename="Terminal" copy
-# Sequence of strings
+
+let x: list<s32> = [1, 2, 3];
+
+```
+
+```bash filename="Terminal" copy
 ["foo", "bar", "baz"]
 ```
 
@@ -245,36 +280,36 @@ In other words, `Rib` evaluator do expect the values in a sequence to be of the 
 
 ```bash filename="Terminal" copy
 
-{ name: "John", age: 30u16 }
+{ name: "John", age: 30 }
 
-{ city: "New York", population: 8000000u64 }
+{ city: "New York", population: 8000000 }
 
-{ name: "John", age: 30u16, { country: "France", capital: "Paris" } }
+{ name: "John", age: 30, { country: "France", capital: "Paris" } }
 ```
 
 This is parsed as a `WASM` Record. The syntax is inspired from `WASM-WAVE`.
 
-Note that keys are not considered as variables.
-They are considered as literal strings (representing key name of a record element), even in the absence of quotes.
+Note that, sometimes you will need to annotate the type of the number. It depends on the compilation context.
 
-Why age is `30u16` instead of `30` ? If Rib infers the overall type of record (from the context), then you may not need to explicitly specify the type of `30` in the above example.
-However most of the times, you will need to specify the number types. We will try to be improve this part of Rib
-by providing some flexibility.
+Note that keys are not considered as variables. Also note that keys in a WASM record don't have quotes. Example: `{"foo" : "bar"}` is wrong.
 
 ### Tuple
 
 ```bash filename="Terminal" copy
-(1u8, 100u32, 20.1f32)
+(1, 20.1, "foo")
 ```
 
 This is also equivalent to the following in Rib.
+You can be specific about the types just like in any rib expression.
 
 ```bash filename="Terminal" copy
-let k: (u8, u32, f32) = (1, 100, 20.1);
+let k: (u64, f64, string) = (1, 20.1, "foo");
 k
 ```
 
-This is parsed as a tuple of values. Unlike `sequence`, the values in a tuple can be of different types.
+Unlike `sequence`, the values in a tuple can be of different types.
+
+Here is another example:
 
 ```bash filename="Terminal" copy
 ("foo", 1, {a: "bar"})
@@ -286,7 +321,7 @@ This is parsed as a tuple of values. Unlike `sequence`, the values in a tuple ca
 { Foo, Bar, Baz }
 ```
 
-This is parsed as Flag type in WASM. The values are separated by comma.
+This is of a flag type.
 
 ### Selection of Field
 
@@ -294,14 +329,8 @@ A field can be selected from an `Rib` expression if it is a `Record` type. For e
 is a valid selection given `foo` is a variable that gets evaluated to a record value.
 
 ```bash filename="Terminal" copy
-let foo = { name: "John", age: 30u16 };
+let foo = { name: "John", age: 30 };
 foo.name
-```
-
-You can also inline as given below:
-
-```bash filename="Terminal" copy
-{ name: "John", age: 30u16 }.name
 ```
 
 ### Selection of Index
@@ -321,9 +350,9 @@ You can also inline as given below
 
 ### Request and selection of Fields
 
-If you are using worker-gatway to upload API definitions, you can use the variable `request` in your Rib script,
-and that will be considered as a global input. `worker-gateway` will ensure to pass the value of `request` to the
-rib evaluator internally.
+If you are using [worker-gateway](/docs/invoke/making-custom-apis) to write through http APIs,
+you can use the variable `request` in your Rib script, and that will be considered as a global input.
+`worker-gateway` will ensure to pass the value of `request` to the rib evaluator internally.
 
 Please refer to worker-gateway documents for more details.
 
@@ -353,18 +382,22 @@ request.path.user
 
 ```
 
+The `request.path.*` and `request.headers.*` will be inferred as `string` unless you specify it using type annotation.
+
 Please note that Rib by itself don't support a keyword such as `request`, or `path` or `body` or `headers`.
-However these values are fed by the worker gateway. Please refer to worker-gateway documentations for more details.
+However, if you are using Rib through worker-gateway, then these values are available in the context of the Rib evaluator. Currently, in golem,
+worker-gateway is the only way to use Rib. But this will change soon. Example: We may be able to fire up a REPL and write Rib and invoke worker functions.
 
-### Type Inference with Request Variables
+`request.body` will not be inferred properly, unless you pass it as it is to a worker function, as Rib knows the component metadata,
+and can infer the types automatically.
 
-Note that Rib infers types of the values only if the value is being passed to a worker function directly or indirectly. This is
-because Rib knows the argument types of a worker function and it can infer the values based on these types.
+### Type Inference
 
-However, in situations where you have a standalone script such as `request.body`, it cannot infer the types and it will fail to compile. The best way
-to fix the compil time errors is to annotate it the type.
+Rib is mainly used to write script to manipulate the input and call worker functions. In this case, for the most part, most of the types
+will be automatically inferred. Otherwise, there will be a compilation error, asking the developer to annotate the types and help the compiler.
 
-```
+
+```bash filename="Terminal" copy
 let x: string = request.body;
 x
 
@@ -386,22 +419,6 @@ let x: string = request.body.user;
 x
 ```
 
-### Invoke Worker Functions using Rib
-
-```bash filename="Terminal" copy
-let worker_result = worker_function_name(request.body);
-{ body: worker_result.user, headers: { "Content-Type": "application/json" } }
-```
-
-If the worker response is a record, then we can select the field in the response as follows
-
-```bash filename="Terminal" copy
- {
-  "user": "Alice",
-  "age": 30u32
-}
-
-```
 
 ### Result
 
@@ -643,6 +660,24 @@ Or even as simple as:
  reduce z, a in ages from 0 {
    yield z + a;
  }
+```
+
+
+## Invoke worker functions
+
+```bash filename="Terminal" copy
+let worker_result = worker_function_name(request.body);
+{ body: worker_result.user, headers: { "Content-Type": "application/json" } }
+```
+
+If the worker response is a record, then we can select the field in the response as follows
+
+```bash filename="Terminal" copy
+ {
+  "user": "Alice",
+  "age": 30u32
+}
+
 ```
 
 As mentioned above, return value of the script is the last expression in the script, and in this case, it is of the type boolean.
