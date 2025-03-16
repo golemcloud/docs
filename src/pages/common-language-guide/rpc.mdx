@@ -1,0 +1,612 @@
+import { Callout } from "nextra/components"
+import { Steps } from "nextra/components"
+import { Tabs } from "nextra/components"
+
+# Worker to Worker communication
+
+See the [Worker to Worker communication page](/concepts/worker-to-worker-communication) for a general overview of how workers can invoke each other in Golem.
+
+## Setting up
+
+For doing worker to worker communication between Golem components, all the components involved should be defined in the same **application** created with the `golem app new` command. Once the application is created the components can be added using `golem component new`.
+
+## Creating a project with two components
+
+A project building two Golem components where one can call the other can be set up with the following primary steps:
+
+<Steps>
+### Create the two components
+
+First create two components using the techniques described in the "defining components" page for the chosen language.
+
+<Tabs items={["Rust", "TypeScript", "Go", "Python", "C", "JavaScript", "Zig"]}>
+  <Tabs.Tab>
+  [Defining Rust components](/rust-language-guide/defining-components)
+  </Tabs.Tab>
+  <Tabs.Tab>
+  [Defining TypeScript components](/ts-language-guide/defining-components)
+  </Tabs.Tab>
+  <Tabs.Tab>
+  [Defining Go components](/go-language-guide/defining-components)
+  </Tabs.Tab>
+  <Tabs.Tab>
+  [Defining Python components](/python-language-guide/defining-components)
+  </Tabs.Tab>
+  <Tabs.Tab>
+  [Defining C components](/ccpp-language-guide/defining-components)
+  </Tabs.Tab>
+  <Tabs.Tab>
+  [Defining JavaScript components](/js-language-guide/defining-components)
+  </Tabs.Tab>
+  <Tabs.Tab>
+  [Defining Zig components](/experimental-languages/zig-language-guide/defining-components)
+  </Tabs.Tab>
+</Tabs>
+
+In the following example snippets we will use the following component names:
+
+- `example:caller` the component that will call another component
+- `example:provider` the component that provides some API that `example:caller` will call
+
+### Set up the dependencies between the components
+
+In the root `golem.yaml` file add a `dependencies` section:
+
+```yaml
+dependencies:
+  example:caller:
+    - target: example:provider
+      type: wasm-rpc
+```
+
+<Callout type="info">
+The `type` field can be one of the following:
+
+- `wasm-rpc`: Worker to Worker communication using dynamic linking. This is the default and recommended option. The resulting component will import client functions for connecting to the other worker, and these imports will be resolved by Golem automatically when the worker starts.
+- `static-wasm-rpc`: Worker to Worker communication using static linking. In this case the client gets generated as Rust source code, and compiled and linked statically with your component. Using this option can be useful for debugging but otherwise deprecated and requires a working Rust toolchain on your computer.
+</Callout>
+
+Check it works by running `golem app build` **in the root directory of the application**, which should build all the components.
+
+<Callout type="info">
+Sometimes it can be useful for a component to depend on itself:
+- Different workers of the same component can communicate with each other
+- A worker can schedule a call for later for another worker, or even itself
+
+For this just use the same component name in the `target` field of the `dependencies` section.
+</Callout>
+
+### Import the generated client in the caller component
+
+When defining RPC dependencies like above, the `golem app build` command will automatically generate client WIT interfaces for all the target components, and import them into the components that are **dependent** on them.
+
+For example with the above setup, in the end the following import would be added in the `example:caller` component's WIT world:
+
+```wit
+package example:caller;
+
+world example-caller {
+    import example:provider-client/example-provider-client;
+    // ...
+}
+```
+
+Note that the `wit` directory of each component remains untouched and should only be modified by the user. These automatic imports are generated in the `wit-generated` directory and should not be modified manually.
+
+<Callout type="info">
+The exact name to be imported depends on what package and component names were used when creating the target component.
+
+In this example the package name was `example:provider`. This gives the generated client package `example:provider-client` with an exported interface `example-provider-client`.
+</Callout>
+
+### Start implementing the components
+
+With this the workspace is set up, and the generated clients can be used from the caller component to call the target component, as it is described in the next section.
+
+Once the code is written, just use `golem app build` to build all the components.
+
+</Steps>
+
+### Writing blocking remote calls
+
+For each exported function in the target component, the generated client contains two exported variants:
+
+- A **blocking** variant, prefixed with `blocking-`, which does not return until the remote worker finished processing the call.
+- A **non-blocking** variant, which returns a pollable result immediately (unless for remote functions without any return value, in which case it just triggers the invocation but does not return anything)
+
+To use the blocking variants we need to construct a **resource** from the generated client, passing the remote Golem URI of the target worker to the constructor.
+
+Taking the default template as the target component, which has the following exported interface:
+
+```wit
+package example:provider;
+
+interface example-providerapi {
+  add: func(value: u64);
+  get: func() -> u64;
+}
+
+world example-provider {
+  export example-provider-api;
+}
+```
+
+The generated client will contain the following functions:
+
+```wit
+package example:provider-client;
+
+interface example-provider-client {
+  use wasi:io/poll@0.2.0.{ pollable as wasi-io-pollable };
+  use wasi:clocks/wall-clock@0.2.0.{ datetime as wasi-clocks-datetime };
+  use golem:rpc/types@0.1.3.{ uri as golem-rpc-uri, cancellation-token as golem-rpc-cancellation-token };
+
+  resource future-get-result {
+    subscribe: func() -> pollable;
+    get: func() -> option<u64>;
+  }
+  resource example-provider-api {
+    constructor(location: uri);
+    blocking-add: func(value: u64);
+    add: func(value: u64);
+    schedule-add: func(value: u64, scheduled-for: wasi-clocks-datetime) -> golem-rpc-cancellation-token;
+
+    blocking-get: func() -> u64;
+    get: func() -> future-get-result;
+    schedule-get: func(scheduled-for: wasi-clocks-datetime) -> golem-rpc-cancellation-token;
+  }
+
+}
+
+world wasm-rpc-client-example-provider {
+  export example-provider-client;
+}
+```
+
+To use this generated `example-providerapi` resource, the following steps are needed in the **caller component** (`example:caller` in the example):
+
+<Steps>
+### Import the generated types
+
+The generated bindings for the generated stubs need to be imported in the module where the remote procedure calls are made.
+
+
+As this import is automatically added to the caller component, we can import the generated bindings in our source code to be able to call the `example:provider` workers:
+
+<Tabs items={["Rust", "TypeScript", "Go", "Python", "C", "JavaScript", "Zig", "MoonBit", "Scala.js"]}>
+  <Tabs.Tab>
+  ```rust
+  use crate::bindings::golem::rpc::types::Uri;
+  use crate::bindings::example::provider_client::example_provider_client::ExampleProviderApi;
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```typescript
+  import Uri from "golem:rpc/types";
+  import ExampleProviderApi from "example:provider-client/example-provider-client";
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  In Go there is no need to import anything, the RPC client can be created using:
+ ```go
+ caller.NewExampleProviderApi(location)
+ ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```py
+  # TODO
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```c
+  // TODO
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```js
+  import Uri from "golem:rpc/types";
+  import ExampleProviderApi from "example:provider-client/example-provider-client";
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```zig
+  // TODO
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```moonbit
+  // TODO
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```scala
+  // TODO
+  ```
+  </Tabs.Tab>
+</Tabs>
+
+### Construct the URI for the target worker
+
+The worker to be invoked is identified by an URI which consists of the **component ID** and, in case of durable workers, the **worker name**. For _ephemeral workers_ no name needs to be specified.
+
+If the worker pointed by the URI does not exists, it is going to be created automatically and it inherits the environment variables of the caller.
+
+There are host functions for resolving component and worker names into IDs and for constructing URIs from them.
+
+The following example constructs a target URI from a component name and a worker name:
+
+<Tabs items={["Rust", "TypeScript", "Go", "Python", "C", "JavaScript", "Zig", "MoonBit", "Scala.js"]}>
+  <Tabs.Tab>
+    ```rust
+    use golem_rust::bindings::golem::api::host::{resolve_worker_id, worker_uri};
+
+    let worker_id = resolve_worker_id("example:provider", "worker1")
+            .expect("Failed to resolve worker ID");
+    let target_uri = worker_uri(&worker_id);
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```typescript
+  import { resolveWorkerId, workerUri } from "golem:api/host@1.2.5"
+  const workerId = resolveWorkerId("example:provider", "worker1");
+  const targetUri = workerUri(workerId);
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```go
+  // TODO
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```python
+  # TODO
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```c
+  // TODO
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```javascript
+  import { resolveWorkerId, workerUri } from "golem:api/host@1.2.5"
+  const workerId = resolveWorkerId("example:provider", "worker1");
+  const targetUri = workerUri(workerId);
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```zig
+  // TODO
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```moonbit
+  // TODO
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```scala.js
+  // TODO
+  ```
+  </Tabs.Tab>
+</Tabs>
+
+In case of **ephemeral workers**, only the component ID needs to be specified in the URI:
+
+<Tabs items={["Rust", "TypeScript", "Go", "Python", "C", "JavaScript", "Zig", "MoonBit", "Scala.js"]}>
+  <Tabs.Tab>
+    ```rust
+    use golem_rust::bindings::golem::api::host::{resolve_component_id};
+    use bindings::golem::rpc::types::Uri;
+
+    let component_id = resolve_component_id("example:provider")
+            .expect("Failed to resolve component ID");
+    let uuid: uuid::Uuid = component_id.uuid.into();
+    let target_uri = Uri {
+      value: format!("urn:worker:{component_id}")
+    };
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```typescript
+  import { resolveComponentId } from "golem:api/host@1.2.5"
+  const componentId = resolveComponentId("example:provider");
+  // TODO: no easy way to convert a componentId to a URI in JS/TS
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```go
+  // TODO
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```python
+  # TODO
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```c
+  // TODO
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```javascript
+  import { resolveComponentId } from "golem:api/host@1.2.5"
+  const componentId = resolveComponentId("example:provider");
+  // TODO: no easy way to convert a componentId to a URI in JS/TS  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```zig
+  // TODO
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```moonbit
+  // TODO
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```scala.js
+  // TODO
+  ```
+  </Tabs.Tab>
+</Tabs>
+### Construct and use the API resource
+
+With `target_uri` the `ExampleProviderApi` resource can be constructed and used to call the remote functions.
+
+<Tabs items={["Rust", "TypeScript", "Go", "Python", "C", "JavaScript", "Zig", "MoonBit", "Scala.js"]}>
+  <Tabs.Tab>
+    ```rust
+    let remote_api = ExampleProviderApi::new(&target_uri);
+    let value = remote_api.blocking_get();
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```typescript
+  const remoteApi = new ExampleProviderApi(targetUri);
+  component2Worker.blockingAdd(BigInt(3));
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+ ```go
+ remoteApi := component1.NewComponent2Api(
+     component1.GolemRpc0_1_3_TypesUri{
+         Value: targetUri,
+     },
+ )
+// Example for a blocking call, this will wait until the other worker finished
+component2WorkerClient.BlockingAdd(3)
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```python
+  # TODO
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```c
+  // TODO
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```javascript
+  const remoteApi = new ExampleProviderApi(targetUri);
+  component2Worker.blockingAdd(BigInt(3));
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```zig
+  // TODO
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```moonbit
+  // TODO
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```scala.js
+  // TODO
+  ```
+  </Tabs.Tab>
+</Tabs>
+
+</Steps>
+
+### Writing non-blocking remote calls
+
+Using the non-blocking variants of the generated stub functions requires the same steps as the blocking variants, but the returned value is a special **future** which needs to be subscribed to and polled using the low-level WASI `poll` interface.
+
+The following snippet demonstrates how to get the value of three counters simultaneously, assuming that `counter1`, `counter2` and `counter3` are all insteances of the generated stub's `Api` resource:
+
+<Tabs items={["Rust", "TypeScript", "Go", "Python", "C", "JavaScript", "Zig", "MoonBit", "Scala.js"]}>
+  <Tabs.Tab>
+```rust
+// Making the non-blocking calls
+let future_value1 = counter1.get_value();
+let future_value2 = counter2.get_value();
+let future_value3 = counter3.get_value();
+
+let futures = &[&future_value1, &future_value2, &future_value3];
+
+// Subscribing to get the results
+let poll_value1 = future_value1.subscribe();
+let poll_value2 = future_value2.subscribe();
+let poll_value3 = future_value3.subscribe();
+
+let mut values = [0u64; 3];
+let mut remaining = vec![&poll_value1, &poll_value2, &poll_value3];
+let mut mapping = vec![0, 1, 2];
+
+// Repeatedly poll the futures until all of them are ready
+while !remaining.is_empty() {
+    let poll_result = bindings::wasi::io::poll::poll(&remaining);
+
+    // poll_result is a list of indexes of the futures that are ready
+    for idx in &poll_result {
+        let counter_idx = mapping[*idx as usize];
+        let future = futures[counter_idx];
+        let value = future
+            .get()
+            .expect("future did not return a value because after marked as completed");
+        values[counter_idx] = value;
+    }
+
+    // Removing the completed futures from the list
+    remaining = remaining
+        .into_iter()
+        .enumerate()
+        .filter_map(|(idx, item)| {
+            if poll_result.contains(&(idx as u32)) {
+                None
+            } else {
+                Some(item)
+            }
+        })
+        .collect();
+
+    // Updating the index mapping
+    mapping = mapping
+        .into_iter()
+        .enumerate()
+        .filter_map(|(idx, item)| {
+            if poll_result.contains(&(idx as u32)) {
+                None
+            } else {
+                Some(item)
+            }
+        })
+        .collect();
+}
+
+// values contains the results of the three calls
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```typescript
+  const future1 = remoteApi.get()
+  const future2 = remoteApi.get()
+  const poll1 = future1.subscribe()
+  const poll2 = future1.subscribe()
+
+  let futures = [future1, future2]
+  let polls = [poll1, poll2]
+  let results: BigInt[] = []
+
+  while (polls.length != 0) {
+    // Poll returns the indices of the finished future poll handles
+    const ready = poll(polls)
+    for (let idx of ready) {
+      const result = futures[idx]?.get()
+      if (result === undefined) {
+        throw new Error("Missing result for future")
+      }
+      results[idx] = result
+      futures.splice(idx, 1)
+      results.splice(idx, 1)
+    }
+  }
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```go
+futureResult1 := component2Worker1Client.Get()
+defer futureResult1.Drop()
+futureResult2 := component2Worker2Client.Get()
+defer futureResult2.Drop()
+
+pollResult1 := futureResult1.Subscribe()
+defer pollResult1.Drop()
+pollResult2 := futureResult2.Subscribe()
+defer pollResult2.Drop()
+
+futures := []component1.RpcdemoComponent2StubStubComponent2FutureGetResult{futureResult1, futureResult2}
+polls := []component1.WasiIo0_2_0_PollPollable{pollResult1, pollResult2}
+results := make([]uint64, len(futures))
+
+for {
+    // Poll returns the indices of the finished future poll handles
+    for _, idx := range component1.WasiIo0_2_0_PollPoll(polls) {
+    result := futures[idx].Get()
+    if result.IsNone() {
+        panic("no future result after poll success")
+    }
+    results[idx] = result.Unwrap()
+
+    futures = append(futures[:idx], futures[idx+1:]...)
+        polls = append(polls[:idx], polls[idx+1:]...)
+    }
+    if len(polls) == 0 {
+        break
+    }
+}
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```python
+  # TODO
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```c
+  // TODO
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```javascript
+  const future1 = remoteApi.get()
+  const future2 = remoteApi.get()
+  const poll1 = future1.subscribe()
+  const poll2 = future1.subscribe()
+
+  let futures = [future1, future2]
+  let polls = [poll1, poll2]
+  let results = []
+
+  while (polls.length !== 0) {
+    // Poll returns the indices of the finished future poll handles
+    const ready = poll(polls)
+    for (let idx of ready) {
+      const result = futures[idx]?.get()
+      if (result === undefined) {
+        throw new Error("Missing result for future")
+      }
+      results[idx] = result
+      futures.splice(idx, 1)
+      results.splice(idx, 1)
+    }
+  }
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```zig
+  // TODO
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```moonbit
+  // TODO
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```scala.js
+  // TODO
+  ```
+  </Tabs.Tab>
+</Tabs>
+
+
+### Deploying the resulting components
+
+To build deployable WASM files of the involved components, use
+
+```shell copy
+golem app build
+```
+
+and upload them using
+
+```shell copy
+golem app deploy
+```

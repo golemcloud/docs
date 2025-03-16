@@ -23,6 +23,7 @@
   "ts-language-guide": "TypeScript Language Guide",
   "experimental-languages": "Experimental Languages",
   "wasi-http": "WASI HTTP Incoming Handler",
+  "common-language-guide": "Common Guides",
   "-- Usage": {
     "type": "separator",
     "title": "Usage"

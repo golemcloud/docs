@@ -18,10 +18,5 @@
   "transactions": "Transactions",
   "promises": "Promises",
   "updating": "Updating Workers",
-  "wasi": "WASI",
-  "-- worker-to-worker-communication": {
-    "type": "separator",
-    "title": "Worker to Worker Communication"
-  },
-  "rpc": "Worker to Worker Communication"
+  "wasi": "WASI"
 }
