@@ -35,7 +35,7 @@ In this documentation we will use the `golem` command in the snippets. The avail
 It is possible to test Golem locally without installing anything else than the above described `golem` executable. To use it, start the local Golem cluster by running the following command:
 
 ```shell copy
-golem start -v
+golem server run
 ```
 
 To use the open source version of Golem in production you will need to deploy it in your own infrastructure. See the [deployment](deploy) page for available deployment options.
@@ -54,7 +54,7 @@ This command starts an interactive configuration process. For non-interactive op
 
 On the first step you'll see 3 options:
 
-- Golem Default. Use this options if you have started Golem locally using `golem start`.
+- Golem Default. Use this options if you have started Golem locally using `golem server run`.
 - Golem. Use this option in case of a customised Golem installation in your own infrastructure.
 - Golem Cloud. Use this option for a hosted version of Golem.
 
