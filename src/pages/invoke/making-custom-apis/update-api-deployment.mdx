@@ -9,7 +9,7 @@ Example: Let's say we have an API definition with ID/version `my-shopping-cart/0
 and we want to deploy another registered definition `my-todo-app/0.0.1` to the same domain.
 
 ```shell copy
-golem api deployment deploy --host localhost:9006 --definition my-todo-app/0.0.1
+golem api deployment deploy --host localhost:9006  my-todo-app/0.0.1
 ```
 
 API deployment on localhost:9006 with definition my-shopping-cart/0.0.1
@@ -56,8 +56,8 @@ In the below example, lets assume we bumped up the version number from 0.0.1 to 
 (and also updated its routes such that they don't conflict)
 
 ```shell copy
-$ golem api definition add  my-shopping-cart.yaml --def-format yaml
-$ golem api deployment deploy --host localhost:9006 --definition my-shopping-cart/0.0.2                          Tue 10 Dec 14:57:22 2024
+$ golem api definition new  my-shopping-cart.yaml
+$ golem api deployment deploy --host localhost:9006 my-shopping-cart/0.0.2                          Tue 10 Dec 14:57:22 2024
 
 API deployment on localhost:9006 with definition my-shopping-cart/0.0.1
 API deployment on localhost:9006 with definition my-shopping-cart/0.0.2
@@ -66,9 +66,11 @@ API deployment on localhost:9006 with definition my-shopping-cart/0.0.2
 You can see both versions are running now in the same domain `localhost:9006`.
 You can list all the deployments in a domain for a particular API definition ID (my-shopping-cart) as given below
 
-```bash filename="Terminal" copy
-
+```shell copy
 curl -X GET 'http://localhost:9005/v1/api/deployments?api-definition-id=my-shopping-cart'
+```
+
+```json
 [
   {
     "apiDefinitions": [
@@ -88,7 +90,6 @@ curl -X GET 'http://localhost:9005/v1/api/deployments?api-definition-id=my-shopp
     }
   }
 ]
-
 ```
 
 As mentioned earlier, if you try to deploy a new version of an existing API definition or a completely new API definition,
