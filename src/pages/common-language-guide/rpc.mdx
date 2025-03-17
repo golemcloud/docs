@@ -358,7 +358,9 @@ With `target_uri` the `ExampleProviderApi` resource can be constructed and used 
 <Tabs items={["Rust", "TypeScript", "Go", "Python", "C", "JavaScript", "Zig", "MoonBit", "Scala.js"]}>
   <Tabs.Tab>
     ```rust
-    let remote_api = ExampleProviderApi::new(&target_uri);
+    let remote_api = ExampleProviderApi::new(&GolemRpcUri {
+            value: target_uri.value,
+    });
     let value = remote_api.blocking_get();
     ```
   </Tabs.Tab>
