@@ -1,6 +1,8 @@
+import { Steps } from "nextra/components"
+
 ## Authentication in API Gateway
 
-Golem API gateway has inbuilt authentication support to identify users using OpenID protocol.
+Golem API gateway has built-in authentication support to identify users using OpenID protocol.
 This allows you to refer to the claims such as `request.auth.email` (as an example) once authenticated in your Rib expression.
 You can choose to get pass this information into the worker function that exist in the Rib expression, and do further logic with it.
 Currently, this is tested with Google Identity connector.
@@ -9,7 +11,8 @@ You can register your app with Google Identity Provider and get a client-id and 
 
 ### Setup Security for your API routes in Golem
 
-1. Register your app with Google Identity Provider and get a client-id and client-secret.
+<Steps>
+### Register your app with Google Identity Provider and get a client-id and client-secret.
 
 Here is the direct link to register your app with [Google Identity Provider](https://console.cloud.google.com/apis/credentials)
 Here you can register your app with a name, and most importantly a redirect URL.
@@ -20,23 +23,28 @@ The `/auth/callback` part is just an example and it can be anything, as far as i
 Once you have setup the app-name, redirect-urls, you should be getting a client-id, client-secret from Google Identity Provider in return.
 We call these details "Api Security Scheme" in Golem API Gateway.
 
-2. Register your API Security Scheme with your app's client-id and client-secret with Golem
+### Register your API Security Scheme with your app's client-id and client-secret with Golem
 
 Make sure you name your security scheme uniquely, and provide the client-id, client-secret and redirect-url as given below.
 
 ```shell copy
 
-golem api security-scheme create --scheme.id shopping-cart-security-scheme --provider.type google --client.id $GOOGLE_CLIENT_ID --client.secret $GOOGLE_CLIENT_SECRET --redirect.url http://localhost:9006/auth/callback --scopes openid,email,profile
-
+golem api security-scheme create
+  --scheme.id shopping-cart-security-scheme
+  --provider.type google
+  --client.id $GOOGLE_CLIENT_ID
+  --client.secret $GOOGLE_CLIENT_SECRET
+  --redirect.url http://localhost:9006/auth/callback
+  --scopes openid,email,profile
 ```
 
-3. Make sure to specify your API definition that consist of the routes of your app with the security scheme id.
+### Make sure to specify your API definition that consist of the routes of your app with the security scheme id.
 
 This is more or less inspired from open OpenAPI spec, however Golem is doing some heavy lifting here such that you only need to specify
 the security scheme id and nothing else. If you are using OpenAPI spec, you can choose to provide additional details such OpenID connect URL
 but it will simply be discared by Golem but it can be useful for your own documentation purposes.
 
-```bash filename="Terminal" copy
+```yaml
 id: my-todo-api
 version: 0.0.1
 draft: true
@@ -64,7 +72,7 @@ In the above example, the security scheme is `my-unique-security-scheme`. This i
 The response mapping Rib script is expecting an email field in request authentication, which will be available in the context if the user is authenticated.
 More on this below. Before that, let's register and deploy the above API definition stored in api_definition.yaml file.
 
-4. Register the API definition
+### Register the API definition
 
 As explained in previous sections, register the API definition using cloud console or golem.
 
@@ -72,7 +80,7 @@ As explained in previous sections, register the API definition using cloud conso
 golem api definition add api_definition.yaml  --def-format yaml
 ```
 
-4. Deploy the API definition
+### Deploy the API definition
 
 ```shell copy
 golem api deployment deploy --host localhost:9006 --definition my-todo-api/0.0.1
@@ -80,11 +88,13 @@ golem api deployment deploy --host localhost:9006 --definition my-todo-api/0.0.1
 
 With this setup, your route is accessible only by authenticated users who have logged in with Google Identity Provider.
 
+</Steps>
+
 ### Testing the authenticated endpoint in Golem
 
 In your browser, you can try to access the endpoint with the following URL:
 
-```bash filename="Terminal" copy
+```
 http://localhost:9006/foo/1
 ```
 
