@@ -1,3 +1,4 @@
 {
-  "rpc": "Worker to Worker Communication"
+  "rpc": "Worker to Worker Communication",
+  "wasi-http": "WASI HTTP Incoming Handler"
 }
