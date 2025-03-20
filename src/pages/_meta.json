@@ -42,6 +42,9 @@
   "cli": {
     "title": "CLI"
   },
+  "desktop": {
+    "title": "Desktop"
+  },
   "-- References": {
     "type": "separator",
     "title": "References"
