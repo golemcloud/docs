@@ -31,9 +31,12 @@ Golem Desktop provides a native application experience across Windows, Linux, an
         2. Open the downloaded `.dmg` file
         3. Drag the application to your Applications folder
         4. When first launching, macOS may block the app with a message "cannot be opened because the developer cannot be verified"
-        5. To open the app:
-           - Right-click (or Control-click) on the app icon and select "Open"
-           - Click "Open" in the dialog box that appears
+        5. To open the app, try one of these methods:
+           - Method 1: Right-click (or Control-click) on the app icon and select "Open", then click "Open" in the dialog box
+           - Method 2: If the above doesn't work, open Terminal and run the following command:
+             ```bash
+             xattr -rd com.apple.quarantine "/Applications/Golem.app"
+             ```
            - The app should now open and subsequent launches won't require these steps
       </Tabs.Tab>
       <Tabs.Tab>
@@ -41,9 +44,12 @@ Golem Desktop provides a native application experience across Windows, Linux, an
         2. Open the downloaded `.dmg` file
         3. Drag the application to your Applications folder
         4. When first launching, macOS may block the app with a message "cannot be opened because the developer cannot be verified"
-        5. To open the app:
-           - Right-click (or Control-click) on the app icon and select "Open"
-           - Click "Open" in the dialog box that appears
+        5. To open the app, try one of these methods:
+           - Method 1: Right-click (or Control-click) on the app icon and select "Open", then click "Open" in the dialog box
+           - Method 2: If the above doesn't work, open Terminal and run the following command:
+             ```bash
+             xattr -rd com.apple.quarantine "/Applications/Golem.app"
+             ```
            - The app should now open and subsequent launches won't require these steps
       </Tabs.Tab>
     </Tabs>
