@@ -33,10 +33,20 @@ feature allows you to simply, and in a type-safe way, communicate between
 workers, with strong guarantees, such as reliable, exactly-once invocation
 semantics.
 
+# Technical details
+
+For worker-to-worker communication, Golem generates a type-safe client interface for each remotely callable component. These client interfaces are matching the component's interface, but packaged into a _resource_ that can be only constructed by giving enough information to know which _worker_ to communicate with.
+
+In case of _durable components_, this can be either a worker name (using the known name of the component) or a custom worker ID for special use cases. For _ephemeral components_, there is no need to specify a worker name, as each call will spawn a new ephemeral worker.
+
+Caller components are importing this generated client interface, so they no longer only use the host interfaces provided by Golem but also this dynamically created one.
+
+There are two ways to resolve this extra import:
+
+- Using the `wasm-rpc` binding type in the [application manifest](/app-manifest). In this case the import will be dynamically linked in the Golem server whenever a worker of the caller component is created. This is the recommended way as it has no additional build-time dependencies.
+- Using the `static-wasm-rpc` binding type in the [application manifest](/app-manifest). In this case the build tool (`golem app build`) will generate a Rust implementation of the client interface, compile it to WASM and *compose* it with the caller component's WASM module. This is useful for studying how the client implementation works, but as it requires the Rust toolchain to be installed, it is not recommended in general.
+
 # Learn More
 
-- [Worker to Worker Communication in Rust](/rust-language-guide/rpc)
-- [Worker to Worker Communication in C/C++](/ccpp-language-guide/rpc)
-- [Worker to Worker Communication in Python](/python-language-guide/rpc)
-- [Worker to Worker Communication in Go](/go-language-guide/rpc)
-- [WASM-RPC](/wasm-rpc)
+- [Worker to Worker Communication](/common-language-guide/rpc)
+- [The WASM-RPC host interface](/wasm-rpc)
