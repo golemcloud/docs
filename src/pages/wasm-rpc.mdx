@@ -13,8 +13,10 @@ The basic workflow of using this package is to construct an instance of the `was
 
 ## Constructing an instance
 
-The only argument required to construct an wasm-rpc resource is the URI of the worker you wish to invoke. The structure of this URI is `urn:worker:{component_id}/{worker_name}`.
-Both `component_id` and `worker_name` are given to you by golem when you create a component and worker respectively.
+There are two constructors for creating the `wasm-rpc` resource:
+
+- The default constructor takes a `worker-id` as a parameter
+- The `ephemeral` constructor takes a `component-id` as a parameter
 
 ## WIT-Value
 
@@ -38,11 +40,11 @@ All functions in the wasm-rpc package use wit-value instead of the equivalent wi
 
 After you have constructed an instance of wasm-rpc there are a number of different functions you can choose from, depending on the invocation semantics you need.
 
-- invoke: Non-blockingly call the desired function. Errors during invocation are returned, but the actual result of the invocation cannot be accessed.
-- invoke-and-await: Blockingly call the desired function. The result of the invocation will be returned to you.
-- async-invoke-and-await: Non-blockingly call the desired function. A resource will be returned to you that you can use to poll the result.
-- schedule-invocation: Schedule an invocation for a point in time in the future.
-- schedule-cancelable-invocation: Schedule an invocation for a point in time in the future. A resource will be returned to you that you can cancel the invocation as long as it hasn't been executed yet.
+- `invoke`: Non-blockingly call the desired function. Errors during invocation are returned, but the actual result of the invocation cannot be accessed.
+- `invoke-and-await`: Blockingly call the desired function. The result of the invocation will be returned to you.
+- `async-invoke-and-await`: Non-blockingly call the desired function. A resource will be returned to you that you can use to poll the result.
+- `schedule-invocation`: Schedule an invocation for a point in time in the future.
+- `schedule-cancelable-invocation`: Schedule an invocation for a point in time in the future. A resource will be returned to you that you can cancel the invocation as long as it hasn't been executed yet.
 
 ## Example
 
@@ -63,9 +65,8 @@ world invocation-example {
 A rust component could use the wasm-rpc package to schedule an invocation of 'add' 2 seconds in the future like this:
 
 ```rust
-let uri = Uri { value: format!("urn:worker:{}/{}", component_id, worker_name) }
-
-let wasi_rpc = WasmRpc::new(&uri);
+let worker_id = WorkerId { component_id, worker_name }
+let rpc = WasmRpc::new(&worker_id);
 
 let now = OffsetDateTime::now_utc();
 
@@ -82,5 +83,5 @@ let value: WitValue = {
          nodes: vec![WitNode::PrimU64(1)]
    }
 };
-wasi_rpc.schedule_invocation(scheduled_wasi_time, "golem:example/invocation-example-api.{add}()", &vec![value]);
+rpc.schedule_invocation(scheduled_wasi_time, "golem:example/invocation-example-api.{add}()", &vec![value]);
 ```
