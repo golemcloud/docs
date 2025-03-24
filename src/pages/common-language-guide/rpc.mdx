@@ -450,36 +450,65 @@ while !remaining.is_empty() {
   </Tabs.Tab>
   <Tabs.Tab>
 ```go
-futureResult1 := component2Worker1Client.Get()
-defer futureResult1.Drop()
-futureResult2 := component2Worker2Client.Get()
-defer futureResult2.Drop()
+remoteApi1 := binding.NewExampleRustApi("worker-1")
+	remoteApi2 := binding.NewExampleRustApi("worker-2")
+	remoteApi3 := binding.NewExampleRustApi("worker-3")
 
-pollResult1 := futureResult1.Subscribe()
-defer pollResult1.Drop()
-pollResult2 := futureResult2.Subscribe()
-defer pollResult2.Drop()
+	future1 := remoteApi1.Get()
+	defer future1.Drop()
 
-futures := []component1.RpcdemoComponent2StubStubComponent2FutureGetResult{futureResult1, futureResult2}
-polls := []component1.WasiIo0_2_0_PollPollable{pollResult1, pollResult2}
-results := make([]uint64, len(futures))
+	future2 := remoteApi2.Get()
+	defer future2.Drop()
 
-for {
-    // Poll returns the indices of the finished future poll handles
-    for _, idx := range component1.WasiIo0_2_0_PollPoll(polls) {
-    result := futures[idx].Get()
-    if result.IsNone() {
-        panic("no future result after poll success")
-    }
-    results[idx] = result.Unwrap()
+	future3 := remoteApi3.Get()
+	defer future3.Drop()
 
-    futures = append(futures[:idx], futures[idx+1:]...)
-        polls = append(polls[:idx], polls[idx+1:]...)
-    }
-    if len(polls) == 0 {
-        break
-    }
-}
+	futures := []binding.ExampleRustClientExampleRustClientFutureGetResult{future1, future2, future3}
+
+	poll1 := future1.Subscribe()
+	defer poll1.Drop()
+
+	poll2 := future2.Subscribe()
+	defer poll2.Drop()
+
+	poll3 := future3.Subscribe()
+	defer poll3.Drop()
+
+	values := make([]uint64, 3)
+	remainingPolls := []binding.ExampleRustClientExampleRustClientWasiIoPollable{poll1, poll2, poll3}
+	mapping := []int{0, 1, 2}
+
+	for len(remainingPolls) > 0 {
+		ready := binding.WasiIo0_2_0_PollPoll(remainingPolls)
+
+		for _, idx := range ready {
+			counterIdx := mapping[idx]
+			future := futures[counterIdx]
+			value := future.Get()
+			if value.IsNone() {
+				panic("Future did not return a value after being marked as complete")
+			}
+			values[counterIdx] = value.Unwrap()
+		}
+
+		newPolls := make([]binding.ExampleRustClientExampleRustClientWasiIoPollable, 0)
+		newMapping := make([]int, 0)
+		for i := range remainingPolls {
+			inReady := false
+			for _, r := range ready {
+				if uint32(i) == r {
+					inReady = true
+					break
+				}
+			}
+			if !inReady {
+				newPolls = append(newPolls, remainingPolls[i])
+				newMapping = append(newMapping, mapping[i])
+			}
+		}
+		remainingPolls = newPolls
+		mapping = newMapping
+	}
 ```
   </Tabs.Tab>
   <Tabs.Tab>
