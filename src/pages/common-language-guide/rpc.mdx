@@ -139,14 +139,16 @@ package example:provider-client;
 interface example-provider-client {
   use wasi:io/poll@0.2.0.{ pollable as wasi-io-pollable };
   use wasi:clocks/wall-clock@0.2.0.{ datetime as wasi-clocks-datetime };
-  use golem:rpc/types@0.1.3.{ uri as golem-rpc-uri, cancellation-token as golem-rpc-cancellation-token };
+  use golem:rpc/types@0.2.0.{ worker-id as golem-rpc-worker-id, cancellation-token as golem-rpc-cancellation-token };
 
   resource future-get-result {
     subscribe: func() -> pollable;
     get: func() -> option<u64>;
   }
   resource example-provider-api {
-    constructor(location: uri);
+    constructor(worker-name: string);
+    custom: static func(worker-id: golem-rpc-worker-id) -> example-provider-api;
+
     blocking-add: func(value: u64);
     add: func(value: u64);
     schedule-add: func(value: u64, scheduled-for: wasi-clocks-datetime) -> golem-rpc-cancellation-token;
@@ -163,6 +165,10 @@ world wasm-rpc-client-example-provider {
 }
 ```
 
+<Callout type="info">
+    If the targeted component is **ephemeral**, the interface is slightly different: there is no need to pass a **worker name** to the constructor, and the `custom` constructor just takes a `component-id`.
+</Callout>
+
 To use this generated `example-providerapi` resource, the following steps are needed in the **caller component** (`example:caller` in the example):
 
 <Steps>
@@ -176,240 +182,145 @@ As this import is automatically added to the caller component, we can import the
 <Tabs items={["Rust", "TypeScript", "Go", "Python", "C", "JavaScript", "Zig", "MoonBit", "Scala.js"]}>
   <Tabs.Tab>
   ```rust
-  use crate::bindings::golem::rpc::types::Uri;
   use crate::bindings::example::provider_client::example_provider_client::ExampleProviderApi;
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```typescript
-  import Uri from "golem:rpc/types";
-  import ExampleProviderApi from "example:provider-client/example-provider-client";
+  import { ExampleProviderApi } from "example:provider-client/example-provider-client";
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   In Go there is no need to import anything, the RPC client can be created using:
  ```go
- caller.NewExampleProviderApi(location)
+ binding.NewExampleProviderApi(workerName)
  ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```py
-  # TODO
+  from binding.example_caller.imports import example_provider_client
   ```
   </Tabs.Tab>
   <Tabs.Tab>
+  In C/C++ the RPC client's bindings are generated into the same _header file_ as everything else, so it is already included when using the built-in templates:
   ```c
-  // TODO
+  #include "example_caller.h"
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```js
-  import Uri from "golem:rpc/types";
   import ExampleProviderApi from "example:provider-client/example-provider-client";
   ```
   </Tabs.Tab>
   <Tabs.Tab>
+  For Zig we currently don't have a native Zig binding generator, so the tooling is generating C bindings. The Zig code must import these generated bindings from the header file:
   ```zig
-  // TODO
+  const c = @cImport({
+      @cDefine("_NO_CRT_STDIO_INLINE", "1");
+      @cInclude("example_caller.h");
+  });
   ```
   </Tabs.Tab>
   <Tabs.Tab>
-  ```moonbit
-  // TODO
+  ```json
+  {
+    "import": [
+      { "path": "example/caller/interface/example/provider_client/exampleProviderClient", "alias": "exampleProviderClient" },
+      { "path": "example/caller/interface/golem/rpc/types", "alias": "rpcTypes" }
+    ]
+}
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```scala
-  // TODO
+  import example_scala.bindings.example.provider_client.example_provider_client.ExampleProviderClient.ExampleProviderApi
   ```
   </Tabs.Tab>
 </Tabs>
 
-### Construct the URI for the target worker
+### Deciding which constructor to use
 
-The worker to be invoked is identified by an URI which consists of the **component ID** and, in case of durable workers, the **worker name**. For _ephemeral workers_ no name needs to be specified.
+Each generated client resource has two constructors:
+- The default one (`new`) takes a worker name string for durable components, and nothing for ephemeral components.
+- The custom one (`custom`) is a static method that takes a worker ID for durable components, or a component ID for ephemeral components.
 
-If the worker pointed by the URI does not exists, it is going to be created automatically and it inherits the environment variables of the caller.
+When using the default constructors, Golem assumes that the target component's name is the one specified in the app manifest (in our example: `example:provider`). This is always true if the application was deployed using the `golem app deploy` command. The custom constructor is there for advanced use cases where you want to target a separately deployed component with a different name and you know its identifier.
 
-There are host functions for resolving component and worker names into IDs and for constructing URIs from them.
+Note that if the client is for a remote _resource_ (and not for the remote component's top-level exports), the constructors will also require passing the resource's constructors beside the ones defining the RPC target, such as the worker name.
 
-The following example constructs a target URI from a component name and a worker name:
-
-<Tabs items={["Rust", "TypeScript", "Go", "Python", "C", "JavaScript", "Zig", "MoonBit", "Scala.js"]}>
-  <Tabs.Tab>
-    ```rust
-    use golem_rust::bindings::golem::api::host::{resolve_worker_id, worker_uri};
-
-    let worker_id = resolve_worker_id("example:provider", "worker1")
-            .expect("Failed to resolve worker ID");
-    let target_uri = worker_uri(&worker_id);
-    ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-  ```typescript
-  import { resolveWorkerId, workerUri } from "golem:api/host@1.2.5"
-  const workerId = resolveWorkerId("example:provider", "worker1");
-  const targetUri = workerUri(workerId);
-  ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-  ```go
-  // TODO
-  ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-  ```python
-  # TODO
-  ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-  ```c
-  // TODO
-  ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-  ```javascript
-  import { resolveWorkerId, workerUri } from "golem:api/host@1.2.5"
-  const workerId = resolveWorkerId("example:provider", "worker1");
-  const targetUri = workerUri(workerId);
-  ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-  ```zig
-  // TODO
-  ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-  ```moonbit
-  // TODO
-  ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-  ```scala.js
-  // TODO
-  ```
-  </Tabs.Tab>
-</Tabs>
-
-In case of **ephemeral workers**, only the component ID needs to be specified in the URI:
-
-<Tabs items={["Rust", "TypeScript", "Go", "Python", "C", "JavaScript", "Zig", "MoonBit", "Scala.js"]}>
-  <Tabs.Tab>
-    ```rust
-    use golem_rust::bindings::golem::api::host::{resolve_component_id};
-    use bindings::golem::rpc::types::Uri;
-
-    let component_id = resolve_component_id("example:provider")
-            .expect("Failed to resolve component ID");
-    let uuid: uuid::Uuid = component_id.uuid.into();
-    let target_uri = Uri {
-      value: format!("urn:worker:{component_id}")
-    };
-    ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-  ```typescript
-  import { resolveComponentId } from "golem:api/host@1.2.5"
-  const componentId = resolveComponentId("example:provider");
-  // TODO: no easy way to convert a componentId to a URI in JS/TS
-  ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-  ```go
-  // TODO
-  ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-  ```python
-  # TODO
-  ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-  ```c
-  // TODO
-  ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-  ```javascript
-  import { resolveComponentId } from "golem:api/host@1.2.5"
-  const componentId = resolveComponentId("example:provider");
-  // TODO: no easy way to convert a componentId to a URI in JS/TS  ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-  ```zig
-  // TODO
-  ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-  ```moonbit
-  // TODO
-  ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-  ```scala.js
-  // TODO
-  ```
-  </Tabs.Tab>
-</Tabs>
 ### Construct and use the API resource
 
-With `target_uri` the `ExampleProviderApi` resource can be constructed and used to call the remote functions.
+In our example the `example:provider` is a durable component, so the `ExampleProviderApi` resource can be constructed by passing a worker name and then used to call the remote functions.
 
 <Tabs items={["Rust", "TypeScript", "Go", "Python", "C", "JavaScript", "Zig", "MoonBit", "Scala.js"]}>
   <Tabs.Tab>
     ```rust
-    let remote_api = ExampleProviderApi::new(&GolemRpcUri {
-            value: target_uri.value,
-    });
-    let value = remote_api.blocking_get();
+    let remote_api = ExampleProviderApi::new("worker-1");
+    remote_api.blocking_add(3);
     ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```typescript
-  const remoteApi = new ExampleProviderApi(targetUri);
-  component2Worker.blockingAdd(BigInt(3));
+  const remoteApi = new ExampleProviderApi("worker-1");
+  remoteApi.blockingAdd(BigInt(3));
   ```
   </Tabs.Tab>
   <Tabs.Tab>
  ```go
- remoteApi := component1.NewComponent2Api(
-     component1.GolemRpc0_1_3_TypesUri{
-         Value: targetUri,
-     },
- )
-// Example for a blocking call, this will wait until the other worker finished
-component2WorkerClient.BlockingAdd(3)
+ remoteApi := binding.NewExampleProviderApi("worker-1")
+ // Example for a blocking call, this will wait until the other worker finished
+remoteApi.BlockingAdd(3)
 ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```python
-  # TODO
+  remote_api = example_provider_client.ExampleProviderApi("worker-1")
+  remote_api.blocking_add(3)
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```c
-  // TODO
+    example_c_string_t worker_name;
+    example_c_string_set(&worker_name, "worker-1");
+
+    example_provider_client_example_provider_client_own_example_provider_api_t remote_api =
+        example_provider_client_example_provider_client_constructor_example_provider_api(&worker_name);
+    example_c_string_free(&worker_name);
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```javascript
   const remoteApi = new ExampleProviderApi(targetUri);
-  component2Worker.blockingAdd(BigInt(3));
+  remoteApi.blockingAdd(BigInt(3));
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```zig
-  // TODO
+  var worker_name: c.example_caller_string_t = undefined;
+  const worker_name_bytes: []const u8 = "worker-1";
+  c.example_caller_string_set(&worker_name, @ptrCast(worker_name_bytes));
+  defer c.example_caller_string_free(&worker_name);
+
+  const remote_api = c.example_provider_client_example_provider_client_constructor_example_provider_api(@ptrCast(&worker_name));
+
+  const borrowd_remote_api = c.example_provider_client_example_provider_client_borrow_example_provider_api(remote_api);
+  defer c.example_provider_client_example_provider_client_example_provider_api_drop_borrow(borrowd_remote_api);
+  c.example_provider_client_example_provider_client_method_example_provider_api_blocking_add(
+      borrowd_remote_api,
+      3,
+  );
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```moonbit
-  // TODO
+  let remoteApi = @exampleProviderClient.ExampleProviderApi::example_provider_api("worker-1");
+  remoteApi.blocking_add(3);
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```scala.js
-  // TODO
+  val remoteApi = new ExampleRustApi("worker_1")
+  remoteApi.blockingAdd(3)
   ```
   </Tabs.Tab>
 </Tabs>
@@ -425,10 +336,14 @@ The following snippet demonstrates how to get the value of three counters simult
 <Tabs items={["Rust", "TypeScript", "Go", "Python", "C", "JavaScript", "Zig", "MoonBit", "Scala.js"]}>
   <Tabs.Tab>
 ```rust
+let remote_api1 = new ExampleRustApi("worker-1");
+let remote_api2 = new ExampleRustApi("worker-2");
+let remote_api3 = new ExampleRustApi("worker-3");
+
 // Making the non-blocking calls
-let future_value1 = counter1.get_value();
-let future_value2 = counter2.get_value();
-let future_value3 = counter3.get_value();
+let future_value1 = remote_api1.get();
+let future_value2 = remote_api2.get();
+let future_value3 = remote_api3.get();
 
 let futures = &[&future_value1, &future_value2, &future_value3];
 
@@ -487,28 +402,50 @@ while !remaining.is_empty() {
   </Tabs.Tab>
   <Tabs.Tab>
   ```typescript
-  const future1 = remoteApi.get()
-  const future2 = remoteApi.get()
-  const poll1 = future1.subscribe()
-  const poll2 = future1.subscribe()
+  import { poll } from "wasi:io/poll@0.2.0";
 
-  let futures = [future1, future2]
-  let polls = [poll1, poll2]
-  let results: BigInt[] = []
+  // Making the non-blocking calls
+  const remoteApi1 = new ExampleRustApi("worker-1");
+  const remoteApi2 = new ExampleRustApi("worker-2");
+  const remoteApi3 = new ExampleRustApi("worker-3");
 
-  while (polls.length != 0) {
-    // Poll returns the indices of the finished future poll handles
-    const ready = poll(polls)
-    for (let idx of ready) {
-      const result = futures[idx]?.get()
-      if (result === undefined) {
-        throw new Error("Missing result for future")
+  const futureValue1 = remoteApi1.get();
+  const futureValue2 = remoteApi2.get();
+  const futureValue3 = remoteApi3.get();
+
+  const futures = [futureValue1, futureValue2, futureValue3];
+
+  // Create promises and add to remaining array
+  const polls = futures.map(f => f.subscribe());
+  let remaining = [...polls];
+  let mapping = [0, 1, 2];
+  const values: bigint[] = new Array(3).fill(0n);
+
+  // Poll until all futures complete
+  while (remaining.length > 0) {
+    const pollResult = poll(remaining);
+
+    for (let idx of pollResult) {
+      const counterIdx = mapping[idx];
+      if (counterIdx === undefined) {
+        throw new Error("Invalid index");
       }
-      results[idx] = result
-      futures.splice(idx, 1)
-      results.splice(idx, 1)
+      const future = futures[counterIdx];
+      if (future === undefined) {
+        throw new Error("Invalid index");
+      }
+      const value = future.get();
+      if (value === undefined) {
+        throw new Error("Future did not return a value");
+      }
+      values[counterIdx] = value;
     }
+    // Remove completed indices
+    remaining = remaining.filter((_, idx) => !pollResult.includes(idx));
+    mapping = mapping.filter((_, idx) => !pollResult.includes(idx));
   }
+
+  // values now contains results of all three calls
   ```
   </Tabs.Tab>
   <Tabs.Tab>
@@ -547,7 +484,39 @@ for {
   </Tabs.Tab>
   <Tabs.Tab>
   ```python
-  # TODO
+  from binding.example_py.imports import poll
+
+  remote_api1 = example_rust_client.ExampleRustApi("worker-1")
+  remote_api2 = example_rust_client.ExampleRustApi("worker-2")
+  remote_api3 = example_rust_client.ExampleRustApi("worker-3")
+
+  future1 = remote_api1.get()
+  future2 = remote_api2.get()
+  future3 = remote_api3.get()
+
+  futures = [future1, future2, future3]
+
+  poll1 = future1.subscribe()
+  poll2 = future2.subscribe()
+  poll3 = future3.subscribe()
+
+  values = [0] * 3
+  remaining_polls = [poll1, poll2, poll3]
+  mapping = [0, 1, 2]
+
+  while remaining_polls:
+      ready = poll.poll(remaining_polls)
+
+      for idx in ready:
+          counter_idx = mapping[idx]
+          future = futures[counter_idx]
+          value = future.get()
+          if value is None:
+              raise Exception("Future did not return a value after being marked as complete")
+          values[counter_idx] = value
+
+      remaining_polls = [poll for i, poll in enumerate(remaining_polls) if i not in ready]
+      mapping = [m for i, m in enumerate(mapping) if i not in ready]
   ```
   </Tabs.Tab>
   <Tabs.Tab>
@@ -557,28 +526,50 @@ for {
   </Tabs.Tab>
   <Tabs.Tab>
   ```javascript
-  const future1 = remoteApi.get()
-  const future2 = remoteApi.get()
-  const poll1 = future1.subscribe()
-  const poll2 = future1.subscribe()
+  import { poll } from "wasi:io/poll@0.2.0";
 
-  let futures = [future1, future2]
-  let polls = [poll1, poll2]
-  let results = []
+  // Making the non-blocking calls
+  const remoteApi1 = new ExampleRustApi("worker-1");
+  const remoteApi2 = new ExampleRustApi("worker-2");
+  const remoteApi3 = new ExampleRustApi("worker-3");
 
-  while (polls.length !== 0) {
-    // Poll returns the indices of the finished future poll handles
-    const ready = poll(polls)
-    for (let idx of ready) {
-      const result = futures[idx]?.get()
-      if (result === undefined) {
-        throw new Error("Missing result for future")
+  const futureValue1 = remoteApi1.get();
+  const futureValue2 = remoteApi2.get();
+  const futureValue3 = remoteApi3.get();
+
+  const futures = [futureValue1, futureValue2, futureValue3];
+
+  // Create promises and add to remaining array
+  const polls = futures.map(f => f.subscribe());
+  let remaining = [...polls];
+  let mapping = [0, 1, 2];
+  const values: bigint[] = new Array(3).fill(0n);
+
+  // Poll until all futures complete
+  while (remaining.length > 0) {
+    const pollResult = poll(remaining);
+
+    for (let idx of pollResult) {
+      const counterIdx = mapping[idx];
+      if (counterIdx === undefined) {
+        throw new Error("Invalid index");
       }
-      results[idx] = result
-      futures.splice(idx, 1)
-      results.splice(idx, 1)
+      const future = futures[counterIdx];
+      if (future === undefined) {
+        throw new Error("Invalid index");
+      }
+      const value = future.get();
+      if (value === undefined) {
+        throw new Error("Future did not return a value");
+      }
+      values[counterIdx] = value;
     }
+    // Remove completed indices
+    remaining = remaining.filter((_, idx) => !pollResult.includes(idx));
+    mapping = mapping.filter((_, idx) => !pollResult.includes(idx));
   }
+
+  // values now contains results of all three calls
   ```
   </Tabs.Tab>
   <Tabs.Tab>
