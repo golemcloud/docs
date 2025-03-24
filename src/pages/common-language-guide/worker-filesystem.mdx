@@ -25,56 +25,56 @@ We begin by adding a new component to our application:
 <Tabs items={["Rust", "TypeScript", "Go", "Python", "C", "JavaScript", "Zig", "MoonBit", "Scala.js"]}>
   <Tabs.Tab>
   {/* Rust */}
-  ```bash
-  ❯ golem component new rust example:filesystem
+  ```shell copy
+  golem component new rust example:filesystem
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   {/* Typescript */}
-  ```bash
-  ❯ golem component new ts example:filesystem
+  ```shell copy
+  golem component new ts example:filesystem
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   {/* Go */}
-  ```bash
-  ❯ golem component new go example:filesystem
+  ```shell copy
+  golem component new go example:filesystem
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   {/* Python */}
-  ```bash
-  ❯ golem component new python example:filesystem
+  ```shell copy
+  golem component new python example:filesystem
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   {/* C */}
-  ```bash
-  ❯ golem component new c example:filesystem
+  ```shell copy
+  golem component new c example:filesystem
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   {/* Javascript */}
-  ```bash
-  ❯ golem component new js example:filesystem
+  ```shell copy
+  golem component new js example:filesystem
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   {/* Zig */}
-  ```bash
-  ❯ golem component new zig example:filesystem
+  ```shell copy
+  golem component new zig example:filesystem
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   {/* Moonbit */}
-  ```bash
-  ❯ golem component new moonbit example:filesystem
+  ```shell copy
+  golem component new moonbit example:filesystem
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   {/* Scala */}
-  ```bash
-  ❯ golem component new scala example:filesystem
+  ```shell copy
+  golem component new scala example:filesystem
   ```
   </Tabs.Tab>
 </Tabs>
@@ -175,15 +175,17 @@ Finally we need to adjust the implementation of the component to write a file wh
 ### Invoking the worker
 
 Once we have defined the component, we can the deploy the component and invoke a worker using the Golem cli:
-```bash
-❯ golem app deploy example:filesystem
-❯ golem worker invoke example:filesystem/test-worker 'example:filesystem-exports/example-filesystem-api.{run}()'
+```shell copy
+golem app deploy example:filesystem
+golem worker invoke example:filesystem/test-worker 'example:filesystem-exports/example-filesystem-api.{run}()'
 ```
 
 As part of the invocation, the worker performed the side effect of writing a file in its sandboxed filesystem. This file will persist and can be used
 in all future invocations. For example:
-```bash
-❯ golem worker invoke example:filesystem/test-worker 'example:filesystem-exports/example-filesystem-api.{get-contents}()'
+```shell copy
+golem worker invoke example:filesystem/test-worker 'example:filesystem-exports/example-filesystem-api.{get-contents}()'
+```
+```
 Invocation results in WAVE format:
   - "Hello, World!"
 ```
@@ -230,10 +232,12 @@ components:
 After deploying the component, any new workers created will have the file `/foobar.txt` (and `./foobar.txt` as the worker is starting the root) available to them.
 The file `/bar.txt` on the other hand is only available for reading. Trying to open the file for writing will fail with a language-dependent error.
 
-```bash
-❯ echo "I'm already here" > ./files/foobar.txt
-❯ golem app deploy example:filesystem
-❯ golem worker invoke example:filesystem/test-worker-2 'example:filesystem-exports/example-filesystem-api.{get-contents}()'
+```shell copy
+echo "I'm already here" > ./files/foobar.txt
+golem app deploy example:filesystem
+golem worker invoke example:filesystem/test-worker-2 'example:filesystem-exports/example-filesystem-api.{get-contents}()'
+```
+```output
 Invocation results in WAVE format:
   - "I\'m already here\n"
 ```
