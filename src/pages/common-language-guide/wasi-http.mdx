@@ -1,3 +1,5 @@
+import { Tabs } from "nextra/components"
+
 # WASI HTTP Incoming handler
 
 If you have a wasm component that exports the wasi:http/incoming-handler\@0.2.x world, you can easily deploy your application to Golem.
@@ -20,29 +22,50 @@ The way we are going to do this using Golem is by defining an [api-definition](/
 
 ## Building and uploading the component
 
-The first step is to create a new Golem component implementing the incoming handler interface. Tthe `golem` command line interface contains templates for several supported languages, using the template name `wasi-http`.
+The first step is to create a new Golem component implementing the incoming handler interface. The `golem` command line interface contains templates for several supported languages, using the template name `wasi-http`.
 
-For example to create one in Rust into a competely new application, use the following commands:
+Create an app and add a new component using one the templates:
 
-```shell copy
-golem app new my-app rust
-cd my-app
-golem component new rust/wasi-http golem:example
-```
+<Tabs items={["Rust", "Go", "Python", "JavaScript"]}>
+  <Tabs.Tab>
+  {/* Rust */}
+  ```shell copy
+  golem app new my-app rust
+  cd my-app
+  golem component new rust/wasi-http golem:example
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  {/* Go */}
+  ```shell copy
+  golem app new my-app go
+  cd my-app
+  golem component new go/wasi-http golem:example
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  {/* Python */}
+  ```shell copy
+  golem app new my-app python
+  cd my-app
+  golem component new python/wasi-http golem:example
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  {/* Javascript */}
+  ```shell copy
+  golem app new my-app js
+  cd my-app
+  golem component new js/wasi-http golem:example
+  ```
+  </Tabs.Tab>
+</Tabs>
 
-Then build it using `golem app build`:
-
-```shell copy
-golem app build
-```
-
-The next step is to deploy the component to Golem:
+You can now go ahead and adjust the logic of your component. Once you are done, you can build and deploy it to Golem:
 
 ```shell copy
 golem app deploy
 ```
-
-Once the component is uploaded, we need to take note of the component id (fd13822e-b8fd-4c58-a87a-909feeea63ec) and version (0), we'll need them in the next step.
 
 ## Defining the API
 
@@ -58,9 +81,8 @@ routes:
     path: "/api"
     binding:
       bindingType: http-handler
-      componentId:
-        componentId: "fd13822e-b8fd-4c58-a87a-909feeea63ec"
-        version: 0
+      component:
+        name: "golem:example" # name of the component you uploaded
 ```
 
 Save the above to a file 'api.yaml'.
@@ -69,11 +91,12 @@ Save the above to a file 'api.yaml'.
 
 Next the api needs to be uploaded and deployed to Golem. This can be done using the CLI with the following two commands:
 
-1. This registers the api definition with Golem and makes it available for other commands:
+1. Register the api definition with Golem and make it available for other commands:
 
-   ```shell
-   $ golem api definition add api.yaml
-
+   ```shell copy
+   golem api definition add api.yaml
+   ```
+   ```json
    {
      "id": "example-api",
      "version": "0.1.0",
@@ -83,8 +106,8 @@ Next the api needs to be uploaded and deployed to Golem. This can be done using 
          "path": "/api",
          "security": null,
          "binding": {
-           "componentId": {
-             "componentId": "fd13822e-b8fd-4c58-a87a-909feeea63ec",
+           "component": {
+             "name": "golem:example",
              "version": 0
            },
            "workerName": null,
@@ -106,11 +129,12 @@ Next the api needs to be uploaded and deployed to Golem. This can be done using 
    }
    ```
 
-2. Now we can deploy the api to our host (localhost in this example):
+2. Deploy the api to our target host (localhost in this example):
 
-   ```shell
-   $ golem api deployment deploy --definition example-api/0.1.0 --host localhost:9093
-
+   ```shell copy
+   golem api deployment deploy --definition example-api/0.1.0 --host localhost:9093
+   ```
+   ```json
    {
      "apiDefinitions": [
        {
@@ -131,8 +155,9 @@ Next the api needs to be uploaded and deployed to Golem. This can be done using 
 This concludes the process of uploading a component that implements the wasi:http/incoming-handler to Golem. The API is now being served
 and will respond to http requests on the configure route.
 
-```bash
+```shell copy
 http localhost:9093/api
-
+```
+```
 "Hello, I'm a durable teapot."
 ```

@@ -1,4 +1,5 @@
 {
   "rpc": "Worker to Worker Communication",
-  "wasi-http": "WASI HTTP Incoming Handler"
+  "wasi-http": "WASI HTTP Incoming Handler",
+  "worker-filesystem": "Worker Filesytem"
 }
