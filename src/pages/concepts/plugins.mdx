@@ -17,6 +17,7 @@ Golem supports the following types of plugins:
 
 - **Component transformer** plugins can alter an uploaded component when it gets uploaded to Golem
 - **Oplog processor** plugins can observe running workers
+- **Library plugins** and **application plugins** are special, easier to use versions of component transformer plugins
 
 ### Component transformer plugins
 
@@ -25,6 +26,14 @@ Component transformer plugins are external web services providing a HTTP endpoin
 - Replace one or more of the host interfaces provided by Golem. For example a component transformer plugin may implement the WASI KeyValue store interface for a component by connecting to a third party database, instead of using the one provided by Golem.
 - Wrap the host interfaces provided by Golem. In this case the adapter the plugin composes the uploaded component with both imports and exports the same interfaces, and by that wraps Golem's implementation for example to publish metrics or perform logging.
 - Extend the provided interface of the component by exporting additional invokeable functions.
+
+#### Library plugins
+
+Library plugins are special component transformer plugins that does not require any external HTTP services running. A library plugin is a WASM component that is going to be composed with the user's uploaded components in a way that every exported interface of the plugin's WASM is plugged into the user component's matching imports.
+
+#### Application plugins
+
+Application plugins are similar to library plugins with the difference that the user's component's exported interface is getting plugged into the plugin's matching imports.
 
 ### Oplog processor plugins
 

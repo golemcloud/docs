@@ -4,6 +4,7 @@
   "workers": "Workers",
   "profiles": "Profiles",
   "permissions": "Permissions",
+  "plugins": "Plugins",
   "shell-completion": "Shell Completion",
   "install-from-source": "Install from Source"
 }
