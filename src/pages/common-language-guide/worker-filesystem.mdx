@@ -93,7 +93,7 @@ index 65b5dda..e56b6e8 100644
 -  add: func(value: u64);
 -  get: func() -> u64;
 +  run: func();
-+  get-contents: func() -> String;
++  get-contents: func() -> string;
  }
 
  world example-filesystem {
@@ -130,21 +130,72 @@ Finally we need to adjust the implementation of the component to write a file wh
   </Tabs.Tab>
   <Tabs.Tab>
   {/* Go */}
-  <Callout type="info">
-    This area is under construction. Please refer to guides for other languages for now and try to translate. We apologize for the inconvenience!
-  </Callout>
+  ```go
+  package main
+
+  import (
+		"app/components-go/example-filesystem/binding"
+		"os"
+  )
+
+  func init() {
+  	binding.SetExportsExampleFilesystemExportsExampleFilesystemApi(&Impl{})
+  }
+
+  type Impl struct { }
+
+  func (i *Impl) Run() {
+  	os.WriteFile("/foobar.txt", []byte("Hello, World!"), 0644)
+  }
+
+  func (i *Impl) GetContents() string {
+  	content, _ := os.ReadFile("file.txt")
+		return string(content)
+  }
+
+  func main() {}
+  ```
   </Tabs.Tab>
   <Tabs.Tab>
   {/* Python */}
-  <Callout type="info">
-    This area is under construction. Please refer to guides for other languages for now and try to translate. We apologize for the inconvenience!
-  </Callout>
+  ```python
+  from binding.example_filesystem import exports
+
+  class ExampleFilesystemApi(exports.ExampleFilesystemApi):
+      def run(self):
+          with open("/foobar.txt", "w") as file:
+              file.write("Hello, World!")
+
+      def get_contents(self) -> str:
+          with open("/foobar.txt", "r") as file:
+              content = file.read()
+          return content
+  ```
   </Tabs.Tab>
   <Tabs.Tab>
   {/* C */}
-  <Callout type="info">
-    This area is under construction. Please refer to guides for other languages for now and try to translate. We apologize for the inconvenience!
-  </Callout>
+  ```c
+  #include <iostream>
+  #include <string>
+  #include "example_filesystem.h"
+
+  void exports_example_filesystem_exports_example_filesystem_api_get_contents(example_filesystem_string_t *ret) {
+      std::ifstream file("/foobar.txt");
+      std::ostringstream ss;
+      ss << file.rdbuf();
+      example_filesystem_string_set(ret, ss.str().c_str());
+  }
+
+  void exports_example_filesystem_exports_example_filesystem_api_run() {
+      std::ofstream out("/foobar.txt");
+      out << "Hello, World!";
+      out.close();
+  }
+
+  int32_t main(void) {
+      return 0;
+  }
+  ```
   </Tabs.Tab>
   <Tabs.Tab>
   {/* Javascript */}
