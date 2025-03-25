@@ -18,21 +18,31 @@ The default and most basic binding type that allows invoking workers in custom w
 Example:
 
 ```yaml
-worker-name: '"foo"'
-component-id: "{component_id}"
-component-version: { component_version }
-response: |
-  let x = golem:it/api.{{checkout}}();
-  let status: u64 = 200;
-  {{headers: {{ContentType: "json", userid: "foo"}}, body: "foo", status: status}}
+id: example-api
+version: 0.0.1
+createdAt: 2024-08-21T07:42:15.696Z
+routes:
+  - method: Get
+    # Define the path that the route will apply to. {var} patterns capture the path segments and make it available for scripts.
+    path: /carts/{cart-id}/checkout
+    binding:
+      component:
+        name: checkout-component
+      # Use the variable captured from the path to resolve the worker to call
+      worker-name: 'let name: string = request.path.cart-id; name'
+      # Invoke functions on the worker to handle the request and construct the response
+      response: |
+        let response = golem:it/api.{{checkout}}();
+        let status: u64 = 200;
+        {{headers: {{ContentType: "json"}}, body: response, status: status}}
 ```
 
 Parameters:
 
 | Parameter               | Required | Type   | Description                                                                                                                                                                                                                                                         |
 | ----------------------- | -------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| componentId.componentId | true     | string | ID of the component to invoke                                                                                                                                                                                                                                       |
-| componentId.version     | true     | number | Version of the component to invoke                                                                                                                                                                                                                                  |
+| component.name | true     | string | Name of the component to invoke                                                                                                                                       |
+| component.version     | false     | number | Version of the component to invoke. If not provided, the latest version is used.                                                                                                                                 |
 | workerName              | false    | rib    | Script used to compute the name of the worker that will be invoked. The script has access to the request input. If not provided, an ephemeral worker is used.                                                                                                       |
 | idempotencyKey          | false    | rib    | Script used to compute the idempotency key. The script has access to the request input. If not provided an idempotency key will be generated.                                                                                                                       |
 | response                | true     | rib    | Script that is used to compute the response that will be returned to the user. The script has access to the request and worker inputs and can call worker functions. The result of the script has to be an object with status and optional headers and body fields. |
@@ -50,7 +60,7 @@ regarding CORS, see the [mdn docs](https://developer.mozilla.org/en-US/docs/Glos
 Example:
 
 ```yaml
-id: users-api
+id: example-api
 version: 0.0.1
 createdAt: 2024-08-21T07:42:15.696Z
 routes:
@@ -58,9 +68,13 @@ routes:
     path: /users/{user-id}
     binding:
       bindingType: cors-preflight
+    # Another definition for the same route and a different method.
+    # The cors-preflight binding will enable cors for this binding.
   - method: Get
     path: /users/{user-id}
     binding:
+      component:
+        name: example-component
       response: |
         {status: 200u64, body: "Hello World"}
 ```
@@ -84,23 +98,33 @@ are guaranteed to not see any in-progress changes to files.
 For read-only files the files are retrieved from a separate datastore and not directly from the worker. This makes retrieving read-only files very cheap
 and allows it be used for serving static content.
 
+To learn more about the worker filesystem, check out the [dedicated guide](/common-language-guide/worker-filesystem).
+
 Example:
 
 ```yaml
-bindingType: file-server
-componentId:
-  componentId: "{component_id}"
-  version: 0
-workerName: 'let name: string = "{worker_name}"; name'
-response: 'let file: string = request.path.file; "/files/${{file}}"'
+id: example-api
+version: 0.0.1
+createdAt: 2024-08-21T07:42:15.696Z
+routes:
+  - method: Get
+    # {+var} patterns capture all remaining path segments
+    path: /workers/{worker-name}/files/{+file}
+    binding:
+      bindingType: file-server
+      component:
+        name: example-component
+      workerName: 'let name: string = request.path.worker-name; name'
+      # retrieve the path /files/${{file}} from the worker and return the content.
+      response: 'let file: string = request.path.file; "/files/${{file}}"'
 ```
 
 Parameters:
 
 | Parameter               | Required | Type   | Description                                                                                                                                                         |
 | ----------------------- | -------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| componentId.componentId | true     | string | ID of the component to invoke                                                                                                                                       |
-| componentId.version     | true     | number | Version of the component to invoke                                                                                                                                  |
+| component.name | true     | string | Name of the component to invoke                                                                                                                                       |
+| component.version     | false     | number | Version of the component to invoke. If not provided, the latest version is used.                                                                                                                                 |
 | workerName              | false    | rib    | Script used to compute the name of the worker that will be invoked. The script has access to the request input. If not provided, an ephemeral worker is used.       |
 | idempotencyKey          | false    | rib    | Script used to compute the idempotency key. The script has access to the request input. If not provided an idempotency key will be generated.                       |
 | response                | true     | rib    | Script that is used to compute the file to retrieve and the response to send to users. See the dedicatedc [section](#file-server-response-object) for more details. |
@@ -128,19 +152,35 @@ The binding will forward the incoming requests to the worker and return the resp
 Example:
 
 ```yaml
-bindingType: http-handler
-componentId:
-  componentId: "{component_id}"
-  version: 0
-workerName: 'let name: string = "{worker_name}"; name'
-response: 'let file: string = request.path.file; "/files/${{file}}"'
+id: example-api
+version: 0.0.1
+createdAt: 2024-08-21T07:42:15.696Z
+# Each user has it's own worker that directly implements the user api using wasi:http/incoming-handler.
+# Define routes to forward the traffic to the workers.
+routes:
+  - method: Get
+    path: /users/{user}
+    binding:
+      bindingType: http-handler
+      component:
+        name: user-component
+        version: 0
+      workerName: 'let name: string = request.path.user; name'
+  - method: Get
+    path: /users/{user}/{+user-route}
+    binding:
+      bindingType: http-handler
+      component:
+        name: user-component
+        version: 0
+      workerName: 'let name: string = request.path.user; name'
 ```
 
 Parameters:
 
 | Parameter               | Required | Type   | Description                                                                                                                                                   |
 | ----------------------- | -------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| componentId.componentId | true     | string | ID of the component to invoke                                                                                                                                 |
-| componentId.version     | true     | number | Version of the component to invoke                                                                                                                            |
+| component.name | true     | string | Name of the component to invoke                                                                                                                                       |
+| component.version     | false     | number | Version of the component to invoke. If not provided, the latest version is used.                                                                                                                                 |
 | workerName              | false    | rib    | Script used to compute the name of the worker that will be invoked. The script has access to the request input. If not provided, an ephemeral worker is used. |
 | idempotencyKey          | false    | rib    | Script used to compute the idempotency key. The script has access to the request input. If not provided an idempotency key will be generated.                 |
