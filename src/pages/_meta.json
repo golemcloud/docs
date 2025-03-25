@@ -49,12 +49,12 @@
     "type": "separator",
     "title": "References"
   },
+  "http-api-definitions": "API Definitions",
   "app-manifest": "Application Manifest",
+  "function-names": "Function names",
+  "golem-host-functions": "Golem Host Functions",
+  "json-wave-mapping": "JSON-WAVE Mapping",
   "rest-api": "REST API",
   "rib": "Rib",
-  "golem-host-functions": "Golem Host Functions",
-  "function-names": "Function names",
-  "json-wave-mapping": "JSON-WAVE Mapping",
-  "wasm-rpc": "WASM RPC",
-  "http-api-definitions": "HTTP API Definitions"
+  "wasm-rpc": "WASM RPC"
 }

@@ -25,7 +25,7 @@ routes:
   - method: Get
     path: /v4/{user-id}/get-cart-contents
     binding:
-      type: wit-worker
+      type: default
       componentId:
         componentId: dba38841-013a-49fa-a1dc-064949832f0c
         version: 0
@@ -57,10 +57,11 @@ Let's break down the binding object.
 
 | Field         | Description                                                                                                                                                                                                                                                                                                                                                                                      |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `type`        | Specifies the type of binding. Here, it is set to "wit-worker", indicating that the binding involves a Golem worker.                                                                                                                                                                                                                                                                             |
+| `type`        | Specifies the type of binding. Here, it is set to "default", indicating that the binding involves a Golem worker.                                                                                                                                                                                                                                                                             |
 | `componentId` | Provides the component ID associated with the worker binding. As you can see the the golem-worker                                                                                                                                                                                                                                                                                                |
 | `response`    | The `response` field here is a Rib expression that allows you to call any worker function and manipulates its output.                                                                                                                                                                                                                                                                            |
 
+See the [binding type reference](/http-api-definitions/worker-binding-types) for more details on the supported binding types.
 
 If your worker name is a constant, the you can simply make it a constant string such as `"foo"`. Please note that it has to be quoted for it a valid Rib string.
 See the [Rib reference](/rib) for the full reference of the binding language.
