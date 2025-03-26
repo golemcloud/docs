@@ -2,5 +2,6 @@
   "persistence": "Persistence",
   "metrics": "Metrics",
   "logs": "Logs",
-  "metadata": "Metadata"
+  "metadata": "Metadata",
+  "invocation_context": "Invocation Context"
 }

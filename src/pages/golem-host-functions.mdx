@@ -31,40 +31,56 @@ This page provides an overview of all the exported functions and types in a lang
 An **oplog index** points to a specific instruction in the worker's history:
 
 ```wit
-/// An index into the persistent log storing all performed operations of a worker
-type oplog-index = u64;
+package golem:api@1.1.6;
+
+interface host {
+    /// An index into the persistent log storing all performed operations of a worker
+    type oplog-index = u64;
+}
 ```
 
 The **worker id** uniquely identifies a worker in the Golem system:
 
 ```wit
-/// Represents a Golem worker
-record worker-id {
-    component-id: component-id,
-    worker-name: string
+package golem:rpc@0.2.0;
+
+interface types {
+    /// Represents a Golem worker
+    record worker-id {
+        component-id: component-id,
+        worker-name: string
+    }
 }
 ```
 
 Components are identified by a **component id** which is in fact a UUID:
 
 ```wit
-/// Represents a Golem component
-record component-id {
-    uuid: uuid,
-}
+package golem:rpc@0.2.0;
 
-/// UUID
-record uuid {
-  high-bits: u64,
-  low-bits: u64
+interface types {
+    /// Represents a Golem component
+    record component-id {
+        uuid: uuid,
+    }
+
+    /// UUID
+    record uuid {
+    high-bits: u64,
+    low-bits: u64
+    }
 }
 ```
 
 Component versions are unsigned integers:
 
 ```wit
-/// Represents a Golem component's version
-type component-version = u64;
+package golem:api@1.1.6;
+
+interface host {
+    /// Represents a Golem component's version
+    type component-version = u64;
+}
 ```
 
 ### Promises
@@ -75,11 +91,15 @@ A promise is identified by a `promise-id` type consisting of the owner worker's 
 the create promise function in the worker's history:
 
 ```wit
-/// A promise ID is a value that can be passed to an external Golem API to complete that promise
-/// from an arbitrary external source, while Golem workers can await for this completion.
-record promise-id {
-    worker-id: worker-id,
-    oplog-idx: oplog-index,
+package golem:api@1.1.6;
+
+interface host {
+    /// A promise ID is a value that can be passed to an external Golem API to complete that promise
+    /// from an arbitrary external source, while Golem workers can await for this completion.
+    record promise-id {
+        worker-id: worker-id,
+        oplog-idx: oplog-index,
+    }
 }
 ```
 
@@ -101,30 +121,34 @@ The following functions define the **promise API**:
 Worker metadata is described by the following WIT types:
 
 ```wit
-record worker-metadata {
-    worker-id: worker-id,
-    args: list<string>,
-    env: list<tuple<string, string>>,
-    status: worker-status,
-    component-version: u64,
-    retry-count: u64
-}
+package golem:api@1.1.6;
 
-enum worker-status {
-    /// The worker is running an invoked function
-    running,
-    /// The worker is ready to run an invoked function
-    idle,
-    /// An invocation is active but waiting for something (sleeping, waiting for a promise)
-    suspended,
-    /// The last invocation was interrupted but will be resumed
-    interrupted,
-    /// The last invocation failed and a retry was scheduled
-    retrying,
-    /// The last invocation failed and the worker can no longer be used
-    failed,
-    /// The worker exited after a successful invocation and can no longer be invoked
-    exited,
+interface host {
+    record worker-metadata {
+        worker-id: worker-id,
+        args: list<string>,
+        env: list<tuple<string, string>>,
+        status: worker-status,
+        component-version: u64,
+        retry-count: u64
+    }
+
+    enum worker-status {
+        /// The worker is running an invoked function
+        running,
+        /// The worker is ready to run an invoked function
+        idle,
+        /// An invocation is active but waiting for something (sleeping, waiting for a promise)
+        suspended,
+        /// The last invocation was interrupted but will be resumed
+        interrupted,
+        /// The last invocation failed and a retry was scheduled
+        retrying,
+        /// The last invocation failed and the worker can no longer be used
+        failed,
+        /// The worker exited after a successful invocation and can no longer be invoked
+        exited,
+    }
 }
 ```
 
@@ -144,10 +168,14 @@ The **worker enumeration API** allows listing all the workers belonging to a spe
 Worker enumeration is a **WIT resource**, providing a method that returns a **page** of workers each time it is called:
 
 ```wit
-resource get-workers {
-    constructor(component-id: component-id, filter: option<worker-any-filter>, precise: bool);
+package golem:api@1.1.6;
 
-    get-next: func() -> option<list<worker-metadata>>;
+interface host {
+    resource get-workers {
+        constructor(component-id: component-id, filter: option<worker-any-filter>, precise: bool);
+
+        get-next: func() -> option<list<worker-metadata>>;
+    }
 }
 ```
 
@@ -160,28 +188,40 @@ There are two parameters for customizing the worker enumeration:
 An optional `filter` parameter can be passed to the worker enumeration, with the following definition:
 
 ```wit
-record worker-any-filter {
-    filters: list<worker-all-filter>
+package golem:api@1.1.6;
+
+interface host {
+    record worker-any-filter {
+        filters: list<worker-all-filter>
+    }
 }
 ```
 
 The `worker-any-filter` matches workers that satisfy any of the listed filters.
 
 ```wit
-record worker-all-filter {
-    filters: list<worker-property-filter>
+package golem:api@1.1.6;
+
+interface host {
+    record worker-all-filter {
+        filters: list<worker-property-filter>
+    }
 }
 ```
 
 A `worker-all-filter` matches workers only that satisfy all of the listed filters.
 
 ```wit
-variant worker-property-filter {
-    name(worker-name-filter),
-    status(worker-status-filter),
-    version(worker-version-filter),
-    created-at(worker-created-at-filter),
-    env(worker-env-filter)
+package golem:api@1.1.6;
+
+interface host {
+    variant worker-property-filter {
+        name(worker-name-filter),
+        status(worker-status-filter),
+        version(worker-version-filter),
+        created-at(worker-created-at-filter),
+        env(worker-env-filter)
+    }
 }
 ```
 
@@ -190,50 +230,58 @@ The `worker-name-filter` matches workers by one of their properties, such as the
 Each of these variants take a filter record holding a **value** and a **comparator**:
 
 ```wit
-record worker-name-filter {
-    comparator: string-filter-comparator,
-    value: string
-}
+package golem:api@1.1.6;
 
-record worker-status-filter {
-    comparator: filter-comparator,
-    value: worker-status
-}
+interface host {
+    record worker-name-filter {
+        comparator: string-filter-comparator,
+        value: string
+    }
 
-record worker-version-filter {
-    comparator: filter-comparator,
-    value: u64
-}
+    record worker-status-filter {
+        comparator: filter-comparator,
+        value: worker-status
+    }
 
-record worker-created-at-filter {
-    comparator: filter-comparator,
-    value: u64
-}
+    record worker-version-filter {
+        comparator: filter-comparator,
+        value: u64
+    }
 
-record worker-env-filter {
-    name: string,
-    comparator: string-filter-comparator,
-    value: string
+    record worker-created-at-filter {
+        comparator: filter-comparator,
+        value: u64
+    }
+
+    record worker-env-filter {
+        name: string,
+        comparator: string-filter-comparator,
+        value: string
+    }
 }
 ```
 
 Where `filter-comparator` and `string-filter-comparator` are defined as:
 
 ```wit
-enum filter-comparator {
-    equal,
-    not-equal,
-    greater-equal,
-    greater,
-    less-equal,
-    less
-}
+package golem:api@1.1.6;
 
-enum string-filter-comparator {
-    equal,
-    not-equal,
-    like,
-    not-like
+interface host {
+    enum filter-comparator {
+        equal,
+        not-equal,
+        greater-equal,
+        greater,
+        less-equal,
+        less
+    }
+
+    enum string-filter-comparator {
+        equal,
+        not-equal,
+        like,
+        not-like
+    }
 }
 ```
 
@@ -252,29 +300,37 @@ Golem's **transaction API** allows customizing the execution engine's durability
 Retry policy is defined by the following record:
 
 ```wit
-/// Configures how the executor retries failures
-record retry-policy {
-    /// The maximum number of retries before the worker becomes permanently failed
-    max-attempts: u32,
-    /// The minimum delay between retries (applied to the first retry)
-    min-delay: duration,
-    /// The maximum delay between retries
-    max-delay: duration,
-    /// Multiplier applied to the delay on each retry to implement exponential backoff
-    multiplier: f64,
-    /// The maximum amount of jitter to add to the delay
-    max-jitter-factor: option<f64>
+package golem:api@1.1.6;
+
+interface host {
+    /// Configures how the executor retries failures
+    record retry-policy {
+        /// The maximum number of retries before the worker becomes permanently failed
+        max-attempts: u32,
+        /// The minimum delay between retries (applied to the first retry)
+        min-delay: duration,
+        /// The maximum delay between retries
+        max-delay: duration,
+        /// Multiplier applied to the delay on each retry to implement exponential backoff
+        multiplier: f64,
+        /// The maximum amount of jitter to add to the delay
+        max-jitter-factor: option<f64>
+    }
 }
 ```
 
 It is possible to switch between **persistence modes**:
 
 ```wit
-/// Configurable persistence level for workers
-variant persistence-level {
-    persist-nothing,
-    persist-remote-side-effects,
-    smart
+package golem:api@1.1.6;
+
+interface host {
+    /// Configurable persistence level for workers
+    variant persistence-level {
+        persist-nothing,
+        persist-remote-side-effects,
+        smart
+    }
 }
 ```
 
@@ -306,16 +362,20 @@ The **update API** enables workers to trigger automatic or manual update of othe
 Automatic and manual updates are distinguished by the following enum:
 
 ```wit
-/// Describes how to update a worker to a different component version
-enum update-mode {
-    /// Automatic update tries to recover the worker using the new component version
-    /// and may fail if there is a divergence.
-    automatic,
+package golem:api@1.1.6;
 
-    /// Manual, snapshot-based update uses a user-defined implementation of the `save-snapshot` interface
-    /// to store the worker's state, and a user-defined implementation of the `load-snapshot` interface to
-    /// load it into the new version.
-    snapshot-based
+interface host {
+    /// Describes how to update a worker to a different component version
+    enum update-mode {
+        /// Automatic update tries to recover the worker using the new component version
+        /// and may fail if there is a divergence.
+        automatic,
+
+        /// Manual, snapshot-based update uses a user-defined implementation of the `save-snapshot` interface
+        /// to store the worker's state, and a user-defined implementation of the `load-snapshot` interface to
+        /// load it into the new version.
+        snapshot-based
+    }
 }
 ```
 
@@ -334,81 +394,85 @@ The `oplog` interface in `golem:api` provides functions to search and query the 
 The interface defines a big `variant` data type called `oplog-entry`:
 
 ```wit
-variant oplog-entry {
-    /// The initial worker oplog entry
-    create(create-parameters),
-    /// The worker invoked a host function
-    imported-function-invoked(imported-function-invoked-parameters),
-    /// The worker has been invoked
-    exported-function-invoked(exported-function-invoked-parameters),
-    /// The worker has completed an invocation
-    exported-function-completed(exported-function-completed-parameters),
-    /// Worker suspended
-    suspend(datetime),
-    /// Worker failed
-    error(error-parameters),
-    /// Marker entry added when get-oplog-index is called from the worker, to make the jumping behavior
-    /// more predictable.
-    no-op(datetime),
-    /// The worker needs to recover up to the given target oplog index and continue running from
-    /// the source oplog index from there
-    /// `jump` is an oplog region representing that from the end of that region we want to go back to the start and
-    /// ignore all recorded operations in between.
-    jump(jump-parameters),
-    /// Indicates that the worker has been interrupted at this point.
-    /// Only used to recompute the worker's (cached) status, has no effect on execution.
-    interrupted(datetime),
-    /// Indicates that the worker has been exited using WASI's exit function.
-    exited(datetime),
-    /// Overrides the worker's retry policy
-    change-retry-policy(change-retry-policy-parameters),
-    /// Begins an atomic region. All oplog entries after `BeginAtomicRegion` are to be ignored during
-    /// recovery except if there is a corresponding `EndAtomicRegion` entry.
-    begin-atomic-region(datetime),
-    /// Ends an atomic region. All oplog entries between the corresponding `BeginAtomicRegion` and this
-    /// entry are to be considered during recovery, and the begin/end markers can be removed during oplog
-    /// compaction.
-    end-atomic-region(end-atomic-region-parameters),
-    /// Begins a remote write operation. Only used when idempotence mode is off. In this case each
-    /// remote write must be surrounded by a `BeginRemoteWrite` and `EndRemoteWrite` log pair and
-    /// unfinished remote writes cannot be recovered.
-    begin-remote-write(datetime),
-    /// Marks the end of a remote write operation. Only used when idempotence mode is off.
-    end-remote-write(end-remote-write-parameters),
-    /// An invocation request arrived while the worker was busy
-    pending-worker-invocation(pending-worker-invocation-parameters),
-    /// An update request arrived and will be applied as soon the worker restarts
-    pending-update(pending-update-parameters),
-    /// An update was successfully applied
-    successful-update(successful-update-parameters),
-    /// An update failed to be applied
-    failed-update(failed-update-parameters),
-    /// Increased total linear memory size
-    grow-memory(grow-memory-parameters),
-    /// Created a resource instance
-    create-resource(create-resource-parameters),
-    /// Dropped a resource instance
-    drop-resource(drop-resource-parameters),
-    /// Adds additional information for a created resource instance
-    describe-resource(describe-resource-parameters),
-    /// The worker emitted a log message
-    log(log-parameters),
-    /// The worker's has been restarted, forgetting all its history
-    restart(datetime),
-    /// Activates a plugin
-    activate-plugin(activate-plugin-parameters),
-    /// Deactivates a plugin
-    deactivate-plugin(deactivate-plugin-parameters),
-    /// Revert a worker to a previous state
-    revert(revert-parameters),
-    /// Cancel a pending invocation
-    cancel-invocation(cancel-invocation-parameters),
-    /// Start a new span in the invocation context
-    start-span(start-span-parameters),
-    /// Finish an open span in the invocation context
-    finish-span(finish-span-parameters),
-    /// Set an attribute on an open span in the invocation context
-    set-span-attribute(set-span-attribute-parameters),
+package golem:api@1.1.6;
+
+interface host {
+    variant oplog-entry {
+        /// The initial worker oplog entry
+        create(create-parameters),
+        /// The worker invoked a host function
+        imported-function-invoked(imported-function-invoked-parameters),
+        /// The worker has been invoked
+        exported-function-invoked(exported-function-invoked-parameters),
+        /// The worker has completed an invocation
+        exported-function-completed(exported-function-completed-parameters),
+        /// Worker suspended
+        suspend(datetime),
+        /// Worker failed
+        error(error-parameters),
+        /// Marker entry added when get-oplog-index is called from the worker, to make the jumping behavior
+        /// more predictable.
+        no-op(datetime),
+        /// The worker needs to recover up to the given target oplog index and continue running from
+        /// the source oplog index from there
+        /// `jump` is an oplog region representing that from the end of that region we want to go back to the start and
+        /// ignore all recorded operations in between.
+        jump(jump-parameters),
+        /// Indicates that the worker has been interrupted at this point.
+        /// Only used to recompute the worker's (cached) status, has no effect on execution.
+        interrupted(datetime),
+        /// Indicates that the worker has been exited using WASI's exit function.
+        exited(datetime),
+        /// Overrides the worker's retry policy
+        change-retry-policy(change-retry-policy-parameters),
+        /// Begins an atomic region. All oplog entries after `BeginAtomicRegion` are to be ignored during
+        /// recovery except if there is a corresponding `EndAtomicRegion` entry.
+        begin-atomic-region(datetime),
+        /// Ends an atomic region. All oplog entries between the corresponding `BeginAtomicRegion` and this
+        /// entry are to be considered during recovery, and the begin/end markers can be removed during oplog
+        /// compaction.
+        end-atomic-region(end-atomic-region-parameters),
+        /// Begins a remote write operation. Only used when idempotence mode is off. In this case each
+        /// remote write must be surrounded by a `BeginRemoteWrite` and `EndRemoteWrite` log pair and
+        /// unfinished remote writes cannot be recovered.
+        begin-remote-write(datetime),
+        /// Marks the end of a remote write operation. Only used when idempotence mode is off.
+        end-remote-write(end-remote-write-parameters),
+        /// An invocation request arrived while the worker was busy
+        pending-worker-invocation(pending-worker-invocation-parameters),
+        /// An update request arrived and will be applied as soon the worker restarts
+        pending-update(pending-update-parameters),
+        /// An update was successfully applied
+        successful-update(successful-update-parameters),
+        /// An update failed to be applied
+        failed-update(failed-update-parameters),
+        /// Increased total linear memory size
+        grow-memory(grow-memory-parameters),
+        /// Created a resource instance
+        create-resource(create-resource-parameters),
+        /// Dropped a resource instance
+        drop-resource(drop-resource-parameters),
+        /// Adds additional information for a created resource instance
+        describe-resource(describe-resource-parameters),
+        /// The worker emitted a log message
+        log(log-parameters),
+        /// The worker's has been restarted, forgetting all its history
+        restart(datetime),
+        /// Activates a plugin
+        activate-plugin(activate-plugin-parameters),
+        /// Deactivates a plugin
+        deactivate-plugin(deactivate-plugin-parameters),
+        /// Revert a worker to a previous state
+        revert(revert-parameters),
+        /// Cancel a pending invocation
+        cancel-invocation(cancel-invocation-parameters),
+        /// Start a new span in the invocation context
+        start-span(start-span-parameters),
+        /// Finish an open span in the invocation context
+        finish-span(finish-span-parameters),
+        /// Set an attribute on an open span in the invocation context
+        set-span-attribute(set-span-attribute-parameters),
+    }
 }
 ```
 
@@ -428,33 +492,41 @@ The `golem:durability` package contains an API that can be leveraged by librarie
 The `durable-function-type` is a variant that categorizes a durable function in the following way:
 
 ```wit
-variant durable-function-type {
-    /// The side-effect reads from the worker's local state (for example local file system,
-    /// random generator, etc.)
-    read-local,
-    /// The side-effect writes to the worker's local state (for example local file system)
-    write-local,
-    /// The side-effect reads from external state (for example a key-value store)
-    read-remote,
-    /// The side-effect manipulates external state (for example an RPC call)
-    write-remote,
-    /// The side-effect manipulates external state through multiple invoked functions (for example
-    /// a HTTP request where reading the response involves multiple host function calls)
-    ///
-    /// On the first invocation of the batch, the parameter should be `None` - this triggers
-    /// writing a `BeginRemoteWrite` entry in the oplog. Followup invocations should contain
-    /// this entry's index as the parameter. In batched remote writes it is the caller's responsibility
-    /// to manually write an `EndRemoteWrite` entry (using `end_function`) when the operation is completed.
-    write-remote-batched(option<oplog-index>)
+package golem:api@1.1.6;
+
+interface host {
+    variant durable-function-type {
+        /// The side-effect reads from the worker's local state (for example local file system,
+        /// random generator, etc.)
+        read-local,
+        /// The side-effect writes to the worker's local state (for example local file system)
+        write-local,
+        /// The side-effect reads from external state (for example a key-value store)
+        read-remote,
+        /// The side-effect manipulates external state (for example an RPC call)
+        write-remote,
+        /// The side-effect manipulates external state through multiple invoked functions (for example
+        /// a HTTP request where reading the response involves multiple host function calls)
+        ///
+        /// On the first invocation of the batch, the parameter should be `None` - this triggers
+        /// writing a `BeginRemoteWrite` entry in the oplog. Followup invocations should contain
+        /// this entry's index as the parameter. In batched remote writes it is the caller's responsibility
+        /// to manually write an `EndRemoteWrite` entry (using `end_function`) when the operation is completed.
+        write-remote-batched(option<oplog-index>)
+    }
 }
 ```
 
 The `durable-execution-state` record provides information about the current execution state, and can be queried using the `current-durable-execution-state` function:
 
 ```wit
-record durable-execution-state {
-  is-live: bool,
-  persistence-level: persistence-level,
+package golem:api@1.1.6;
+
+interface host {
+    record durable-execution-state {
+        is-live: bool,
+        persistence-level: persistence-level,
+    }
 }
 ```
 
@@ -484,3 +556,58 @@ if state.is-live {
 The `input` and `result` values must be encoded into `value-and-type`, the dynamic value representation from the `golem:rpc` package.
 
 In cases when a durable function's execution interleaves with other calls, the `begin-durable-function` and `end-durable-function` calls can be used to mark the beginning and end of the operation.
+
+### Invocation context
+
+Golem associates an **invocation context** with each invocation, which contains various information depending on how the exported function was called. This context gets inherited when making further invocations via worker-to-worker communication, and it is also possible to define custom **spans** and associate custom **attributes** to it.
+
+The spans are not automatically sent to any tracing system but they can be reconstructed from the oplog, for example using **oplog processor plugins**, to provide real-time tracing information.
+
+To get the current invocation context, use the `current-context` host function:
+
+```wit
+package golem:api@1.1.6;
+
+/// Invocation context support
+interface context {
+    current-context: func() -> invocation-context;
+}
+```
+
+The `invocation-context` itself is a **resource** with various methods for querying attributes of the invocation context:
+
+| method | description |
+| ------ | ----------- |
+| `trace-id` | Returns the trace ID associated with the context, coming from either an external trace header or generated at the edge of Golem |
+| `span-id` | Returns the span ID associated with the context |
+| `parent` | Returns the parent invocation context, if any |
+| `get-attribute` | Gets an attribute from the context by key |
+| `get-attributes` | Gets all attributes from the context |
+| `get-attribute-chain` | Gets all values of a given attribute from the current and parent contexts |
+| `get-attribute-chains` | Get all attributes and their previous values |
+| `trace-context-headers` | Gets the W3C Trace Context headers associated with the current invocation context |
+
+Custom attributes can only be set on **custom spans**. First start a new span using `start-span`
+
+```wit
+package golem:api@1.1.6;
+
+/// Invocation context support
+interface context {
+    /// Starts a new `span` with the given name, as a child of the current invocation context
+    start-span: func(name: string) -> span;
+}
+```
+
+and then use the `span` resource's methods:
+
+| method | description |
+| ------ | ----------- |
+| `started-at` | Returns the timestamp when the span was started |
+| `set-attribute` | Sets an attribute on the span |
+| `set-attributes` | Sets multiple attributes on the span |
+| `finish` | Ends the current span |
+
+Dropping the resource is equivalent to calling `finish` on the span.
+
+The custom spans are pushed onto the invocation context stack, so whenever an RPC call or HTTP call is made, their parent span(s) will include the user-defined custom spans as well as the rest of the invocation context.
