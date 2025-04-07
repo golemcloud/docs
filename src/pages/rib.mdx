@@ -377,6 +377,54 @@ Note that, sometimes you will need to annotate the type of the number. It depend
 
 Note that keys are not considered as variables. Also note that keys in a WASM record don't have quotes. Example: `{"foo" : "bar"}` is wrong.
 
+### Variants
+Let say your WIT file has the following [variant](https://component-model.bytecodealliance.org/design/wit.html#variants)
+
+```
+variant bid-result {
+   success,
+   failure(string),
+}
+
+bid: func() -> bid-result;
+
+```
+
+
+Then, in Rib, all you need to is simply use the variant terms directly. Example:
+
+```
+let x = failure("its failed");
+x
+```
+
+You can pattern match (more on this further down below )on variants as follows:
+
+````
+let x = failure("its failed");
+
+let result = match x { success => "its success", failure(msg) => msg }
+
+result
+```
+
+This will return "its failed".
+
+Note that rib script should have the dependency to the component that defines the variant.
+Otherwise, Rib will fail with compilation.
+
+```
+uree("its failed")
+[invalid script] error in the following rib found at line 1, column 203
+`failure("its failed")`
+cause: invalid function call `failure`
+unknown function
+
+```
+
+If Rib is used through API gateway and not directly, this dependency is already added automatically as you
+specify component name when defining API definition.
+
 ### Enums
 
 Let's say your WIT file has the following [enum](https://component-model.bytecodealliance.org/design/wit.html#enums) types,
@@ -420,7 +468,36 @@ As far as the Rib script has the dependency to the component that has above enum
 Note that, in API gateway context you are not directly using Rib, but you are using it through API gateway,
 and you don't need to worry about adding dependency to Rib)
 
+You can pattern match (more on this below) on enum values as follows
+
+```rib copy
+
+let my-priority = low;
+
+let result = match my-priority {
+  low => "its low",
+  medium => "its medium",
+  high => "its high"
+};
+
+result
+```
+
+This will return the result "its low".
+
+
+### Flags
+
+```rib copy
+{ Foo, Bar, Baz }
+```
+
+This is of a flag type.
+
+
 ### Assign to a variable
+
+This can be done using `let` binding which we have already seen in the above examples
 
 ```rib copy
 let x = 1;
@@ -448,14 +525,6 @@ let z = "${x}-and-${y}";
 
 Evaluating this Rib will result in "foo-and-bar". The type of `z` is a string.
 
-
-### Flags
-
-```rib copy
-{ Foo, Bar, Baz }
-```
-
-This is of a flag type.
 
 ### Selection of Field
 
