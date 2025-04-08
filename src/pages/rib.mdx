@@ -381,6 +381,7 @@ Note that keys are not considered as variables. Also note that keys in a WASM re
 Let say your WIT file has the following [variant](https://component-model.bytecodealliance.org/design/wit.html#variants)
 
 ```
+
 variant bid-result {
    success,
    failure(string),
@@ -388,19 +389,21 @@ variant bid-result {
 
 bid: func() -> bid-result;
 
+process-result: func(res: bid-result) -> string
+
 ```
 
 
 Then, in Rib, all you need to is simply use the variant terms directly. Example:
 
-```
+```rib copy
 let x = failure("its failed");
 x
 ```
 
-You can pattern match (more on this further down below )on variants as follows:
+You can pattern match (more on this [patter-match](#pattern-matching) below) on variants as follows:
 
-````
+```rib copy
 let x = failure("its failed");
 
 let result = match x { success => "its success", failure(msg) => msg }
@@ -410,11 +413,46 @@ result
 
 This will return "its failed".
 
+Here is the example WIT file and the corresponding rib scripts that shows how to pass
+variants as arguments to worker function. More explanation on how to invoke worker function using
+rib is explained [further down below](#invoke-worker-functions).
+
+```
+  variant bid-result {
+    success(string),
+    failure(string)
+  }
+
+  handle: func(res: bid-result) -> string;
+
+```
+
+
+```rib copy
+let worker = instance("my_worker");
+worker.handle(failure("it's failed"));
+```
+
+
+```rib copy
+let worker = instance("my_worker");
+worker.handle(success);
+```
+
+
+```rib copy
+let worker = instance("my_worker");
+let bid-result = worker.bid();
+let result = worker.handle(bid-result);
+result
+
+```
+
 Note that rib script should have the dependency to the component that defines the variant.
 Otherwise, Rib will fail with compilation.
 
 ```
-uree("its failed")
+failure("its failed")
 [invalid script] error in the following rib found at line 1, column 203
 `failure("its failed")`
 cause: invalid function call `failure`
@@ -454,21 +492,7 @@ let my-priory = priority;
 {s: my-status, p: my-priority}
 ```
 
-If your worker function `my-function` takes `status` and `priority` as an input, then simply pass their values.
-
-```rib copy
-
-my-worker-function(in-progress, medium)
-
-```
-
-Please don't use `enums` as `string` in Rib.
-
-As far as the Rib script has the dependency to the component that has above enums, it will work.
-Note that, in API gateway context you are not directly using Rib, but you are using it through API gateway,
-and you don't need to worry about adding dependency to Rib)
-
-You can pattern match (more on this below) on enum values as follows
+You can pattern match (more on this [pattern-match](#pattern-matching) below) on enum values as follows
 
 ```rib copy
 
@@ -485,6 +509,49 @@ result
 
 This will return the result "its low".
 
+Here is the example WIT file and the corresponding rib scripts that shows how to pass
+variants as arguments to worker function. More explanation on how to invoke worker function using
+rib is explained [further down below](#invoke-worker-functions).
+
+```
+  enum status {
+    backlog,
+    in-progress,
+    done,
+  }
+
+  enum priority {
+    low,
+    medium,
+    high,
+  }
+
+  process-user: func(status: status, priority: priority, user-id: string) -> string;
+
+
+```
+
+```rib copy
+
+let worker = instance("my_worker");
+let result = worker.process-user(backlog, low, "jon");
+result
+
+```
+
+```rib copy
+let worker = instance("my_worker");
+let status = in-progress;
+let priority = medium;
+let result = worker.process-user(status, priority, "jon");
+result
+```
+
+Note that rib script should have the dependency to the component that defines the enum.
+Otherwise, Rib will fail with compilation.
+
+If Rib is used through API gateway and not directly, this dependency is already added automatically as you
+specify component name when defining API definition.
 
 ### Flags
 
@@ -639,7 +706,7 @@ Note on variant: A variant statement defines a new type where instances of the t
 This is similar to a "sum" type in algebraic datatype (or an enum in Rust if you're familiar with it).
 Variants can be thought of as tagged unions as well.
 
-### Pattern Match on Variants
+#### Pattern Match on Variants
 
 Given you are using Rib through worker bridge, which knows about component metadata,
 then, let's say we have a variant of type as given below responded from the `worker`, when invoking a function called `foo`:
