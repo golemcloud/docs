@@ -2,5 +2,7 @@
   "shared-wit-packages": "Shared WIT Packages",
   "rpc": "Worker to Worker Communication",
   "wasi-http": "WASI HTTP Incoming Handler",
-  "worker-filesystem": "Worker Filesytem"
+  "worker-filesystem": "Worker Filesytem",
+  "llm": "Using LLMs",
+  "forking": "Forking Workers"
 }
