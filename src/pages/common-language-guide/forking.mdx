@@ -34,47 +34,83 @@ The following code snippet demonstrates calling `fork` and continuing on two dif
 <Tabs items={["Rust", "TypeScript", "Go", "Python", "C", "JavaScript", "Zig", "MoonBit", "Scala.js"]}>
   <Tabs.Tab>
   ```rust
-  // TODO
+  use golem_rust::{fork, ForkResult};
+
+  match fork("new-worker") {
+      ForkResult::Original => {
+          // ...
+      }
+      ForkResult::Forked => {
+          // ...
+      }
+  }
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```typescript
-  // TODO
+  import { fork, type ForkResult } from "@golemcloud/golem-ts"
+
+  switch (fork("new-name")) {
+    case "original": {
+      // ...
+      break;
+    }
+    case "forked": {
+      // ...
+      break;
+    }
+  }
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```go
-  // TODO
+  switch golemhost.Fork("new-name") {
+	case host.ForkResultOriginal:
+		{
+			// ...
+		}
+	case host.ForkResultForked:
+		{
+			// ...
+		}
+	}
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```python
-  # TODO
+  from my_component.imports import host
+
+  if host.fork("new-name") == host.ForkResult.ORIGINAL:
+      # ...
+      pass
+  else:
+      # ...
+      pass
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```c
-  // TODO
+  // TODO: Code example is not available yet
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```javascript
-  // TODO
+  // TODO: Code example is not available yet
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```zig
-  // TODO
+  // TODO: Code example is not available yet
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```moonbit
-  // TODO
+  // TODO: Code example is not available yet
   ```
   </Tabs.Tab>
   <Tabs.Tab>
   ```scala.js
-  // TODO
+  // TODO: Code example is not available yet
   ```
   </Tabs.Tab>
 </Tabs>
