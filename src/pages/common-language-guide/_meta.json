@@ -4,5 +4,6 @@
   "wasi-http": "WASI HTTP Incoming Handler",
   "worker-filesystem": "Worker Filesytem",
   "llm": "Using LLMs",
+  "rdbms": "Using Relational Databases",
   "forking": "Forking Workers"
 }
