@@ -11,19 +11,18 @@ Currently, this is tested with Google Identity connector.
 
 ### Register an app with Google Identity Provider and get a client-id and client-secret.
 
-Here is the direct link to register your app with [Google Identity Provider](https://console.cloud.google.com/apis/credentials)
-Here you can register your app with a name, and most importantly a redirect URL. If you are going with this
-[example](/invoke/making-custom-apis/create-simple-component), your redidrect URI for the app when registering with Google should be
+Here is the direct link to register your app with [Google Identity Provider](https://console.cloud.google.com/apis/credentials).
+Make sure your app with a redirect URL and get the client-id and client secret.
+
+If you are going with this [example](/invoke/making-custom-apis/create-simple-component), the redirect URI can be
 `http://localhost:9006/auth/callback`
 
 If you are not using OSS, then the redirect URI can be `https://mydomain.com/auth/callback`, where `mydomain.com`
 is the domain in which you will be deploying your API definition in Golem.
 
 The `/auth/callback` part is just an example and it can be anything, as far as it doesn't collide with any of your other paths.
-We strongly recommend to use different suffixes if you are having multiple APIs using different security schemes.
 
-Once you have setup the app-name, redirect-urls, you should be getting a client-id, client-secret from Google Identity Provider in return.
-We call these details "Api Security Scheme" in Golem API Gateway.
+We call these details "Api Security Scheme" in Golem API Gateway. Next step is to register this detail with Golem
 
 ### Register API Security Scheme with your app's client-id and client-secret with Golem
 
@@ -113,10 +112,18 @@ httpApi:
 
 ##### The new fields in `request` object
 
+```rib
+let user: u32 = request.path.user;
+let worker = instance("cart-${user}");
+let user-name: string = request.auth.email;
+{
+   user: user-name,
+   cart: worker.get-cart-contents()
+}
+```
+
 In the Rib script, we are expecting a field called `auth` with the email of the user, and this is populated.
 Unlike `request.path.*`, `request.query.*`, `request.auth.*` is valid only in a route with security enabled.
-
-
 
 ### Deploy and test
 
