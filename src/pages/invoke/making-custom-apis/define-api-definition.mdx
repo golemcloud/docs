@@ -1,40 +1,190 @@
 ## Define an API definition
 
-To begin with, let's build an API over the functions in the _shopping cart example_ (available via `golem component new rust:example-shoping-cart example:cart`):
+To begin with, let's build an API over the functions in the shopping cart component
+
+Let's create a shopping cart component first, and then later add the API definition to it.
+
+### Create a new component
 
 ```shell
-$ golem component get example:cart
-...
-Exports:
-	golem:component/api.{initialize-cart}(user-id: string)
-	golem:component/api.{add-item}(item: record { product-id: string, name: string, price: f32, quantity: u32 })
-	golem:component/api.{remove-item}(product-id: string)
-	golem:component/api.{update-item-quantity}(product-id: string, quantity: u32)
-	golem:component/api.{checkout}() -> variant { error(string), success(record { order-id: string }) }
-	golem:component/api.{get-cart-contents}() -> list<record { product-id: string, name: string, price: f32, quantity: u32 }>
+golem app new
 ```
 
-Here is an example of an API definition, which we will use to expose an HTTP API over the function `golem:component/api.{get-cart-contents}`.
-We use [Rib](/rib) to define the API definition. Please refer to the [Rib reference](/rib) for more details on the syntax.
+Please follow the instructions in the interactive shell. Here is the example
+
+
+```shell
+Selected profile: local
+> Application name: shopping-cart
+> Select language for the new component Rust
+> Select a template for the new component: minimal: Minimal component template for Rust with no dependencies
+> Component Package Name: amazon:shopping-cart
+> Add another component or create application? Create application
+```
+
+Make sure to start the golem server by doing the following.
+Use `--clean` if you want a complete clean environment
+
+```shell
+golem server run --clean
+
+```
+
+Before we start building the API definition, make sure to replace the contents of
+shopping-cart/components-rust/amazon-shopping-cart/wit/amazon-shopping-cart.wit with the following
+
+```wit
+package amazon:shopping-cart;
+
+interface api {
+
+  record product-item {
+    product-id: string,
+    name: string,
+    price: f32,
+    quantity: u32,
+  }
+
+  record order {
+    order-id: string,
+    items: list<product-item>,
+    total: f32,
+    timestamp: u64,
+  }
+
+  record order-confirmation {
+    order-id: string,
+  }
+
+  variant checkout-result {
+    error(string),
+    success(order-confirmation),
+  }
+
+  initialize-cart: func(user-id: string);
+
+  add-item: func(item: product-item);
+
+  remove-item: func(product-id: string);
+
+  update-item-quantity: func(product-id: string, quantity: u32);
+
+  checkout: func() -> checkout-result;
+
+  get-cart-contents: func() -> list<product-item>;
+
+  force-commit: func(count: u8);
+}
+
+world shopping-cart {
+  import golem:api/host@1.1.6;
+
+  export api;
+}
+```
+
+### Implement the interface
+
+Try to build the component
+
+```shell
+cd shopping-cart
+golem app build
+```
+
+This should give you a compile time error, and that's because you haven't implemented the interface yet.
+The implementation details doesn't matter.
+
+
+Once you fix the compilation errors, test the invocations using golem REPL
+
+### Test the invocations
+```shell
+cd shopping-cart
+golem repl
+```
+
+If by any chance you have multiple components in the context, interactive shell would allow you to select
+a specific component and will be automatically deployed to the server.
+
+
+Here is an example usage of REPL. Please take advantage of the auto-completes using `tab` key.
+
+More documentation on the REPL can be found [here](/rib).
+
+```shell
+>>> let worker = instance("worker")
+()
+
+>>> worker.add-item({product-id: "foo", name: "foo", price: 42, quantity: 42})
+()
+
+>>> worker.add-item({product-id: "foo", name: "foo", price: 42, quantity: 42})
+()
+
+>>> worker.get-cart-contents()
+[{product-id: "foo", name: "foo", price: 42, quantity: 42}, {product-id: "foo", name: "foo", price: 42, quantity: 42}]
+
+>>> worker.checkout()
+success({order-id: "238738674"})
+```
+
+REPL is a great way to test the component and its functions, h
+however note that it's a brand new feature and is experimental in nature.
+
+
+### Configure API definitions
+
+We can configure the API definition by updating the `golem.yaml` file (`shopping-cart/components-rust/amazon-shopping-cart/golem.yaml`)
+Here is an updated version of the golem.yaml that has the API definition (the routes and the implementation using Rib),
+as well as the API deployment that specify the details of the server to which the requests should be routed. Since this example is making using of golem OSS,
+the only valid value is `http://localhost:9006/v1` because that's where the API gateway is running when you run the golem server.
 
 ```yaml
-id: my-shopping-cart-v1
-draft: true
-version: 0.0.4
-routes:
-  - method: Get
-    path: /v4/{user-id}/get-cart-contents
-    binding:
-      type: default
-      component:
-        name: "shopping-cart"
-        version: 0
-      response: |
-        let user: u64 = request.path.user-id;
-        let worker = instance("my-worker-${user}");
-        let result = worker.get-cart-contents();
-        {status: 200, body: result}
+# Schema for IDEA:
+# $schema: https://schema.golem.cloud/app/golem/1.2.2-dev.1/golem.schema.json
+# Schema for vscode-yaml
+# yaml-language-server: $schema=https://schema.golem.cloud/app/golem/1.2.2-dev.1/golem.schema.json
+
+# See https://learn.golem.cloud/docs/app-manifest#field-reference for field reference
+
+components:
+  amazon:shopping-cart:
+    template: rust
+
+httpApi:
+  definitions:
+    shopping-cart:
+      version: '0.0.1'
+      routes:
+        - method: POST
+          path: /v1/{user}/add-to-cart
+          binding:
+            type: default
+            componentName: "amazon:shopping-cart"
+            response: |
+              let user: string = request.path.user;
+              let worker = instance("cart-${user}");
+              worker.add-item(request.body.item);
+              {status: 200, message: "successfully added item"}
+
+
+  deployments:
+    local:
+    - host: localhost:9006
+      definitions:
+       - shopping-cart
 ```
+
+### Deploy and Test the API
+
+```shell
+golem api deploy
+```
+
+
+
+We will add more routes and redeploy the API definition later
 
 Please use this as a reference instead of using it with zero changes. For example, you might need to give a different
 version, component etc (explained below). You can get the `component` details including `name` and `version`
