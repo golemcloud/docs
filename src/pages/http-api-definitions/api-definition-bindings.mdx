@@ -23,8 +23,8 @@ routes:
     # Define the path that the route will apply to. {var} patterns capture the path segments and make it available for scripts.
     path: /carts/{cart-id}/checkout
     binding:
-      component:
-        name: checkout-component
+      type: default
+      componentName: checkout-component
       response: |
         let name = request.path.cart-id;
         let worker = instance(name);
@@ -60,14 +60,13 @@ routes:
   - method: Options
     path: /users/{user-id}
     binding:
-      bindingType: cors-preflight
+      type: cors-preflight
     # Another definition for the same route and a different method.
     # The cors-preflight binding will enable cors for this binding.
   - method: Get
     path: /users/{user-id}
     binding:
-      component:
-        name: example-component
+      componentName: example-component
       response: |
         {status: 200u64, body: "Hello World"}
 ```
@@ -101,9 +100,8 @@ routes:
     # {+var} patterns capture all remaining path segments
     path: /workers/{worker-name}/files/{+file}
     binding:
-      bindingType: file-server
-      component:
-        name: example-component
+      type: file-server
+      componentName: example-component
       # retrieve the path /files/${{file}} from the worker and return the content.
       response: 'let file: string = request.path.file; "/files/${{file}}"'
 ```
@@ -147,18 +145,14 @@ routes:
   - method: Get
     path: /users/{user}
     binding:
-      bindingType: http-handler
-      component:
-        name: user-component
-        version: 0
+      type: http-handler
+      componentName: user-component
       workerName: 'let name: string = request.path.user; name'
   - method: Get
     path: /users/{user}/{+user-route}
     binding:
-      bindingType: http-handler
-      component:
-        name: user-component
-        version: 0
+      type: http-handler
+      componentName: user-component
       workerName: 'let name: string = request.path.user; name'
 ```
 
