@@ -71,6 +71,34 @@ routes:
         {status: 200u64, body: "Hello World"}
 ```
 
+You can customise the CORS by providing a `response` Rib script which should be a record that contains CORS parameters
+
+```yaml
+routes:
+  - method: Options
+    path: /users/{user-id}
+    binding:
+      type: cors-preflight
+      response: |
+      {
+        Access-Control-Allow-Origin: "mysite.com",
+        Access-Control-Allow-Methods: "GET, POST, PUT, DELETE, OPTIONS",
+        Access-Control-Allow-Headers: "Content-Type, Authorization",
+        Access-Control-Expose-Headers: "Content-Length, X-Requested-With",
+        Access-Control-Allow-Credentials: true,
+        Access-Control-Max-Age: 86400u64
+      }
+    # Another definition for the same route and a different method.
+    # The cors-preflight binding will enable cors for this binding.
+  - method: Get
+    path: /users/{user-id}
+    binding:
+      componentName: example-component
+      response: |
+        {status: 200u64, body: "Hello World"}
+```
+
+
 Parameters:
 
 | Parameter        | Required | Type   | Description                                                                                                      |
