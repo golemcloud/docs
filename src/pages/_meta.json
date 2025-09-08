@@ -56,6 +56,5 @@
   "installing-webassembly-tooling": "Installing WebAssembly Tooling",
   "json-wave-mapping": "JSON-WAVE Mapping",
   "rest-api": "REST API",
-  "rib": "Rib",
-  "wasm-rpc": "WASM RPC"
+  "rib": "Rib"
 }
