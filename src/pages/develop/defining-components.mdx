@@ -1,6 +1,6 @@
 import { Callout } from "nextra/components"
 
-# Defining Golem Components in TypeScript
+# Defining Golem Components
 
 ## Creating a project
 
@@ -30,7 +30,7 @@ Golem and the TypeScript toolchain currently requires defining the component's i
 
 Each new project generated with `golem` contains a `wit` directory with at least one `.wit` file defining a `world`. This world can contain **exports** (exported functions and interfaces) and these exports will be the compiled Golem component's public API.
 
-The first time a component is compiled (see the [Building Components page](/ts-language-guide/building-components) for details), a couple of files get generated in a subdirectory named `src/generated`. The generated sources contain the definitions of all the data types and interfaces defined in the `WIT` file(s) as TypeScript types and interfaces.
+The first time a component is compiled (see the [Building Components page](/develop/building-components) for details), a couple of files get generated in a subdirectory named `src/generated`. The generated sources contain the definitions of all the data types and interfaces defined in the `WIT` file(s) as TypeScript types and interfaces.
 
 To **implement** the specification written in WIT, the TypeScript code must implement some of these generated interfaces and export them in `main.ts`.
 
@@ -359,7 +359,7 @@ Environment variables can be specified when a worker is **explicitly created**, 
 - `GOLEM_COMPONENT_ID` - the ID of the worker's component
 - `GOLEM_COMPONENT_VERSION` - the version of the component used for this worker
 
-In addition to these, when using [Worker to Worker communication](/common-language-guide/rpc), workers created by remote calls **inherit the environment variables of the caller**.
+In addition to these, when using [Worker to Worker communication](/develop/rpc), workers created by remote calls **inherit the environment variables of the caller**.
 
 This feature makes environment variables a good fit for passing configuration such as hostnames, ports, or access tokens to trees of workers.
 

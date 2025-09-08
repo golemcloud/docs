@@ -1,6 +1,6 @@
 import { Callout } from "nextra/components"
 
-# Working with Golem Promises in TypeScript
+# Working with Golem Promises
 
 Golem **promises** provide a way for Golem workers to wait on an external condition. The worker creates the promise and somehow sends its identifier to the external system responsible for **completing** the promise. Then the worker can **await** the promise, being suspended until the external system completes the promise using Golem's REST API.
 
@@ -8,7 +8,7 @@ It is also possible to complete a promise from within a Golem worker using the G
 
 When a promise is completed, an arbitrary byte array can be attached to it as a payload - this data is returned to the awaiting worker when is continues execution.
 
-In TypeScript the promise API has idiomatic TypeScript wrappers in the [Golem TypeScript SDK](/ts-language-guide/golem-ts-sdk).
+In TypeScript the promise API has idiomatic TypeScript wrappers in the Golem TypeScript SDK.
 
 ### Creating a promise
 

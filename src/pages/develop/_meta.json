@@ -11,12 +11,17 @@
     "type": "separator",
     "title": "Golem SDK"
   },
-  "golem-ts-sdk": "Setting up the Golem TypeScript SDK",
   "http": "HTTP client",
   "durability": "Durability",
   "retries": "Retries",
   "transactions": "Transactions",
   "promises": "Promises",
   "updating": "Updating Workers",
-  "wasi": "WASI"
+  "wasi": "WASI",
+  "shared-wit-packages": "Shared WIT Packages",
+  "rpc": "Worker to Worker Communication",
+  "worker-filesystem": "Worker Filesytem",
+  "llm": "Using LLMs",
+  "rdbms": "Using Relational Databases",
+  "forking": "Forking Workers"
 }

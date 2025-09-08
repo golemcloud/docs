@@ -10,19 +10,7 @@
   "concepts": {
     "title": "Concepts"
   },
-  "-- Develop": {
-    "type": "separator",
-    "title": "Develop"
-  },
-  "develop-overview": "Language Guides",
-  "rust-language-guide": "Rust Language Guide",
-  "ccpp-language-guide": "C/C++ Language Guide",
-  "python-language-guide": "Python Language Guide",
-  "go-language-guide": "Go Language Guide",
-  "js-language-guide": "JavaScript Language Guide",
-  "ts-language-guide": "TypeScript Language Guide",
-  "experimental-languages": "Experimental Languages",
-  "common-language-guide": "Common Guides",
+  "develop": "Develop",
   "-- Usage": {
     "type": "separator",
     "title": "Usage"
