@@ -1,6 +1,27 @@
-import { Callout } from "nextra/components"
+import { Tabs } from "nextra/components"
 
 # HTTP requests
 
-Golem implements the [WASI HTTP](https://github.com/WebAssembly/wasi-http) interfaces so any library built on this specification can be used from Golem components to communicate with external services.
-HTTP request can also be made with the JavaScript standard builtin `fetch` function.
+<Tabs items={["TypeScript"]}>
+<Tabs.Tab>
+    HTTP request can be made with the standard `fetch` function.
+
+    For example:
+
+    ```typescript
+    const response = await fetch(`http://localhost:${port}/todos`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            title: "foo",
+            body: "bar",
+            userId: 1
+        })
+    const data = await response.json();
+    console.log("Body: ", data);
+});
+    ```
+</Tabs.Tab>
+</Tabs>
