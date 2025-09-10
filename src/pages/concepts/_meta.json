@@ -4,7 +4,7 @@
   "agents": "Agents",
   "invocations": "Invocations",
   "worker-gateway": "Worker Gateway",
-  "worker-to-worker-communication": "Agent to Agent Communication",
+  "agent-to-agent-communication": "Agent to Agent Communication",
   "api-definitions": "API Definitions",
   "plugins": "Plugins"
 }

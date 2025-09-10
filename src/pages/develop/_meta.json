@@ -19,7 +19,7 @@
   "updating": "Updating Agents",
   "additional": "Additional runtime APIs",
   "rpc": "Agent to Agent Communication",
-  "worker-filesystem": "Agent Filesytem",
+  "agent-filesystem": "Agent Filesystem",
   "llm": "Using LLMs",
   "rdbms": "Using Relational Databases",
   "forking": "Forking Agents"
