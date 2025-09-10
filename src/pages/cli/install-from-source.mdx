@@ -6,7 +6,7 @@ import { Steps } from "nextra/components"
 If the precompiled binaries are not available for your platform, or prefer to install from source, you can build it with the Rust toolchain,
 
 ## Prerequisites
-To build `golem-cli` you need to use `cargo`, Rust's build tool, and the build will require `protoc`, the [protobuf](https://github.com/protocolbuffers/protobuf) compiler.
+To build `golem-cli` you need to use `cargo`, Rust's build tool.
 
 To get `cargo` on your system, we recommend using [rustup](https://rustup.rs/):
 
@@ -15,9 +15,6 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 rustup install stable
 rustup default stable
 ```
-
-To install `protoc` see [https://grpc.io/docs/protoc-installation/](https://grpc.io/docs/protoc-installation/).
-Make sure to install version **3.15 or higher**.
 
 ## Installing `golem-cli`
 

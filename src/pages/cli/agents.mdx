@@ -1,92 +1,77 @@
 import { Callout } from "nextra/components"
 
-# Golem CLI Workers
+# Golem CLI Agents
 
-Using `golem worker` command you can:
+Using `golem agent` command you can:
 
-- Start and stop worker
-- Interrupt and resume workers
-- Invoke worker function
-- Get worker stdout, stderr and logs
-- Update workers
-- Search workers, get metadata, etc.
-- Revert a worker to a previous state
+- Start and stop agent
+- Interrupt and resume agents
+- Invoke agent function
+- Get agent stdout, stderr and logs
+- Update agents
+- Search agents, get metadata, etc.
+- Revert a agent to a previous state
 
-<Callout>
-  In all examples we are using component URN. You can use component URL or `--component-name`
-  instead.
-</Callout>
+## Create a new agent
 
-## Start new worker
-
-Even though workers can automatically start on the first invocation, it is possible to explicitly start a worker.
-This allows specifying command line arguments and environment variables for the worker.
+Even though agents can automatically start on the first invocation, it is possible to explicitly start an agent.
+This allows specifying command line arguments and environment variables for the agent.
 
 ```shell copy
-golem worker new example:counter/counter1 --env A=1 --env B=2 arg1 arg2
+golem agent new 'example:counter/counter-agent("my-counter")' --env A=1 --env B=2 arg1 arg2
 ```
 
-You can see the URN for your new worker in command output. You can use URN whenever you want to specify worker instead of component and worker name.
+## Get agent metadata
 
-## Get worker metadata
+### Using the agent ID
 
-### Using worker name
-
-You can get worker metadata using worker name and (optionally prefixed by the component name, if it is not inferrable from the current context):
+You can get the agent metadata using the agent-id (the agent type and it's constructor parameters) and (optionally prefixed by the component name, if it is not inferrable from the current context):
 
 ```shell copy
-golem worker get counter1
-golem worker get example:counter/counter1
+golem agent get 'counter-agent("my-counter")'
+golem agent get 'example:counter/counter-agent("my-counter")'
 ```
 
-## Search workers
+## Search agents
 
-You can search for workers of some components using `worker list` command with repeated `--filter` argument.
+You can search for agents of some components or agent types using the `agent list` command with one or more `--filter` arguments.
 
-For instance lets find idle workers with component version older than 2 of the component `example:counter`:
+For instance lets find idle agents with component version older than 2 of the component `example:counter`:
 
 ```shell copy
-golem worker list --filter "status = Idle" --filter "version < 2" example:counter
+golem agent list --filter "status = Idle" --filter "version < 2" example:counter
 ```
 
 <Callout type="warning">
-  Enumerating workers is a slow operation and should only be used for debugging an administrative
+  Enumerating agents is a slow operation and should only be used for debugging an administrative
   tasks.
 </Callout>
 
-## Invoke functions
+## Invoking agent methods
 
-The folowig section shows the basics of invoking workers through the CLI. See the [dedicated invocation with CLI page](/invoke/cli) for more details.
+The folowing section shows the basics of invoking agents through the CLI. See the [dedicated invocation with CLI page](/invoke/cli) for more details.
 
 ### Without waiting for result
 
-You can invoke worker function without waiting for function result using `worker invoke --enqueue` command:
+You can invoke an agent function without waiting for function result using `agent invoke --enqueue` command:
 
 ```shell copy
-golem worker invoke --enqueue counter1 'rpc:counters/api.{inc-global-by}' 5
+golem agent invoke --enqueue 'counter-agent("my-counter")' 'increment-by' 5
 ```
 
 Function parameters can be specified using repeated `--arg` parameters.
 
 ### Waiting for result
 
-You can invoke worker function and wait for result using `worker invoke` command:
+You can invoke an agent method and wait for result using `agent invoke` command:
 
 ```shell copy
-golem worker invoke counter1 'rpc:counters/api.{get-global-value}'
+golem agent invoke 'counter-agent("my-counter")' 'get-value'
 ```
 
 ```
 Invocation results in WAVE format:
 - '5'
-```
-
-### Ephemeral workers
-
-Invoking **ephemeral components** does not require specifying the worker name, as Golem creates a new instance for each invocation. In this case only the **component** must be selected (if it is not inferred by the context), and the worker name must be `-`:
-
-```shell copy
-golem worker invoke example:ephemeral-component/- 'demo:worker/api.{test}'
 ```
 
 ### Using idempotency key
@@ -95,62 +80,62 @@ If you want to make sure function was called only once even if you called CLI mu
 
 You can use any string as idempotency key.
 
-## Live streaming worker logs
+## Live streaming agent logs
 
-You can connect to your running worker and get logs using `worker connect` command this way:
-
-```shell copy
-golem worker connect counter1
-```
-
-You can also use `--connect` option on `invoke` command to connect to worker right after invoking the command.
-
-## Worker update
-
-To update worker to some specific version of worker component you can use `worker update` this way:
+You can connect to your running agent and stream its logs using the `agent stream` command:
 
 ```shell copy
-golem worker update counter1 --target-version 2 --mode auto
+golem agent stream 'counter-agent("my-counter")'
 ```
 
-You can also use `worker update-many` with the same `--filter` parameters as in `worker list` command to update multiple workers:
+You can also use the `--stream` option on `invoke` command to connect to the agent right after invoking the command.
+
+## Agent update
+
+To update the agent to a specific component version, use the `agent update` command:
 
 ```shell copy
-golem worker update-many example:counter --filter 'version < 2' --target-version 2 --mode auto
+golem agent update 'counter-agent("my-counter")' --target-version 2 --mode auto
 ```
 
-## Interrupt and resume workers
-
-If you want to interrupt and later resume a long-running worker you can use `interrupt` and `resume` commands:
+The `agent update-many` with the same `--filter` parameters as in `agent list` command can update multiple agents:
 
 ```shell copy
-golem worker interrupt counter1
-golem worker resume counter1
+golem agent update-many example:counter --filter 'version < 2' --target-version 2 --mode auto
 ```
 
-## Testing worker crash recovery
+## Interrupt and resume agents
 
-There is a special command to simulate unexpected worker crush and recovery - `worker simulated-crash`. This command can be used for tests:
+If you want to interrupt and later resume a long-running agent you can use `interrupt` and `resume` commands:
 
 ```shell copy
-golem worker simulated-crash counter1
+golem agent interrupt 'counter-agent("my-counter")'
+golem agent resume 'counter-agent("my-counter")'
 ```
 
-## Stopping workers
+## Testing crash recovery
 
-Idle worker are not actively consuming resources but they take storage as their state is persisted. A worker can be deleted using the `worker delete` command:
+There is a special command to simulate a crash on an agent:
 
 ```shell copy
-golem worker delete counter1
+golem agent simulated-crash 'counter-agent("my-counter")'
 ```
 
-This command deletes worker state.
+## Deleting agents
 
-Please note that even though the worker can be deleted this way it would be started again (with the fresh state) if used:
+Idle agents are not actively consuming resources but they take storage as their state is persisted. An agent can be deleted using the `agent delete` command:
+
+```shell copy
+golem agent delete 'counter-agent("my-counter")'
+```
+
+This command deletes agent state.
+
+Please note that a next invocation to the same agent will recreate it with fresh state:
 
 ```shell
-golem worker delete counter1
-golem worker invoke counter1 'rpc:counters/api.{get-global-value}'
+golem agent delete 'counter-agent("my-counter")'
+golem agent invoke 'counter-agent("my-counter")' 'get-value'
 ```
 
 ```
@@ -160,25 +145,23 @@ Invocation results in WAVE format:
 
 ## Oplog query
 
-It is possible to **query** an existing worker's oplog for debugging purposes. To get the **full oplog** of a worker, use the `worker oplog` command the worker must be specified just like in other `golem-cli worker` commands:
+It is possible to **query** an existing agent's oplog for debugging purposes. To get the **full oplog** of an agent, use the `agent oplog` command:
 
 ```shell copy
-golem worker oplog counter1
+golem agent oplog 'counter-agent("my-counter")'
 ```
-
-Any other form of identifying a worker can be used (URL syntax, separate component-id and worker name, etc).
 
 With the optional `--from` parameter it is possible to only get oplog entries _after_ a certain oplog index:
 
 ```shell copy
-golem worker oplog counter1
+golem agent oplog --from 100 'counter-agent("my-counter")'
 ```
 
-Oplog entries are indexed from 1, and the first entry is always a **create** entry that defines the initial state of the worker.
+Oplog entries are indexed from 1, and the first entry is always a **create** entry that defines the initial state of the agent.
 
 ### Searching for oplog entries
 
-The same command can also be used to **search** for oplog entries, using the `--query` parameter. This parameter requries a query using **lucene query syntax**. The following syntax elements are supported:
+The same command can also be used to **search** for oplog entries, using the `--query` parameter. This parameter requires a query using **lucene query syntax**. The following syntax elements are supported:
 
 - `search terms` looks for `search` AND `terms`
 - `AND`, `OR` and `NOT`
@@ -217,33 +200,47 @@ The terms and fields are interpreted in the following way:
 | `Log`                       | `log`, match on context, match on message                                                                                                     |
 | `Restart`                   | `restart`                                                                                                                                     |
 | `ActivatePlugin`            | `activate-plugin`                                                                                                                             |
-| `DeactivatePlugin`          | `deactivate-plugin`                                                                                                                           |
+| `DeactivatePlugin`          | `deactivate-plugin`
+| `Revert`                    | `revert`
+| `CancelInvocation`          | `cancel`, `cancel-invocation`, match on idempotency key
+| `StartSpan`                 | `start-span`, `startspan`, match on span ID, match on parent ID, match on linked context, match on attributes(\*)
+| `FinishSpan`                | `finish-span`, `finishspan`, match on span ID
+| `SetSpanAttribute`          | `set-span-attribute`, `setspanattribute`, match on key, match on value
+| `ChangePersistenceLevel`    | `change-persistence-level`, `changepersistencelevel`, `persistence-level`
 
 The cases marked with **(\*)** can use the `field:value` syntax to look into the typed, structured parameter and result values.
 
 For example to look for oplog entries that contain parameters or return values of **exported functions** where any of these input/output values is a **record** having a field `product-id` with either value `123` or `456`, we can use the following query:
 
 ```shell
-golem worker oplog --worker urn:worker:d8bc9194-a4a2-4a57-8545-43408fc38799/counter1 --query 'exported-function AND (product-id:123 OR product-id:456)'
+golem agent oplog --query 'exported-function AND (product-id:123 OR product-id:456)' 'counter-agent("my-counter")'
 ```
 
-## Reverting a worker
+## Reverting an agent
 
-It is possible to revert a worker to its previous state. This can be useful if a worker got into a **failed** state to make it usable again, or to undo some accidental invocations or updates.
+It is possible to revert an agent to its previous state. This can be useful if an agent got into a **failed** state to make it usable again, or to undo some accidental invocations or updates.
 
 There are two possible ways to specify which state to revert to:
 
-- **By index**: The index of the oplog entry to revert to. Use the **oplog query** command to check the worker's oplog and find the index of the desired state.
+- **By index**: The index of the oplog entry to revert to. Use the **oplog query** command to check the agent's oplog and find the index of the desired state.
 - **By undoing the last invocations**: The given number is the number of invocations to revert.
 
-To revert to a given oplog, use the `worker revert` command:
+To revert to a given oplog, use the `agent revert` command:
 
 ```shell copy
-golem worker revert counter1 --last-oplog-index 42
+golem agent revert 'counter-agent("my-counter")' --last-oplog-index 42
 ```
 
 To revert some of the last invocations, use the `--number-of-invocations` parameter instead:
 
 ```shell copy
-golem worker revert counter1 --number-of-invocations 3
+golem agent revert 'counter-agent("my-counter")' --number-of-invocations 3
+```
+
+## Cancelling a pending invocation
+
+If an invocation is enqueued for an agent, but it has not been started yet, it can be removed from the invocation queue by using it's idempotency key:
+
+```shell copy
+golem agent cancel-invocation 'counter-agent("my-counter")' my-key
 ```
