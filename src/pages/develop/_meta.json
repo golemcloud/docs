@@ -20,7 +20,7 @@
   "additional": "Additional runtime APIs",
   "rpc": "Agent to Agent Communication",
   "agent-filesystem": "Agent Filesystem",
-  "llm": "Using LLMs",
+  "ai": "Using AI Providers",
   "rdbms": "Using Relational Databases",
   "forking": "Forking Agents"
 }
