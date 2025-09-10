@@ -2,11 +2,15 @@ import { Callout, Tabs } from "nextra/components"
 
 # Additional Runtime APIs
 
+<Callout type="info">
+    Previously Golem called _agents_ as workers, and the new name has not been applied everywhere yet. The APIs described in this section are still using the _worker_ name.
+</Callout>
+
 ### Generate an idempotency key
 
 Golem provides a function to generate an idempotency key (a UUID) which can be passed to external systems to ensure that the same request is not processed multiple times.
 
-It is guaranteed that this idempotency key will always be the same (per occurrence) even if the worker is restarted due to a crash.
+It is guaranteed that this idempotency key will always be the same (per occurrence) even if the agent is restarted due to a crash.
 
 To generate an idempotency key:
 
@@ -20,13 +24,9 @@ const key: Uuid = generateIdempotencyKey();
     </Tabs.Tab>
 </Tabs>
 
-### Get worker metadata
+### Get agent metadata
 
-It is possible to query **metadata** for Golem workers. This metadata is defined by the `WorkerMetadata` interface:
-
-<Callout type="info">
-    `WorkerMetadata` is going to be renamed to `AgentMetadat` in a future version. Previously Golem called _agents_ as workers, and the new name has not been applied everywhere yet.
-</Callout>
+It is possible to query **metadata** for Golem agents. This metadata is defined by the `WorkerMetadata` interface:
 
 <Tabs items={["TypeScript"]}>
     <Tabs.Tab>
@@ -42,22 +42,22 @@ export type WorkerMetadata = {
 };
 ```
 
-There are two exported functions to query worker metadata:
+There are two exported functions to query agent metadata:
 
 - `getSelfMetadata()` returns the metadata for the current worker
-- `getWorkerMetadata(workerId: WorkerId)` returns the metadata for a specific worker given by its `WorkerId`
+- `getWorkerMetadata(workerId: WorkerId)` returns the metadata for a specific agent given by its `WorkerId`
     </Tabs.Tab>
 </Tabs>
 
-### Enumerate workers
+### Enumerate agents
 
-Worker enumeration is a feature of Golem available both through the public HTTP API and using the WIT interfaces.
+Agent enumeration is a feature of Golem available both through the public HTTP API and using the WIT interfaces.
 
 <Callout type="warning">
-    Enumerating workers of a component is a slow operation and should not be used as part of the application logic.
+    Enumerating agents of a component is a slow operation and should not be used as part of the application logic.
 </Callout>
 
-The following example demonstrates how to use the worker enumeration API:
+The following example demonstrates how to use the agent enumeration API:
 
 <Tabs items={["TypeScript"]}>
     <Tabs.Tab>
@@ -102,11 +102,11 @@ while ((batch = getter.getNext()) !== undefined) {
 
 The third parameter of the `GetWorkers` constructor enables `precise` mode. In this mode, Golem will calculate the latest metadata for each returned worker; otherwise, it uses only the last cached values.
 
-### Update a worker
+### Update an agent
 
 <Tabs items={["TypeScript"]}>
     <Tabs.Tab>
-To trigger an update for a given worker from one component version to another, use the `updateWorker` function:
+To trigger an update for a given agent from one component version to another, use the `updateWorker` function:
 
 ```typescript
 import { updateWorker, WorkerId, ComponentVersion } from "golem:api/host@0.2.0"
@@ -122,14 +122,14 @@ updateWorker(workerId, targetVersion, "automatic")
     </Tabs.Tab>
 </Tabs>
 
-To learn more about updating workers, see the updating workers page in the documentation.
+To learn more about updating agents, see the Agent Update section of the [agents page](/concepts/agents).
 
 ### The WASI Key-Value store interface
 
-Although Golem workers can store their state completely in their own memory, it is possible to use the `wasi:keyvalue` interface to store key-value pairs in a Golem managed key value storage.
+Although Golem agents can store their state completely in their own memory, it is possible to use the `wasi:keyvalue` interface to store key-value pairs in a Golem managed key value storage.
 
-This can be useful if state needs to be shared between different workers or if the size of this state is too large to be stored in memory.
+This can be useful if state needs to be shared between different agents or if the size of this state is too large to be stored in memory.
 
 ### The WASI Blob Store interface
 
-The `wasi:blobstore` interface provides a way to store and retrieve large binary data. This can be useful for storing large files or other binary data that is too large to be stored in the worker's memory.
+The `wasi:blobstore` interface provides a way to store and retrieve large binary data. This can be useful for storing large files or other binary data that is too large to be stored in the agent's memory.
