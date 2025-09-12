@@ -39,7 +39,6 @@
   },
   "app-manifest": "Application Manifest",
   "name-mapping": "Name Mapping",
-  "golem-host-functions": "Golem Host Functions",
   "type-mapping": "Type Mapping",
   "rest-api": "REST API",
   "rib": "Rib"

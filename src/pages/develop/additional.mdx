@@ -125,6 +125,145 @@ updateWorker(workerId, targetVersion, "automatic")
 
 To learn more about updating agents, see the Agent Update section of the [agents page](/concepts/agents).
 
+### Oplog search and query
+The `oplog` interface in `golem:api` provides functions to search and query the worker's persisted oplog.
+
+The interface defines a big `variant` data type called `oplog-entry`, and two **resources** for querying a worker's oplog.
+
+- the `get-oplog` resource enumerates through **all entries** of the oplog
+- the `search-oplog` resource accepts a **search expression** and only returns the matching entries
+
+Both resources, once constructed, provide a `get-next` function that returns a chunk of oplog entries. Repeatedly calling this function goes through the whole data set, and eventually returns `none`.
+
+### Durability
+The `golem:durability` package contains an API that libraries can leverage to provide a custom durability implementation for their own API. This is the same interface that Golem uses under the hood to make the WASI interfaces durable. Golem applications are not supposed to use this package directly.
+
+#### Types
+
+The `durable-function-type` is a variant that categorizes a durable function in the following way:
+
+```wit
+package golem:api@1.1.6;
+
+interface host {
+    variant durable-function-type {
+        /// The side-effect reads from the worker's local state (for example local file system,
+        /// random generator, etc.)
+        read-local,
+        /// The side-effect writes to the worker's local state (for example local file system)
+        write-local,
+        /// The side-effect reads from external state (for example a key-value store)
+        read-remote,
+        /// The side-effect manipulates external state (for example an RPC call)
+        write-remote,
+        /// The side-effect manipulates external state through multiple invoked functions (for example
+        /// a HTTP request where reading the response involves multiple host function calls)
+        ///
+        /// On the first invocation of the batch, the parameter should be `None` - this triggers
+        /// writing a `BeginRemoteWrite` entry in the oplog. Followup invocations should contain
+        /// this entry's index as the parameter. In batched remote writes it is the caller's responsibility
+        /// to manually write an `EndRemoteWrite` entry (using `end_function`) when the operation is completed.
+        write-remote-batched(option<oplog-index>)
+    }
+}
+```
+
+The `durable-execution-state` record provides information about the current execution state, and can be queried using the `current-durable-execution-state` function:
+
+```wit
+package golem:api@1.1.6;
+
+interface host {
+    record durable-execution-state {
+        is-live: bool,
+        persistence-level: persistence-level,
+    }
+}
+```
+
+Here the `is-live` field indicates whether the executor is currently _replaying_ a worker's previously persisted state or side effects should be executed. The `persistence-level` is a user-configurable setting that can turn off persistence for certain sections of the code.
+
+The `persisted-durable-function-invocation` is a record holding all the information about one persisted durable function. This should be used during _replay_ to simulate the side effect instead of actually running it.
+
+#### Functions
+
+The durability API consists of a couple of low-level functions that must be called in a correct way to make it work.
+
+The logic to be implemented is the following, in pseudocode:
+
+```
+observe-function-call("interface", "function")
+state = current-durable-execution-state()
+if state.is-live {
+  result = perform-side-effect(input)
+  persist-typed-durable-function-invocation("function", encode(input), encode(result), durable-function-type)
+} else {
+  // Execute the side effect
+  persisted = read-persisted-durable-function-invocation()
+  result = decode(persisted.response)
+}
+```
+
+The `input` and `result` values must be encoded into `value-and-type`, the dynamic value representation from the `golem:rpc` package.
+
+In cases when a durable function's execution interleaves with other calls, the `begin-durable-function` and `end-durable-function` calls can be used to mark the beginning and end of the operation.
+
+
+### Invocation context
+
+Golem associates an **invocation context** with each invocation, which contains various information depending on how the exported function was called. This context gets inherited when making further invocations via worker-to-worker communication, and it is also possible to define custom **spans** and associate custom **attributes** to it.
+
+The spans are not automatically sent to any tracing system but they can be reconstructed from the oplog, for example using **oplog processor plugins**, to provide real-time tracing information.
+
+To get the current invocation context, use the `current-context` host function:
+
+```wit
+package golem:api@1.1.6;
+
+/// Invocation context support
+interface context {
+    current-context: func() -> invocation-context;
+}
+```
+
+The `invocation-context` itself is a **resource** with various methods for querying attributes of the invocation context:
+
+| method | description |
+| ------ | ----------- |
+| `trace-id` | Returns the trace ID associated with the context, coming from either an external trace header or generated at the edge of Golem |
+| `span-id` | Returns the span ID associated with the context |
+| `parent` | Returns the parent invocation context, if any |
+| `get-attribute` | Gets an attribute from the context by key |
+| `get-attributes` | Gets all attributes from the context |
+| `get-attribute-chain` | Gets all values of a given attribute from the current and parent contexts |
+| `get-attribute-chains` | Get all attributes and their previous values |
+| `trace-context-headers` | Gets the W3C Trace Context headers associated with the current invocation context |
+
+Custom attributes can only be set on **custom spans**. First start a new span using `start-span`
+
+```wit
+package golem:api@1.1.6;
+
+/// Invocation context support
+interface context {
+    /// Starts a new `span` with the given name, as a child of the current invocation context
+    start-span: func(name: string) -> span;
+}
+```
+
+and then use the `span` resource's methods:
+
+| method | description |
+| ------ | ----------- |
+| `started-at` | Returns the timestamp when the span was started |
+| `set-attribute` | Sets an attribute on the span |
+| `set-attributes` | Sets multiple attributes on the span |
+| `finish` | Ends the current span |
+
+Dropping the resource is equivalent to calling `finish` on the span.
+
+The custom spans are pushed onto the invocation context stack, so whenever an RPC call or HTTP call is made, their parent span(s) will include the user-defined custom spans as well as the rest of the invocation context.
+
 ### The WASI Key-Value store interface
 
 Although Golem agents can store their state completely in their own memory, it is possible to use the `wasi:keyvalue` interface to store key-value pairs in a Golem managed key value storage.
