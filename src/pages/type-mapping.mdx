@@ -1,10 +1,49 @@
-# JSON - WAVE mapping
+import { Callout, Tabs } from "nextra/components"
 
-The **invocation API** uses a special JSON format to describe invocation parameters and results. As the parameter and result types are defined by the Web Assembly components, the natural way to encode parameter and return **values** is the [WAVE (WebAssembly Value Encoding)](https://github.com/bytecodealliance/wasm-tools/tree/main/crates/wasm-wave) format.
+# Type mapping
+
+The types used in the component's code are mapped to the types of Rib (WebAssembly value encoding or WAVE) and to JSON (when used in the invocation REST API). This page lists all the supported types and how they are mapped.
+
+## User types to Rib
+
+This section describes how various types of the used programming language are mapping to types used by the Rib scripting language and the CLI invoke functions. These are WebAssembly component-model types, and their values are described using the [WAVE (WebAssembly Value Encoding)](https://github.com/bytecodealliance/wasm-tools/tree/main/crates/wasm-wave) format.
+
+<Tabs items={["TypeScript"]}>
+    <Tabs.Tab>
+        The following TypeScript types are supported:
+
+        | TypeScript type | WIT type               | Example Rib value                                    | Remarks
+        | --------------- | ---------------------- | ---------------------------------------------------- | -------
+        | `string`        | `string`               | `"hello world"`                                      | |
+        | `boolean`       | `bool`                 | `true`, `false`                                   | |
+        | `number`        | `s32`                  | `1234` | |
+        | `object`        | `record { ... }`       | `{ a: "hello", b: 1234 }`                            | |
+        | `Map<K, V>`     | `list<tuple<K, V>>`    | `[("key1", 100), ("key2", -2)]`           | |
+        | `Array<T>`      | `list<T>`              | `["one", "two", "three"]`                            | |
+        | Interface with value fields | `record { ... }` | `{ field1: "value", field2: 42 }`                   | |
+        | Union           | `variant { ... }`        | `case1(value)` | The case names are `case1`, `case2`, etc. For example for `string | number | CustomRecord` there will be `case1`, `case2` and `case3` |
+        | tuple           | `tuple<...>`           | `("hello", 1234, true)`                              | |
+        | `T | undefined` | `option<T>`        | `some(value)`, `none`                                | |
+        | `T | null` | `option<T>`        | `some(value)`, `none`                                | |
+        | `field?: T`     | `option<T>`        | `some(value)`, `none`                                | Optional fields in records are mapped to options |
+        | `UInt8Array`  | `list<u8>`             | `[104, 101, 108, 108, 111]`                          | |
+        | `Int8Array`   | `list<s8>`             | `[-1, 0, 1]`                                        | |
+        | `UInt16Array` | `list<u16>`            | `[65535, 0, 1]`                                     | |
+        | `Int16Array`  | `list<s16>`            | `[-32768, 0, 32767]`
+        | `UInt32Array` | `list<u32>`            | `[4294967295, 0, 1]`                                | |
+        | `Int32Array`  | `list<s32>`            | `[-2147483648, 0, 2147483647]`                          | |
+        | `BigUint64Array` | `list<u64>`     | `[18446744073709551615, 0, 1]`                      | | |
+        | `BigInt64Array`  | `list<s64>`      | `[-9223372036854775808, 0, 9223372036854775807]`          | |
+        | `Float32Array` | `list<f32>`            | `[3.4028235e+38, 1.175494e-38, 0, -1.175494e-38, -3.4028235e+38]` | |
+        | `Float64Array` | `list<f64>`            | `[1.7976931348623157e+308, 2.2250738585072014e-308, 0, -2.2250738585072014e-308, -1.7976931348623157e+308]` | |
+    </Tabs.Tab>
+</Tabs>
+
+## Rib types to JSON
+
+The **invocation API** uses a special JSON format to describe invocation parameters and results.
 
 When using the REST API, the JSON-encoded values must be extended with a JSON-encoded **type information** as well. This is described in details in the [Invoke via HTTP](invoke/http) page.
-
-When using the CLI tool, it is possible to either use the WAVE format directly, or use this JSON format as described in details in the [Invoke via CLI](invoke/cli) page.
 
 The following sections define how each WASM type and it's corresponding WAVE value encoding is mapped to Golem's value JSON format.
 

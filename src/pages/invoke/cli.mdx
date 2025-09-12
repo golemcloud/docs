@@ -20,7 +20,7 @@ Note that the `agent-type(agent-parameters)` part is also referred as the _agent
 
 Also note that you can only omit the component name if it can be inferred from the context, for example if the current directory is a component directory or the application root with a single component only.
 
-The function to be invoked is selected by the second parameter. Read the [invocation function name syntax page](/function-names) for more information about the possible function names.
+The function to be invoked is selected by the second parameter. Read the [page about name mapping](/name-mapping) for more information about the possible function names.
 
 ## Encoding parameters
 
@@ -30,7 +30,7 @@ The CLI requires you to encode the function parameters using the [WebAssembly Va
 
 When using `invoke` without the `--enqueue` flag, the CLI awaits the result of the invocation and prints the result value to the standard output. By default it uses the `text` format, in which case it prints the result value using the [WebAssembly Value Encoding](https://github.com/bytecodealliance/wasm-tools/tree/main/crates/wasm-wave).
 
-This can be changed with `--format json` or `--format yaml` to print the invocation result in JSON or YAML, using the [mapping described on the JSON WAVE Mapping page](/json-wave-mapping).
+This can be changed with `--format json` or `--format yaml` to print the invocation result in JSON or YAML, using the [mapping described on Type Mapping page](/type-mapping).
 
 ## Logs
 
