@@ -37,7 +37,6 @@
     "type": "separator",
     "title": "References"
   },
-  "http-api-definitions": "API Definitions",
   "app-manifest": "Application Manifest",
   "function-names": "Function names",
   "golem-host-functions": "Golem Host Functions",
