@@ -176,8 +176,9 @@ Path|Method|Protected
 [
   {
     "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-    "name": "string",
-    "version": "string",
+    "pluginName": "string",
+    "pluginVersion": "string",
+    "pluginRegistered": true,
     "priority": 0,
     "parameters": {
       "property1": "string",
@@ -214,8 +215,9 @@ Path|Method|Protected
 ```json copy
 {
   "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "name": "string",
-  "version": "string",
+  "pluginName": "string",
+  "pluginVersion": "string",
+  "pluginRegistered": true,
   "priority": 0,
   "parameters": {
     "property1": "string",
@@ -266,11 +268,45 @@ Path|Method|Protected
 ```json copy
 {}
 ```
+
+## Applies a batch of changes to the installed plugins of a component
+Path|Method|Protected
+---|---|---
+`/v1/projects/{project_id}/latest/plugins/installs/batch`|POST|Yes
+
+
+
+
+
+**Example Request JSON**
+```json copy
+{
+  "actions": [
+    {
+      "type": "Install",
+      "name": "string",
+      "version": "string",
+      "priority": 0,
+      "parameters": {
+        "property1": "string",
+        "property2": "string"
+      }
+    }
+  ]
+}
+```
+
+**Example Response JSON**
+
+```json copy
+{}
+```
 ## Project API Errors
 Status Code|Description|Body
 ---|---|---
 400|Invalid request, returning with a list of issues detected in the request|`{"errors":["string"]}`
-401|Unauthorized|`{"error":"string"}`
-403|Maximum number of projects exceeded|`{"error":"string"}`
-404|Project not found|`{"error":"string"}`
-500|Project already exists|`{"error":"string"}`
+401|Unauthorized request|`{"error":"string"}`
+403|Forbidden Request|`{"error":"string"}`
+404|Entity not found|`{"error":"string"}`
+409||`{"error":"string"}`
+500|Internal server error|`{"error":"string"}`

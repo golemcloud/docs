@@ -198,5 +198,8 @@ state|string|Yes|The state parameter for identifying the session
 Status Code|Description|Body
 ---|---|---
 400|Invalid request, returning with a list of issues detected in the request|`{"errors":["string"]}`
-401|Failed to login|`{"error":"string"}`
-500|External service call failed during login|`{"error":"string"}`
+401|Unauthorized request|`{"error":"string"}`
+403|Forbidden Request|`{"error":"string"}`
+404|Entity not found|`{"error":"string"}`
+409||`{"error":"string"}`
+500|Internal server error|`{"error":"string"}`

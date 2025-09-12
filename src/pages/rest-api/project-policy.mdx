@@ -1,18 +1,5 @@
 # Project Policy API
 Project policies describe a set of actions one account can perform when it was associated with a grant for a project.
-
-The following actions can be used in the projectActions fields of this API:
-- `ViewComponent` grants read access to a component
-- `CreateComponent` allows creating new components in a project
-- `UpdateComponent` allows uploading new versions for existing components in a project
-- `DeleteComponent` allows deleting components from a project
-- `ViewWorker` allows querying existing workers of a component belonging to the project
-- `CreateWorker` allows launching new workers of a component in the project
-- `UpdateWorker` allows manipulating existing workers of a component belonging to the project
-- `DeleteWorker` allows deleting workers of a component belonging to the project
-- `ViewProjectGrants` allows listing the existing grants of the project
-- `CreateProjectGrants` allows creating new grants for the project
-- `DeleteProjectGrants` allows deleting existing grants of the project
 ## Get a project policy
 Path|Method|Protected
 ---|---|---
@@ -77,5 +64,7 @@ Status Code|Description|Body
 ---|---|---
 400|Invalid request, returning with a list of issues detected in the request|`{"errors":["string"]}`
 401|Unauthorized request|`{"error":"string"}`
-404|Account not found|`{"error":"string"}`
+403|Forbidden Request|`{"error":"string"}`
+404|Entity not found|`{"error":"string"}`
+409||`{"error":"string"}`
 500|Internal server error|`{"error":"string"}`

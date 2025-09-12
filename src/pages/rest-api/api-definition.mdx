@@ -1,13 +1,16 @@
 # Api Definition API
 
 ## Upload an OpenAPI definition
-
-| Path                                      | Method | Protected |
-| ----------------------------------------- | ------ | --------- |
-| `/v1/api/definitions/{project_id}/import` | PUT    | Yes       |
+Path|Method|Protected
+---|---|---
+`/v1/api/definitions/{project_id}/import`|PUT|Yes
 
 Uploads an OpenAPI JSON document and either creates a new one or updates an existing Golem
 API definition using it.
+
+
+
+
 
 **Example Response JSON**
 
@@ -27,12 +30,15 @@ API definition using it.
         },
         "workerName": "string",
         "idempotencyKey": "string",
+        "invocationContext": "string",
         "response": "string",
         "bindingType": "default",
         "responseMappingInput": {
           "types": {
             "property1": {
               "type": "Variant",
+              "name": "string",
+              "owner": "string",
               "cases": [
                 {
                   "name": "string",
@@ -42,6 +48,8 @@ API definition using it.
             },
             "property2": {
               "type": "Variant",
+              "name": "string",
+              "owner": "string",
               "cases": [
                 {
                   "name": "string",
@@ -55,6 +63,8 @@ API definition using it.
           "types": {
             "property1": {
               "type": "Variant",
+              "name": "string",
+              "owner": "string",
               "cases": [
                 {
                   "name": "string",
@@ -64,6 +74,8 @@ API definition using it.
             },
             "property2": {
               "type": "Variant",
+              "name": "string",
+              "owner": "string",
               "cases": [
                 {
                   "name": "string",
@@ -77,6 +89,8 @@ API definition using it.
           "types": {
             "property1": {
               "type": "Variant",
+              "name": "string",
+              "owner": "string",
               "cases": [
                 {
                   "name": "string",
@@ -86,6 +100,8 @@ API definition using it.
             },
             "property2": {
               "type": "Variant",
+              "name": "string",
+              "owner": "string",
               "cases": [
                 {
                   "name": "string",
@@ -104,8 +120,10 @@ API definition using it.
           "maxAge": 0
         },
         "responseMappingOutput": {
-          "analysed_type": {
+          "analysedType": {
             "type": "Variant",
+            "name": "string",
+            "owner": "string",
             "cases": [
               {
                 "name": "string",
@@ -123,18 +141,19 @@ API definition using it.
 ```
 
 ## List API definitions
-
-| Path                               | Method | Protected |
-| ---------------------------------- | ------ | --------- |
-| `/v1/api/definitions/{project_id}` | GET    | Yes       |
+Path|Method|Protected
+---|---|---
+`/v1/api/definitions/{project_id}`|GET|Yes
 
 Lists all API definitions associated with the project.
 
 **Query Parameters**
 
-| Name              | Type   | Required | Description |
-| ----------------- | ------ | -------- | ----------- |
-| api-definition-id | string | No       | -           |
+Name|Type|Required|Description
+---|---|---|---
+api-definition-id|string|No|-
+
+
 
 **Example Response JSON**
 
@@ -155,12 +174,15 @@ Lists all API definitions associated with the project.
           },
           "workerName": "string",
           "idempotencyKey": "string",
+          "invocationContext": "string",
           "response": "string",
           "bindingType": "default",
           "responseMappingInput": {
             "types": {
               "property1": {
                 "type": "Variant",
+                "name": "string",
+                "owner": "string",
                 "cases": [
                   {
                     "name": "string",
@@ -170,6 +192,8 @@ Lists all API definitions associated with the project.
               },
               "property2": {
                 "type": "Variant",
+                "name": "string",
+                "owner": "string",
                 "cases": [
                   {
                     "name": "string",
@@ -183,6 +207,8 @@ Lists all API definitions associated with the project.
             "types": {
               "property1": {
                 "type": "Variant",
+                "name": "string",
+                "owner": "string",
                 "cases": [
                   {
                     "name": "string",
@@ -192,6 +218,8 @@ Lists all API definitions associated with the project.
               },
               "property2": {
                 "type": "Variant",
+                "name": "string",
+                "owner": "string",
                 "cases": [
                   {
                     "name": "string",
@@ -205,6 +233,8 @@ Lists all API definitions associated with the project.
             "types": {
               "property1": {
                 "type": "Variant",
+                "name": "string",
+                "owner": "string",
                 "cases": [
                   {
                     "name": "string",
@@ -214,6 +244,8 @@ Lists all API definitions associated with the project.
               },
               "property2": {
                 "type": "Variant",
+                "name": "string",
+                "owner": "string",
                 "cases": [
                   {
                     "name": "string",
@@ -232,8 +264,10 @@ Lists all API definitions associated with the project.
             "maxAge": 0
           },
           "responseMappingOutput": {
-            "analysed_type": {
+            "analysedType": {
               "type": "Variant",
+              "name": "string",
+              "owner": "string",
               "cases": [
                 {
                   "name": "string",
@@ -252,13 +286,16 @@ Lists all API definitions associated with the project.
 ```
 
 ## Create a new API definition
-
-| Path                               | Method | Protected |
-| ---------------------------------- | ------ | --------- |
-| `/v1/api/definitions/{project_id}` | POST   | Yes       |
+Path|Method|Protected
+---|---|---
+`/v1/api/definitions/{project_id}`|POST|Yes
 
 Creates a new API definition described by Golem's API definition JSON document.
 If an API definition of the same version already exists, its an error.
+
+
+
+
 
 **Example Response JSON**
 
@@ -278,12 +315,15 @@ If an API definition of the same version already exists, its an error.
         },
         "workerName": "string",
         "idempotencyKey": "string",
+        "invocationContext": "string",
         "response": "string",
         "bindingType": "default",
         "responseMappingInput": {
           "types": {
             "property1": {
               "type": "Variant",
+              "name": "string",
+              "owner": "string",
               "cases": [
                 {
                   "name": "string",
@@ -293,6 +333,8 @@ If an API definition of the same version already exists, its an error.
             },
             "property2": {
               "type": "Variant",
+              "name": "string",
+              "owner": "string",
               "cases": [
                 {
                   "name": "string",
@@ -306,6 +348,8 @@ If an API definition of the same version already exists, its an error.
           "types": {
             "property1": {
               "type": "Variant",
+              "name": "string",
+              "owner": "string",
               "cases": [
                 {
                   "name": "string",
@@ -315,6 +359,8 @@ If an API definition of the same version already exists, its an error.
             },
             "property2": {
               "type": "Variant",
+              "name": "string",
+              "owner": "string",
               "cases": [
                 {
                   "name": "string",
@@ -328,6 +374,8 @@ If an API definition of the same version already exists, its an error.
           "types": {
             "property1": {
               "type": "Variant",
+              "name": "string",
+              "owner": "string",
               "cases": [
                 {
                   "name": "string",
@@ -337,6 +385,8 @@ If an API definition of the same version already exists, its an error.
             },
             "property2": {
               "type": "Variant",
+              "name": "string",
+              "owner": "string",
               "cases": [
                 {
                   "name": "string",
@@ -355,8 +405,10 @@ If an API definition of the same version already exists, its an error.
           "maxAge": 0
         },
         "responseMappingOutput": {
-          "analysed_type": {
+          "analysedType": {
             "type": "Variant",
+            "name": "string",
+            "owner": "string",
             "cases": [
               {
                 "name": "string",
@@ -374,12 +426,15 @@ If an API definition of the same version already exists, its an error.
 ```
 
 ## Get an API definition
-
-| Path                                              | Method | Protected |
-| ------------------------------------------------- | ------ | --------- |
-| `/v1/api/definitions/{project_id}/{id}/{version}` | GET    | Yes       |
+Path|Method|Protected
+---|---|---
+`/v1/api/definitions/{project_id}/{id}/{version}`|GET|Yes
 
 An API definition is selected by its API definition ID and version.
+
+
+
+
 
 **Example Response JSON**
 
@@ -399,12 +454,15 @@ An API definition is selected by its API definition ID and version.
         },
         "workerName": "string",
         "idempotencyKey": "string",
+        "invocationContext": "string",
         "response": "string",
         "bindingType": "default",
         "responseMappingInput": {
           "types": {
             "property1": {
               "type": "Variant",
+              "name": "string",
+              "owner": "string",
               "cases": [
                 {
                   "name": "string",
@@ -414,6 +472,8 @@ An API definition is selected by its API definition ID and version.
             },
             "property2": {
               "type": "Variant",
+              "name": "string",
+              "owner": "string",
               "cases": [
                 {
                   "name": "string",
@@ -427,6 +487,8 @@ An API definition is selected by its API definition ID and version.
           "types": {
             "property1": {
               "type": "Variant",
+              "name": "string",
+              "owner": "string",
               "cases": [
                 {
                   "name": "string",
@@ -436,6 +498,8 @@ An API definition is selected by its API definition ID and version.
             },
             "property2": {
               "type": "Variant",
+              "name": "string",
+              "owner": "string",
               "cases": [
                 {
                   "name": "string",
@@ -449,6 +513,8 @@ An API definition is selected by its API definition ID and version.
           "types": {
             "property1": {
               "type": "Variant",
+              "name": "string",
+              "owner": "string",
               "cases": [
                 {
                   "name": "string",
@@ -458,6 +524,8 @@ An API definition is selected by its API definition ID and version.
             },
             "property2": {
               "type": "Variant",
+              "name": "string",
+              "owner": "string",
               "cases": [
                 {
                   "name": "string",
@@ -476,8 +544,10 @@ An API definition is selected by its API definition ID and version.
           "maxAge": 0
         },
         "responseMappingOutput": {
-          "analysed_type": {
+          "analysedType": {
             "type": "Variant",
+            "name": "string",
+            "owner": "string",
             "cases": [
               {
                 "name": "string",
@@ -495,12 +565,15 @@ An API definition is selected by its API definition ID and version.
 ```
 
 ## Update an existing API definition.
-
-| Path                                              | Method | Protected |
-| ------------------------------------------------- | ------ | --------- |
-| `/v1/api/definitions/{project_id}/{id}/{version}` | PUT    | Yes       |
+Path|Method|Protected
+---|---|---
+`/v1/api/definitions/{project_id}/{id}/{version}`|PUT|Yes
 
 Only draft API definitions can be updated.
+
+
+
+
 
 **Example Response JSON**
 
@@ -520,12 +593,15 @@ Only draft API definitions can be updated.
         },
         "workerName": "string",
         "idempotencyKey": "string",
+        "invocationContext": "string",
         "response": "string",
         "bindingType": "default",
         "responseMappingInput": {
           "types": {
             "property1": {
               "type": "Variant",
+              "name": "string",
+              "owner": "string",
               "cases": [
                 {
                   "name": "string",
@@ -535,6 +611,8 @@ Only draft API definitions can be updated.
             },
             "property2": {
               "type": "Variant",
+              "name": "string",
+              "owner": "string",
               "cases": [
                 {
                   "name": "string",
@@ -548,6 +626,8 @@ Only draft API definitions can be updated.
           "types": {
             "property1": {
               "type": "Variant",
+              "name": "string",
+              "owner": "string",
               "cases": [
                 {
                   "name": "string",
@@ -557,6 +637,8 @@ Only draft API definitions can be updated.
             },
             "property2": {
               "type": "Variant",
+              "name": "string",
+              "owner": "string",
               "cases": [
                 {
                   "name": "string",
@@ -570,6 +652,8 @@ Only draft API definitions can be updated.
           "types": {
             "property1": {
               "type": "Variant",
+              "name": "string",
+              "owner": "string",
               "cases": [
                 {
                   "name": "string",
@@ -579,6 +663,8 @@ Only draft API definitions can be updated.
             },
             "property2": {
               "type": "Variant",
+              "name": "string",
+              "owner": "string",
               "cases": [
                 {
                   "name": "string",
@@ -597,8 +683,10 @@ Only draft API definitions can be updated.
           "maxAge": 0
         },
         "responseMappingOutput": {
-          "analysed_type": {
+          "analysedType": {
             "type": "Variant",
+            "name": "string",
+            "owner": "string",
             "cases": [
               {
                 "name": "string",
@@ -616,12 +704,15 @@ Only draft API definitions can be updated.
 ```
 
 ## Delete an API definition
-
-| Path                                              | Method | Protected |
-| ------------------------------------------------- | ------ | --------- |
-| `/v1/api/definitions/{project_id}/{id}/{version}` | DELETE | Yes       |
+Path|Method|Protected
+---|---|---
+`/v1/api/definitions/{project_id}/{id}/{version}`|DELETE|Yes
 
 Deletes an API definition by its API definition ID and version.
+
+
+
+
 
 **Example Response JSON**
 
@@ -629,13 +720,32 @@ Deletes an API definition by its API definition ID and version.
 "string"
 ```
 
-## Api Definition API Errors
+## Export an API definition in OpenAPI format
+Path|Method|Protected
+---|---|---
+`/v1/api/definitions/{project_id}/{id}/{version}/export`|GET|Yes
 
-| Status Code | Description | Body                                      |
-| ----------- | ----------- | ----------------------------------------- |
-| 400         |             | `{"type":"Messages","errors":["string"]}` |
-| 401         |             | `{"error":"string"}`                      |
-| 403         |             | `{"error":"string"}`                      |
-| 404         |             | `{"message":"string"}`                    |
-| 409         |             | `"string"`                                |
-| 500         |             | `{"error":"string"}`                      |
+Exports an API definition by its API definition ID and version in OpenAPI format.
+
+
+
+
+
+**Example Response JSON**
+
+```json copy
+{
+  "id": "string",
+  "version": "string",
+  "openapi_yaml": "string"
+}
+```
+## Api Definition API Errors
+Status Code|Description|Body
+---|---|---
+400||`{"errors":["string"]}`
+401||`{"error":"string"}`
+403||`{"error":"string"}`
+404||`{"error":"string"}`
+409||`{"error":"string"}`
+500||`{"error":"string","workerError":{"cause":"string","stderr":"string"}}`

@@ -51,6 +51,7 @@ The response describes the new project grant including its id that can be used t
 ```json copy
 {
   "granteeAccountId": "string",
+  "granteeEmail": "string",
   "projectPolicyId": "46e8c3fb-5136-4f2a-a8be-e5188bef1348",
   "projectActions": [
     "ViewComponent"
@@ -116,7 +117,8 @@ Deletes an existing grant of a specific project.
 Status Code|Description|Body
 ---|---|---
 400|Invalid request, returning with a list of issues detected in the request|`{"errors":["string"]}`
-401|Unauthorized|`{"error":"string"}`
-403|Maximum number of projects exceeded|`{"error":"string"}`
-404|Project not found|`{"error":"string"}`
-500|Project already exists|`{"error":"string"}`
+401|Unauthorized request|`{"error":"string"}`
+403|Forbidden Request|`{"error":"string"}`
+404|Entity not found|`{"error":"string"}`
+409||`{"error":"string"}`
+500|Internal server error|`{"error":"string"}`

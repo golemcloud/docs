@@ -64,7 +64,7 @@ Path|Method|Protected
 ---|---|---
 `/v1/accounts/{account_id}/tokens/{token_id}`|GET|Yes
 
-Gets information about a token given by it's identifier.
+Gets information about a token given by its identifier.
 The JSON is the same as the data object in the oauth2 endpoint's response.
 
 
@@ -87,7 +87,7 @@ Path|Method|Protected
 ---|---|---
 `/v1/accounts/{account_id}/tokens/{token_id}`|DELETE|Yes
 
-Deletes a previously created token given by it's identifier.
+Deletes a previously created token given by its identifier.
 
 
 
@@ -103,5 +103,7 @@ Status Code|Description|Body
 ---|---|---
 400|Invalid request, returning with a list of issues detected in the request|`{"errors":["string"]}`
 401|Unauthorized request|`{"error":"string"}`
-404|Account not found|`{"error":"string"}`
+403|Forbidden Request|`{"error":"string"}`
+404|Entity not found|`{"error":"string"}`
+409||`{"error":"string"}`
 500|Internal server error|`{"error":"string"}`

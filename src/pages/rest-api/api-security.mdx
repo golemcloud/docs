@@ -3,7 +3,7 @@
 ## Get a security scheme
 Path|Method|Protected
 ---|---|---
-`/v1/api/security/{security_scheme_identifier}`|GET|No
+`/v1/api/security/{project_id}/{security_scheme_identifier}`|GET|Yes
 
 Get a security scheme by name
 
@@ -29,7 +29,7 @@ Get a security scheme by name
 ## Create a security scheme
 Path|Method|Protected
 ---|---|---
-`/v1/api/security`|POST|No
+`/v1/api/security/{project_id}`|POST|Yes
 
 
 
@@ -66,9 +66,9 @@ Path|Method|Protected
 ## Api Security API Errors
 Status Code|Description|Body
 ---|---|---
-400||`{"type":"Messages","errors":["string"]}`
+400||`{"errors":["string"]}`
 401||`{"error":"string"}`
 403||`{"error":"string"}`
 404||`{"error":"string"}`
-409||`"string"`
-500||`{"error":"string"}`
+409||`{"error":"string"}`
+500||`{"error":"string","workerError":{"cause":"string","stderr":"string"}}`

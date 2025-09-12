@@ -3,7 +3,7 @@
 ## Get metadata of multiple workers
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers`|GET|No
+`/v1/components/{component_id}/workers`|GET|Yes
 
 ### Filters
 
@@ -29,10 +29,10 @@ Returns metadata about an existing component workers:
 
 Name|Type|Required|Description
 ---|---|---|---
-filter|array|No|-
-cursor|string|No|-
-count|integer|No|-
-precise|boolean|No|-
+filter|array|No|Filter for worker metadata in form of `property op value`. Can be used multiple times (AND condition is applied between them)
+cursor|string|No|Count of listed values, default: 50
+count|integer|No|Position where to start listing, if not provided, starts from the beginning. It is used to get the next page of results. To get next page, use the cursor returned in the response
+precise|boolean|No|Precision in relation to worker status, if true, calculate the most up-to-date status for each worker, default is false
 
 
 
@@ -46,6 +46,8 @@ precise|boolean|No|-
         "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
         "workerName": "string"
       },
+      "projectId": "5a8591dd-4039-49df-9202-96385ba3eff8",
+      "createdBy": "string",
       "args": [
         "string"
       ],
@@ -53,6 +55,12 @@ precise|boolean|No|-
         "property1": "string",
         "property2": "string"
       },
+      "wasiConfigVars": [
+        {
+          "key": "string",
+          "value": "string"
+        }
+      ],
       "status": "Running",
       "componentVersion": 0,
       "retryCount": 0,
@@ -68,28 +76,30 @@ precise|boolean|No|-
       "lastError": "string",
       "componentSize": 0,
       "totalLinearMemorySize": 0,
-      "ownedResources": {
-        "property1": {
-          "createdAt": "2019-08-24T14:15:22Z",
-          "indexed": {
-            "resourceName": "string",
-            "resourceParams": [
-              "string"
-            ]
-          }
-        },
-        "property2": {
-          "createdAt": "2019-08-24T14:15:22Z",
-          "indexed": {
-            "resourceName": "string",
-            "resourceParams": [
-              "string"
-            ]
+      "exportedResourceInstances": [
+        {
+          "key": 0,
+          "description": {
+            "createdAt": "2019-08-24T14:15:22Z",
+            "resourceOwner": "string",
+            "resourceName": "string"
           }
         }
-      },
+      ],
       "activePlugins": [
         "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+      ],
+      "skippedRegions": [
+        {
+          "start": 0,
+          "end": 0
+        }
+      ],
+      "deletedRegions": [
+        {
+          "start": 0,
+          "end": 0
+        }
       ]
     }
   ],
@@ -103,7 +113,7 @@ precise|boolean|No|-
 ## Launch a new worker.
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers`|POST|No
+`/v1/components/{component_id}/workers`|POST|Yes
 
 Creates a new worker. The worker initially is in `Idle`` status, waiting to be invoked.
 
@@ -124,7 +134,8 @@ The parameters in the request are the following:
   "env": {
     "property1": "string",
     "property2": "string"
-  }
+  },
+  "wasiConfigVars": []
 }
 ```
 
@@ -143,7 +154,7 @@ The parameters in the request are the following:
 ## Get metadata of a worker
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}`|GET|No
+`/v1/components/{component_id}/workers/{worker_name}`|GET|Yes
 
 Returns metadata about an existing worker:
 - `workerId` is a combination of the used component and the worker's user specified name
@@ -173,6 +184,8 @@ Returns metadata about an existing worker:
     "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
     "workerName": "string"
   },
+  "projectId": "5a8591dd-4039-49df-9202-96385ba3eff8",
+  "createdBy": "string",
   "args": [
     "string"
   ],
@@ -180,6 +193,12 @@ Returns metadata about an existing worker:
     "property1": "string",
     "property2": "string"
   },
+  "wasiConfigVars": [
+    {
+      "key": "string",
+      "value": "string"
+    }
+  ],
   "status": "Running",
   "componentVersion": 0,
   "retryCount": 0,
@@ -195,28 +214,30 @@ Returns metadata about an existing worker:
   "lastError": "string",
   "componentSize": 0,
   "totalLinearMemorySize": 0,
-  "ownedResources": {
-    "property1": {
-      "createdAt": "2019-08-24T14:15:22Z",
-      "indexed": {
-        "resourceName": "string",
-        "resourceParams": [
-          "string"
-        ]
-      }
-    },
-    "property2": {
-      "createdAt": "2019-08-24T14:15:22Z",
-      "indexed": {
-        "resourceName": "string",
-        "resourceParams": [
-          "string"
-        ]
+  "exportedResourceInstances": [
+    {
+      "key": 0,
+      "description": {
+        "createdAt": "2019-08-24T14:15:22Z",
+        "resourceOwner": "string",
+        "resourceName": "string"
       }
     }
-  },
+  ],
   "activePlugins": [
     "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+  ],
+  "skippedRegions": [
+    {
+      "start": 0,
+      "end": 0
+    }
+  ],
+  "deletedRegions": [
+    {
+      "start": 0,
+      "end": 0
+    }
   ]
 }
 ```
@@ -224,7 +245,7 @@ Returns metadata about an existing worker:
 ## Delete a worker
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}`|DELETE|No
+`/v1/components/{component_id}/workers/{worker_name}`|DELETE|Yes
 
 Interrupts and deletes an existing worker.
 
@@ -238,63 +259,10 @@ Interrupts and deletes an existing worker.
 {}
 ```
 
-## Invoke a function and await its resolution on a new worker with a random generated name
-Path|Method|Protected
----|---|---
-`/v1/components/{component_id}/invoke-and-await`|POST|No
-
-Ideal for invoking ephemeral components, but works with durable ones as well.
-Supply the parameters in the request body as JSON.
-
-**Query Parameters**
-
-Name|Type|Required|Description
----|---|---|---
-function|string|Yes|-
-
-**Example Request JSON**
-```json copy
-{
-  "params": [
-    {
-      "typ": {
-        "type": "Variant",
-        "cases": [
-          {
-            "name": "string",
-            "typ": {}
-          }
-        ]
-      },
-      "value": null
-    }
-  ]
-}
-```
-
-**Example Response JSON**
-
-```json copy
-{
-  "result": {
-    "typ": {
-      "type": "Variant",
-      "cases": [
-        {
-          "name": "string",
-          "typ": {}
-        }
-      ]
-    },
-    "value": null
-  }
-}
-```
-
 ## Invoke a function and await its resolution
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}/invoke-and-await`|POST|No
+`/v1/components/{component_id}/workers/{worker_name}/invoke-and-await`|POST|Yes
 
 Supply the parameters in the request body as JSON.
 
@@ -311,6 +279,8 @@ function|string|Yes|-
     {
       "typ": {
         "type": "Variant",
+        "name": "string",
+        "owner": "string",
         "cases": [
           {
             "name": "string",
@@ -331,6 +301,8 @@ function|string|Yes|-
   "result": {
     "typ": {
       "type": "Variant",
+      "name": "string",
+      "owner": "string",
       "cases": [
         {
           "name": "string",
@@ -346,16 +318,15 @@ function|string|Yes|-
 ## Invoke a function
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/invoke`|POST|No
+`/v1/components/{component_id}/workers/{worker_name}/invoke`|POST|Yes
 
-Ideal for invoking ephemeral components, but works with durable ones as well.
-Triggers the execution of a function and immediately returns.
+A simpler version of the previously defined invoke and await endpoint just triggers the execution of a function and immediately returns.
 
 **Query Parameters**
 
 Name|Type|Required|Description
 ---|---|---|---
-function|string|Yes|-
+function|string|Yes|name of the exported function to be invoked
 
 **Example Request JSON**
 ```json copy
@@ -364,45 +335,8 @@ function|string|Yes|-
     {
       "typ": {
         "type": "Variant",
-        "cases": [
-          {
-            "name": "string",
-            "typ": {}
-          }
-        ]
-      },
-      "value": null
-    }
-  ]
-}
-```
-
-**Example Response JSON**
-
-```json copy
-{}
-```
-
-## Invoke a function
-Path|Method|Protected
----|---|---
-`/v1/components/{component_id}/workers/{worker_name}/invoke`|POST|No
-
-Triggers the execution of a function and immediately returns.
-
-**Query Parameters**
-
-Name|Type|Required|Description
----|---|---|---
-function|string|Yes|-
-
-**Example Request JSON**
-```json copy
-{
-  "params": [
-    {
-      "typ": {
-        "type": "Variant",
+        "name": "string",
+        "owner": "string",
         "cases": [
           {
             "name": "string",
@@ -425,7 +359,7 @@ function|string|Yes|-
 ## Complete a promise
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}/complete`|POST|No
+`/v1/components/{component_id}/workers/{worker_name}/complete`|POST|Yes
 
 Completes a promise with a given custom array of bytes.
 The promise must be previously created from within the worker, and it's identifier (a combination of a worker identifier and an oplogIdx ) must be sent out to an external caller so it can use this endpoint to mark the promise completed.
@@ -452,7 +386,7 @@ true
 ## Interrupt a worker
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}/interrupt`|POST|No
+`/v1/components/{component_id}/workers/{worker_name}/interrupt`|POST|Yes
 
 Interrupts the execution of a worker.
 The worker's status will be Interrupted unless the recover-immediately parameter was used, in which case it remains as it was.
@@ -463,7 +397,7 @@ For example in case of a new invocation, the previously interrupted invocation i
 
 Name|Type|Required|Description
 ---|---|---|---
-recovery-immediately|boolean|No|-
+recovery-immediately|boolean|No|if true will simulate a worker recovery. Defaults to false.
 
 
 
@@ -476,7 +410,7 @@ recovery-immediately|boolean|No|-
 ## Advanced search for workers
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/find`|POST|No
+`/v1/components/{component_id}/workers/find`|POST|Yes
 
 ### Filter types
 | Type      | Comparator             | Description                    | Example                                                                                       |
@@ -527,6 +461,8 @@ Returns metadata about an existing component workers:
         "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
         "workerName": "string"
       },
+      "projectId": "5a8591dd-4039-49df-9202-96385ba3eff8",
+      "createdBy": "string",
       "args": [
         "string"
       ],
@@ -534,6 +470,12 @@ Returns metadata about an existing component workers:
         "property1": "string",
         "property2": "string"
       },
+      "wasiConfigVars": [
+        {
+          "key": "string",
+          "value": "string"
+        }
+      ],
       "status": "Running",
       "componentVersion": 0,
       "retryCount": 0,
@@ -549,28 +491,30 @@ Returns metadata about an existing component workers:
       "lastError": "string",
       "componentSize": 0,
       "totalLinearMemorySize": 0,
-      "ownedResources": {
-        "property1": {
-          "createdAt": "2019-08-24T14:15:22Z",
-          "indexed": {
-            "resourceName": "string",
-            "resourceParams": [
-              "string"
-            ]
-          }
-        },
-        "property2": {
-          "createdAt": "2019-08-24T14:15:22Z",
-          "indexed": {
-            "resourceName": "string",
-            "resourceParams": [
-              "string"
-            ]
+      "exportedResourceInstances": [
+        {
+          "key": 0,
+          "description": {
+            "createdAt": "2019-08-24T14:15:22Z",
+            "resourceOwner": "string",
+            "resourceName": "string"
           }
         }
-      },
+      ],
       "activePlugins": [
         "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+      ],
+      "skippedRegions": [
+        {
+          "start": 0,
+          "end": 0
+        }
+      ],
+      "deletedRegions": [
+        {
+          "start": 0,
+          "end": 0
+        }
       ]
     }
   ],
@@ -584,7 +528,7 @@ Returns metadata about an existing component workers:
 ## Resume a worker
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}/resume`|POST|No
+`/v1/components/{component_id}/workers/{worker_name}/resume`|POST|Yes
 
 
 
@@ -601,7 +545,7 @@ Path|Method|Protected
 ## Update a worker
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}/update`|POST|No
+`/v1/components/{component_id}/workers/{worker_name}/update`|POST|Yes
 
 
 
@@ -621,10 +565,10 @@ Path|Method|Protected
 {}
 ```
 
-## Get or search the oplog of a worker
+## Get the oplog of a worker
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}/oplog`|GET|No
+`/v1/components/{component_id}/workers/{worker_name}/oplog`|GET|Yes
 
 
 
@@ -649,11 +593,11 @@ query|string|No|-
       "entry": {
         "type": "Create",
         "timestamp": "2019-08-24T14:15:22Z",
-        "worker_id": {
+        "workerId": {
           "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
           "workerName": "string"
         },
-        "component_version": 0,
+        "componentVersion": 0,
         "args": [
           "string"
         ],
@@ -661,18 +605,26 @@ query|string|No|-
           "property1": "string",
           "property2": "string"
         },
-        "account_id": "string",
+        "projectId": "5a8591dd-4039-49df-9202-96385ba3eff8",
+        "createdBy": "string",
+        "wasiConfigVars": [
+          {
+            "key": "string",
+            "value": "string"
+          }
+        ],
         "parent": {
           "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
           "workerName": "string"
         },
-        "component_size": 0,
-        "initial_total_linear_memory_size": 0,
-        "initial_active_plugins": [
+        "componentSize": 0,
+        "initialTotalLinearMemorySize": 0,
+        "initialActivePlugins": [
           {
-            "installation_id": "91166175-c6a9-4caf-88e9-3147ffc9c934",
-            "plugin_name": "string",
-            "plugin_version": "string",
+            "installationId": "7a1bf939-4d70-4439-9ced-a3dbbce12bd7",
+            "pluginName": "string",
+            "pluginVersion": "string",
+            "registered": true,
             "parameters": {
               "property1": "string",
               "property2": "string"
@@ -683,8 +635,8 @@ query|string|No|-
     }
   ],
   "next": {
-    "next_oplog_index": 0,
-    "current_component_version": 0
+    "nextOplogIndex": 0,
+    "currentComponentVersion": 0
   },
   "firstIndexInChunk": 0,
   "lastIndex": 0
@@ -694,7 +646,7 @@ query|string|No|-
 ## List files in a worker
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}/files/{file_name}`|GET|No
+`/v1/components/{component_id}/workers/{worker_name}/files/{file_name}`|GET|Yes
 
 
 
@@ -721,7 +673,7 @@ Path|Method|Protected
 ## Get contents of a file in a worker
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}/file-contents/{file_name}`|GET|No
+`/v1/components/{component_id}/workers/{worker_name}/file-contents/{file_name}`|GET|Yes
 
 
 
@@ -734,7 +686,7 @@ Path|Method|Protected
 ## Activate a plugin
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}/activate-plugin`|POST|No
+`/v1/components/{component_id}/workers/{worker_name}/activate-plugin`|POST|Yes
 
 The plugin must be one of the installed plugins for the worker's current component version.
 
@@ -755,7 +707,7 @@ plugin-installation-id|string|Yes|-
 ## Deactivate a plugin
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}/deactivate-plugin`|POST|No
+`/v1/components/{component_id}/workers/{worker_name}/deactivate-plugin`|POST|Yes
 
 The plugin must be one of the installed plugins for the worker's current component version.
 
@@ -776,7 +728,7 @@ plugin-installation-id|string|Yes|-
 ## Revert a worker
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}/revert`|POST|No
+`/v1/components/{component_id}/workers/{worker_name}/revert`|POST|Yes
 
 Reverts a worker by undoing either the last few invocations or the last few recorded oplog entries.
 
@@ -799,7 +751,7 @@ Reverts a worker by undoing either the last few invocations or the last few reco
 ## Cancels a pending invocation if it has not started yet
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}/invocations/{idempotency_key}`|DELETE|No
+`/v1/components/{component_id}/workers/{worker_name}/invocations/{idempotency_key}`|DELETE|Yes
 
 The invocation to be cancelled is identified by the idempotency key passed to the invoke API.
 
@@ -822,4 +774,4 @@ Status Code|Description|Body
 403||`{"error":"string"}`
 404||`{"error":"string"}`
 409||`{"error":"string"}`
-500||`{"golemError":{"type":"InvalidRequest","details":"string"}}`
+500||`{"error":"string","workerError":{"cause":"string","stderr":"string"}}`
