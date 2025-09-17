@@ -54,12 +54,15 @@ The following code snippet demonstrates calling `fork` and continuing on two dif
 
   @agent()
   class ExampleAgent extends BaseAgent {
+    name: string;
+
     constructor(name: string, mode: "root" | "fork") {
       super();
+      this.name = name;
     }
 
     run() {
-      switch (fork(`example-agent("${self.name}", "fork")`)) {
+      switch (fork(`example-agent("${this.name}",fork)`)) {
         case "original": {
           // ...
           break;

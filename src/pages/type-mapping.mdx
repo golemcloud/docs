@@ -22,7 +22,7 @@ This section describes how various types of the used programming language are ma
         | `Array<T>`      | `list<T>`              | `["one", "two", "three"]`                            | |
         | Interface with value fields | `record { ... }` | `{ field1: "value", field2: 42 }`                   | |
         | `{ tag: "x", val: T1 } \| { tag: "y", val: T2 } \| ...` | `variant { x(T1), y(T2), ... }` | `x("hello")` | The `val` is optional, if missing it's a case without value |
-        | `"x" \| "y" \| ...` | `enum { x, y, ... }` | `"x"` | |
+        | `"x" \| "y" \| ...` | `enum { x, y, ... }` | `x` | |
         | Other union           | `variant { ... }`        | `case1(value)` | The case names are `case1`, `case2`, etc. For example for `string | number | CustomRecord` there will be `case1`, `case2` and `case3` |
         | tuple           | `tuple<...>`           | `("hello", 1234, true)`                              | |
         | `T | undefined` | `option<T>`        | `some(value)`, `none`                                | |
