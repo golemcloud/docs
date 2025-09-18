@@ -23,8 +23,12 @@ The `golem-cli` command is the more lightweight version of Golem's command line 
 To install `golem-cli` from source, use `cargo install`:
 
 ```bash copy
-cargo install golem-cli --locked
+cargo install golem-cli --git https://github.com/golemcloud/golem --tag v1.3.0-rc4
 ```
+
+<Callout type="warning">
+    Note that currently installing from crates.io is not possible because the package requires a patched wasmtime version. Always use the `--git` parameter or our precompiled binaries.
+</Callout>
 
 This will create a binary file named `golem-cli` in the `~/.cargo/bin` directory.
 
