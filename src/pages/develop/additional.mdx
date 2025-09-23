@@ -268,8 +268,215 @@ The custom spans are pushed onto the invocation context stack, so whenever an RP
 
 Although Golem agents can store their state completely in their own memory, it is possible to use the `wasi:keyvalue` interface to store key-value pairs in a Golem managed key value storage.
 
-This can be useful if state needs to be shared between different agents or if the size of this state is too large to be stored in memory.
+This can be useful if state needs to be shared between different agents or if the size of this state is too large to be stored in memory. The keys are accessible for every agent of an _application_ - no matter which component they are defined in, or which agent type they belong to.
+
+<Tabs items={["TypeScript"]}>
+    <Tabs.Tab>
+        There are two primary modules for using the key-value store:
+        - `wasi:keyvalue/eventual@0.1.0` defines an API for an eventually consistent key-value store
+        - `wasi:keyvalue/eventual-batch@0.1.0` defines an API with batch operations working on multiple keys
+
+        The primary interface to work with the key-value pairs consists of the four basic operations:
+
+        ```typescript
+        /**
+        * Get the value associated with the key in the bucket.
+        * The value is returned as an option. If the key-value pair exists in the
+        * bucket, it returns `Ok(value)`. If the key does not exist in the
+        * bucket, it returns `Ok(none)`.
+        * If any other error occurs, it returns an `Err(error)`.
+        * @throws Error
+        */
+        export function get(bucket: Bucket, key: Key): IncomingValue | undefined;
+        /**
+        * Set the value associated with the key in the bucket. If the key already
+        * exists in the bucket, it overwrites the value.
+        * If the key does not exist in the bucket, it creates a new key-value pair.
+        * If any other error occurs, it returns an `Err(error)`.
+        * @throws Error
+        */
+        export function set(bucket: Bucket, key: Key, outgoingValue: OutgoingValue): void;
+        /**
+        * Delete the key-value pair associated with the key in the bucket.
+        * If the key does not exist in the bucket, it does nothing.
+        * If any other error occurs, it returns an `Err(error)`.
+        * @throws Error
+        */
+        export function delete_(bucket: Bucket, key: Key): void;
+        /**
+        * Check if the key exists in the bucket.
+        * If the key exists in the bucket, it returns `Ok(true)`. If the key does
+        * not exist in the bucket, it returns `Ok(false)`.
+        * If any other error occurs, it returns an `Err(error)`.
+        * @throws Error
+        */
+        export function exists(bucket: Bucket, key: Key): boolean;
+        ```
+
+        The batch API defines similar functions such as `getMany` and `setMany`, but working on multiple keys at once.
+
+        The `IncomingValue` and `OutgoingValue` types are defined as follows:
+
+        ```typescript
+        export class OutgoingValue {
+            static newOutgoingValue(): OutgoingValue;
+            /**
+             * Writes the value to the output-stream asynchronously.
+             * If any other error occurs, it returns an `Err(error)`.
+             * @throws Error
+             */
+            outgoingValueWriteBodyAsync(): OutgoingValueBodyAsync;
+            /**
+             * Writes the value to the output-stream synchronously.
+             * If any other error occurs, it returns an `Err(error)`.
+             * @throws Error
+             */
+            outgoingValueWriteBodySync(value: OutgoingValueBodySync): void;
+        }
+
+        export class IncomingValue {
+            /**
+             * Consumes the value synchronously and returns the value as a list of bytes.
+             * If any other error occurs, it returns an `Err(error)`.
+             * @throws Error
+             */
+            incomingValueConsumeSync(): IncomingValueSyncBody;
+            /**
+             * Consumes the value asynchronously and returns the value as an `input-stream`.
+             * If any other error occurs, it returns an `Err(error)`.
+             * @throws Error
+             */
+            incomingValueConsumeAsync(): IncomingValueAsyncBody;
+            /**
+             * The size of the value in bytes.
+             * If the size is unknown or unavailable, this function returns an `Err(error)`.
+             * @throws Error
+             */
+            incomingValueSize(): bigint;
+        }
+
+        export type OutgoingValueBodyAsync = OutputStream;
+        export type OutgoingValueBodySync = Uint8Array;
+        export type IncomingValueAsyncBody = InputStream;
+        export type IncomingValueSyncBody = Uint8Array;
+        ```
+
+        The streaming variants of setting and consuming the values may be used by the underlying implementation to directly
+        stream the data to the key-value store. For small values, the sync variants are more convenient, directly taking and returning
+        a `Uint8Array`.
+    </Tabs.Tab>
+</Tabs>
 
 ### The WASI Blob Store interface
 
-The `wasi:blobstore` interface provides a way to store and retrieve large binary data. This can be useful for storing large files or other binary data that is too large to be stored in the agent's memory.
+The `wasi:blobstore` interface provides a way to store and retrieve large binary data. This can be useful for storing large files or other binary data that is too large to be stored in the agent's memory. The blobs are accessible for every agent of an _application_ - no matter which component they are defined in, or which agent type they belong to.
+
+<Tabs items={["TypeScript"]}>
+    <Tabs.Tab>
+        The Blob Store API organizes blobs identified by _object names_ into **containers**. The `wasi:blobstore/blobstore` module exports functions to create, get and delete these containers by name:
+
+        ```typescript
+        declare module 'wasi:blobstore/blobstore' {
+            /**
+             * creates a new empty container
+             * @throws Error
+             */
+            export function createContainer(name: ContainerName): Container;
+            /**
+             * retrieves a container by name
+             * @throws Error
+             */
+            export function getContainer(name: ContainerName): Container;
+            /**
+             * deletes a container and all objects within it
+             * @throws Error
+             */
+            export function deleteContainer(name: ContainerName): void;
+            /**
+             * returns true if the container exists
+             * @throws Error
+             */
+            export function containerExists(name: ContainerName): boolean;
+            /**
+             * copies (duplicates) an object, to the same or a different container.
+             * returns an error if the target container does not exist.
+             * overwrites destination object if it already existed.
+             * @throws Error
+             */
+            export function copyObject(src: ObjectId, dest: ObjectId): void;
+            /**
+             * moves or renames an object, to the same or a different container
+             * returns an error if the destination container does not exist.
+             * overwrites destination object if it already existed.
+             * @throws Error
+             */
+            export function moveObject(src: ObjectId, dest: ObjectId): void;
+
+            // ...
+        }
+        ```
+
+        A `Container` is a class providing read-write access for the blobs in it:
+
+        ```typescript
+        export class Container {
+            /**
+             * returns container name
+             * @throws Error
+             */
+            name(): string;
+            /**
+             * returns container metadata
+             * @throws Error
+             */
+            info(): ContainerMetadata;
+            /**
+             * retrieves an object or portion of an object, as a resource.
+             * Start and end offsets are inclusive.
+             * Once a data-blob resource has been created, the underlying bytes are held by the blobstore service for the lifetime
+             * of the data-blob resource, even if the object they came from is later deleted.
+             * @throws Error
+             */
+            getData(name: ObjectName, start: bigint, end: bigint): IncomingValue;
+            /**
+             * creates or replaces an object with the data blob.
+             * @throws Error
+             */
+            writeData(name: ObjectName, data: OutgoingValue): void;
+            /**
+             * returns list of objects in the container. Order is undefined.
+             * @throws Error
+             */
+            listObjects(): StreamObjectNames;
+            /**
+             * deletes object.
+             * does not return error if object did not exist.
+             * @throws Error
+             */
+            deleteObject(name: ObjectName): void;
+            /**
+             * deletes multiple objects in the container
+             * @throws Error
+             */
+            deleteObjects(names: ObjectName[]): void;
+            /**
+             * returns true if the object exists in this container
+             * @throws Error
+             */
+            hasObject(name: ObjectName): boolean;
+            /**
+             * returns metadata for the object
+             * @throws Error
+             */
+            objectInfo(name: ObjectName): ObjectMetadata;
+            /**
+             * removes all objects within the container, leaving the container empty.
+             * @throws Error
+             */
+            clear(): void;
+        }
+        ```
+
+        The `IncomingValue` and `OutgoingValue` classes are, similar to the **key-value store interface**, providing two ways to work with the blobs: synchronously using `UInt8Array`s or using the `InputStream` and `OutputStream` interfaces for saving/loading the data by chunks.
+    </Tabs.Tab>
+</Tabs>
