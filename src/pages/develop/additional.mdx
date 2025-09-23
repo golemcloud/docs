@@ -52,7 +52,7 @@ It is possible to query **metadata** for Golem agents. This metadata is defined 
 
 ### Enumerate agents
 
-Agent enumeration is a feature of Golem available both through the public HTTP API and using the WIT interfaces.
+Agent enumeration is a feature of Golem available both through the public HTTP API and using the SDK.
 
 <Callout type="warning">
     Enumerating agents of a component is a slow operation and should not be used as part of the application logic.
@@ -140,50 +140,86 @@ The `golem:durability` package contains an API that libraries can leverage to pr
 
 #### Types
 
-The `durable-function-type` is a variant that categorizes a durable function in the following way:
+<Tabs items={["TypeScript"]}>
+    <Tabs.Tab>
+    The durability API can be imported from the `golem:durability/durability@1.2.1` module.
 
-```wit
-package golem:api@1.1.6;
+The `DurableFunctionType` type categorizes a durable function in the following way:
 
-interface host {
-    variant durable-function-type {
-        /// The side-effect reads from the worker's local state (for example local file system,
-        /// random generator, etc.)
-        read-local,
-        /// The side-effect writes to the worker's local state (for example local file system)
-        write-local,
-        /// The side-effect reads from external state (for example a key-value store)
-        read-remote,
-        /// The side-effect manipulates external state (for example an RPC call)
-        write-remote,
-        /// The side-effect manipulates external state through multiple invoked functions (for example
-        /// a HTTP request where reading the response involves multiple host function calls)
-        ///
-        /// On the first invocation of the batch, the parameter should be `None` - this triggers
-        /// writing a `BeginRemoteWrite` entry in the oplog. Followup invocations should contain
-        /// this entry's index as the parameter. In batched remote writes it is the caller's responsibility
-        /// to manually write an `EndRemoteWrite` entry (using `end_function`) when the operation is completed.
-        write-remote-batched(option<oplog-index>)
-    }
-}
+```typescript
+export type DurableFunctionType =
+  {
+    tag: 'read-local'
+  } |
+  {
+    tag: 'write-local'
+  } |
+  {
+    tag: 'read-remote'
+  } |
+  {
+    tag: 'write-remote'
+  } |
+  {
+    tag: 'write-remote-batched'
+    val: OplogIndex | undefined
+  } |
+  {
+    tag: 'write-remote-transaction'
+    val: OplogIndex | undefined
+  };
 ```
 
-The `durable-execution-state` record provides information about the current execution state, and can be queried using the `current-durable-execution-state` function:
+- `read-local` indicates that the side effect reads from the worker's local state (for example local file system, random generator, etc.)
+- `write-local` indicates that the side effect writes to the worker's local state (for example local file system)
+- `read-remote` indicates that the side effect reads from external state (for example a key-value store)
+- `write-remote` indicates that the side effect manipulates external state (for example an RPC call)
+- `write-remote-batched` indicates that the side effect manipulates external state through multiple invoked functions (for example a HTTP request where reading the response involves multiple host function calls)
+- `write-remote-transaction` indicates that the side effect manipulates external state through multiple invoked functions, and all of them are part of a single transaction (for example a database transaction)
 
-```wit
-package golem:api@1.1.6;
+The `DurableExecutionState` type provides information about the current execution state, and can be queried using the `currentDurableExecutionState` function:
 
-interface host {
-    record durable-execution-state {
-        is-live: bool,
-        persistence-level: persistence-level,
-    }
-}
+```typescript
+/**
+ * Gets the current durable execution state
+ */
+export function currentDurableExecutionState(): DurableExecutionState;
+
+export type DurableExecutionState = {
+  isLive: boolean;
+  persistenceLevel: PersistenceLevel;
+};
+
+/**
+ * Configurable persistence level for workers
+ */
+export type PersistenceLevel = {
+    tag: 'persist-nothing'
+  } |
+  {
+    tag: 'persist-remote-side-effects'
+  } |
+  {
+    tag: 'smart'
+  };
 ```
 
-Here the `is-live` field indicates whether the executor is currently _replaying_ a worker's previously persisted state or side effects should be executed. The `persistence-level` is a user-configurable setting that can turn off persistence for certain sections of the code.
+Here the `isLive` field indicates whether the executor is currently _replaying_ a worker's previously persisted state or side effects should be executed. The `persistenceLevel` is a user-configurable setting that can turn off persistence for certain sections of the code.
 
-The `persisted-durable-function-invocation` is a record holding all the information about one persisted durable function. This should be used during _replay_ to simulate the side effect instead of actually running it.
+The `PersistedTypedDurableFunctionInvocation` is a record holding all the information about one persisted durable function. This should be used during _replay_ to simulate the side effect instead of actually running it.
+
+```typescript
+export type PersistedTypedDurableFunctionInvocation = {
+  timestamp: Datetime;
+  functionName: string;
+  response: ValueAndType;
+  functionType: DurableFunctionType;
+  entryVersion: OplogEntryVersion;
+};
+```
+
+</Tabs.Tab>
+</Tabs>
 
 #### Functions
 
@@ -191,22 +227,22 @@ The durability API consists of a couple of low-level functions that must be call
 
 The logic to be implemented is the following, in pseudocode:
 
-```
-observe-function-call("interface", "function")
-state = current-durable-execution-state()
-if state.is-live {
-  result = perform-side-effect(input)
-  persist-typed-durable-function-invocation("function", encode(input), encode(result), durable-function-type)
+```ts
+observeFunctionCall("interface", "function")
+state = currentDurableExecutionState()
+if (state.isLive) {
+  result = performSideEffect(input)
+  persistTypedDurableFunctionInvocation("function", encode(input), encode(result), durableFunctionType)
 } else {
   // Execute the side effect
-  persisted = read-persisted-durable-function-invocation()
+  persisted = readPersistedDurableFunctionInvocation()
   result = decode(persisted.response)
 }
 ```
 
-The `input` and `result` values must be encoded into `value-and-type`, the dynamic value representation from the `golem:rpc` package.
+The `input` and `result` values must be encoded into `ValueAndType`, the dynamic value representation from the `golem:rpc` package.
 
-In cases when a durable function's execution interleaves with other calls, the `begin-durable-function` and `end-durable-function` calls can be used to mark the beginning and end of the operation.
+In cases when a durable function's execution interleaves with other calls, the `beginDurableFunction` and `endDurableFunction` calls can be used to mark the beginning and end of the operation.
 
 
 ### Invocation context
@@ -215,52 +251,59 @@ Golem associates an **invocation context** with each invocation, which contains 
 
 The spans are not automatically sent to any tracing system but they can be reconstructed from the oplog, for example using **oplog processor plugins**, to provide real-time tracing information.
 
-To get the current invocation context, use the `current-context` host function:
+<Tabs items={["TypeScript"]}>
+    <Tabs.Tab>
+To get the current invocation context, use the `currentContext` host function, imported from `golem:api/context@1.1.7`:
 
-```wit
-package golem:api@1.1.6;
-
-/// Invocation context support
-interface context {
-    current-context: func() -> invocation-context;
+```typescript
+/**
+ * Invocation context support
+ */
+declare module 'golem:api/context@1.1.7' {
+  /**
+   * Gets the current invocation context
+   * The function call captures the current context; if new spans are started, the returned `invocation-context` instance will not
+   * reflect that.
+   */
+  export function currentContext(): InvocationContext;
 }
 ```
 
-The `invocation-context` itself is a **resource** with various methods for querying attributes of the invocation context:
+The `InvocationContext` itself is a **class** with various methods for querying attributes of the invocation context:
 
 | method | description |
 | ------ | ----------- |
-| `trace-id` | Returns the trace ID associated with the context, coming from either an external trace header or generated at the edge of Golem |
-| `span-id` | Returns the span ID associated with the context |
+| `traceId` | Returns the trace ID associated with the context, coming from either an external trace header or generated at the edge of Golem |
+| `spanId` | Returns the span ID associated with the context |
 | `parent` | Returns the parent invocation context, if any |
-| `get-attribute` | Gets an attribute from the context by key |
-| `get-attributes` | Gets all attributes from the context |
-| `get-attribute-chain` | Gets all values of a given attribute from the current and parent contexts |
-| `get-attribute-chains` | Get all attributes and their previous values |
-| `trace-context-headers` | Gets the W3C Trace Context headers associated with the current invocation context |
+| `getAttribute` | Gets an attribute from the context by key |
+| `getAttributes` | Gets all attributes from the context |
+| `getAttributeChain` | Gets all values of a given attribute from the current and parent contexts |
+| `getAttributeChains` | Get all attributes and their previous values |
+| `traceContextHeaders` | Gets the W3C Trace Context headers associated with the current invocation context |
 
-Custom attributes can only be set on **custom spans**. First start a new span using `start-span`
+Custom attributes can only be set on **custom spans**. First start a new span using `startSpan`
 
-```wit
-package golem:api@1.1.6;
-
-/// Invocation context support
-interface context {
-    /// Starts a new `span` with the given name, as a child of the current invocation context
-    start-span: func(name: string) -> span;
-}
+```typescript
+/**
+ * Starts a new `span` with the given name, as a child of the current invocation context
+ */
+export function startSpan(name: string): Span;
 ```
 
-and then use the `span` resource's methods:
+and then use the `Span` class's methods:
 
 | method | description |
 | ------ | ----------- |
-| `started-at` | Returns the timestamp when the span was started |
-| `set-attribute` | Sets an attribute on the span |
-| `set-attributes` | Sets multiple attributes on the span |
+| `startedAt` | Returns the timestamp when the span was started |
+| `setAttribute` | Sets an attribute on the span |
+| `setAttributes` | Sets multiple attributes on the span |
 | `finish` | Ends the current span |
 
-Dropping the resource is equivalent to calling `finish` on the span.
+If `finish` is not explicitly called on the span, it is going to be finished when the garbage collector deletes the span object.
+
+</Tabs.Tab>
+</Tabs>
 
 The custom spans are pushed onto the invocation context stack, so whenever an RPC call or HTTP call is made, their parent span(s) will include the user-defined custom spans as well as the rest of the invocation context.
 
