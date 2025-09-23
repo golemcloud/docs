@@ -157,3 +157,16 @@ Environment variables can be specified when a agent is **explicitly created**, b
 In addition to these, when using [Agent to Agent communication](/develop/rpc), agents created by remote calls **inherit the environment variables of the caller**.
 
 This feature makes environment variables a good fit for passing configuration such as hostnames, ports, or access tokens to trees of agents.
+
+#### Default environment variables
+It is possible to define default environment values and config key-value pairs for a component using the **app manifest**. These values are automatically set for each agent created from the component, but can be overridden when creating the agent.
+
+To set component level environment variables, use the `env` section of the `golem.yaml`:
+
+```yaml
+components:
+    my:component:
+        env:
+            MY_ENV_VAR: "some value"
+            ANOTHER_ENV_VAR: "another value"
+```
