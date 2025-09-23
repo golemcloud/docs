@@ -60,3 +60,33 @@ Once we have a _client_ for a remote agent, it is possible to call its methods j
     ```
     </Tabs.Tab>
 </Tabs>
+
+## Triggering execution of an agent method
+It is possible to trigger the remote execution of an agent method without awaiting it. This is useful for spawning background tasks, for example.
+
+<Tabs items={["TypeScript"]}>
+    <Tabs.Tab>
+    To trigger an agent method and return immediately, use the `trigger` method exposed on each remote method in the client:
+
+    ```typescript
+    const remoteAgent = BackgroundTaskAgent.get(backgroundJobId);
+    remoteAgent.runTask.trigger("hello", 1234);
+    ```
+    </Tabs.Tab>
+</Tabs>
+
+### Scheduling an agent method
+An advanced case of triggering the execution of an agent method is to **schedule it** to be executed at a later time.
+
+<Tabs items={["TypeScript"]}>
+    <Tabs.Tab>
+    Similar to `.trigger`, there is a `.schedule` method as well on each remote agent method in the client:
+
+    ```typescript
+    const remoteAgent = BackgroundTaskAgent.get(backgroundJobId);
+    remoteAgent.runTask.schedule({ seconds: X, nanoseconds: Y }, "hello", 1234);
+    ```
+    </Tabs.Tab>
+
+    Here the first parameter is a `Datetime` object, with seconds and nanoseconds fields representing the UNIX Epoch time when the method should be executed. The rest of the parameters are the same as for the original method.
+</Tabs>

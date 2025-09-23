@@ -41,6 +41,106 @@ This section describes how various types of the used programming language are ma
     </Tabs.Tab>
 </Tabs>
 
+There are some special, Golem agent specific types that can be used in the agent constructor and methods as well:
+
+### Unstructured text
+Unstructured text is an arbitrary string, optionally annotated with a language code, that is either passed directly to/from the agent, or as an URL reference. The agent can optionally specify the set of supported language codes.
+
+<Tabs items={["TypeScript"]}>
+    <Tabs.Tab>
+    ```typescript
+    import {
+      UnstructuredText,
+    } from '@golemcloud/golem-ts-sdk';
+
+    async exampleMethod(
+        @languageCodes(['en'])
+        unstructuredTextWithLanguageCode: UnstructuredText,
+    ): Promise<void> {
+        // ...
+    }
+    ```
+
+    The `@languageCodes` decorator is optional; if missing, there will be no restrictions for the language of the text.
+
+    The type itself represents either an inline string or a remote reference:
+
+    ```typescript
+    export type UnstructuredText =
+      | {
+          tag: 'url';
+          val: string;
+        }
+      | {
+          tag: 'inline';
+          val: string;
+          languageCode?: string;
+        };
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+### Unstructured binary
+Unstructured binary data is similar to unstructured text, but it is annotated (and restricted by) MIME types.
+
+
+<Tabs items={["TypeScript"]}>
+    <Tabs.Tab>
+    ```typescript
+    import {
+      UnstructuredText,
+    } from '@golemcloud/golem-ts-sdk';
+
+    async exampleMethod(
+      @mimeTypes(['application/json'])
+      unstructuredBinaryWithMimeType: UnstructuredBinary,
+    ): Promise<void> {
+        // ...
+    }
+    ```
+
+    The `@mimeTypes` decorator specifies the set of allowed MIME types for the binary data.
+
+    The type itself represents either an inline byte array or a remote reference:
+
+    ```typescript
+    export type UnstructuredBinary =
+      | {
+          tag: 'url';
+          val: string;
+        }
+      | {
+          tag: 'inline';
+          val: Uint8Array;
+          mimeType?: string;
+        };
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+
+### Multimodal values
+Agents can work with **multimodal values** as input or output. When defining a parameter or return value as multimodal, we define the possible data types that can be used in that position, and the actual values will be an arbitrary number of values of these types, in any combination.
+
+<Tabs items={["TypeScript"]}>
+    <Tabs.Tab>
+    In TypeScript, methods taking multimodal values are annotated with the `@multimodal()` decorator, and each parameter of the method is going to be a possible type of the multimodal value. As there is no constraint on the number of values for each type, every parameter of the multimodal method is going to be an array of values of the corresponding type:
+
+    ```typescript
+    @multimodal()
+    async exampleMethod(
+      metadata: MyStructuredData[],
+      @languageCodes(['en', 'de'])
+      text: UnstructuredText[],
+      @mimeTypes('image/jpeg', 'image/png')
+      image: UnstructuredBinary[]
+    ): Promise<void> {
+      // ...
+    }
+    ```
+    </Tabs.Tab>
+</Tabs>
+
 ## Rib types to JSON
 
 The **invocation API** uses a special JSON format to describe invocation parameters and results.
