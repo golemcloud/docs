@@ -3,9 +3,7 @@
 Golem's [Gateway](/concepts/worker-gateway) service not only exposes the [low-level REST API for invocations](/invoke/http)
 but also provides a way to expose the agent methods as HTTP APIs.
 
-Future versions will support other protocols as well such as MCP, gRPC or GraphQL.
-
-For reference, see the [API Definition Reference](/http-api-definitions) page.
+Future versions will support other protocols such as MCP, gRPC, or GraphQL.
 
 ## HTTP API definition
 
@@ -110,7 +108,7 @@ httpApi:
               let name: string = request.path.name;
               let agent = counter-agent(name);
               let new-value = agent.increment();
-              { status: 200u64, body: "incremented ${name}, new value is ${new-value}" }
+              { status: 200u64, body: { result: "incremented ${name}, new value is ${new-value}" } }
 ```
 
 ##### Optional idempotency key script

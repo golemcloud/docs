@@ -191,7 +191,7 @@ httpApi:
               let name: string = request.path.name;
               let agent = counter-agent(name);
               let new-value = agent.increment();
-             "incremented ${name}, new value is ${new-value}"
+              { status: 200, body: { result: "incremented ${name}, new value is ${new-value}" } }
 
   deployments:
     local:
