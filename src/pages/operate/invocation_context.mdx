@@ -37,7 +37,7 @@ Outgoing HTTP requests are also represented by their own automatic spans with th
 - `request.uri`: the outgoing request's URI
 
 ### RPC calls
-RPC calls on the caller side are also represented by a custom spans. First a span is created when the underlying RPC resource is initialized, with the following attributes:
+RPC calls on the caller side are also represented by custom spans. First, a span is created when the underlying RPC resource is initialized, with the following attributes:
 
 - `name`: span's name (`rpc-connection`)
 - `target_worker_id`: the target worker's ID

@@ -37,7 +37,7 @@ Application plugins are similar to library plugins with the difference that the 
 
 ### Oplog processor plugins
 
-Oplog processor plugins are special **golem agents** implementing the `golem:api@1.1.7/oplog-processor` interface. These plugins are instantiated and by Golem, and got periodically invoked with oplog entries - a journal of operations performed by agents where the plugin is installed.
+Oplog processor plugins are special **golem agents** implementing the `golem:api@1.1.7/oplog-processor` interface. These plugins are instantiated by Golem and are periodically invoked with oplog entries, a journal of operations performed by agents where the plugin is installed.
 
 <Callout type="warning">
   Oplog processor plugin support is experimental. The final version will guarantee **exactly-once**
