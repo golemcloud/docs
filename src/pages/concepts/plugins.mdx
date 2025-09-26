@@ -25,7 +25,7 @@ Component transformer plugins are external web services providing an HTTP endpoi
 
 - Replace one or more of the host interfaces provided by Golem. For example a component transformer plugin may implement the WASI KeyValue store interface for a component by connecting to a third party database, instead of using the one provided by Golem.
 - Wrap the host interfaces provided by Golem. In this case the adapter the plugin composes the uploaded component with both imports and exports the same interfaces, and by that wraps Golem's implementation for example to publish metrics or perform logging.
-- Extend the provided interface of the component by exporting additional invokeable functions.
+- Extend the provided interface of the component by exporting additional invokable functions.
 
 #### Library plugins
 

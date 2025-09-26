@@ -85,7 +85,7 @@ class RequestHandler extends BaseAgent {
 An agent with a constructor like this can be identified by `request-handler("user-123", "request-456")`.
 
 <Callout type="info">
-    Note that the agent name is converted to _kebab-case_ (`request-handler`) when referred to in an agent identifier. This is due to some technical implementation details of the underlying Golem runtime. You can learn more about these mappings [on the name mappings page](/name mappings).
+    Note that the agent name is converted to _kebab-case_ (`request-handler`) when referred to in an agent identifier. This is due to some technical implementation details of the underlying Golem runtime. You can learn more about these mappings on the [name mapping page](/name-mapping).
 </Callout>
 
 ### Agent methods
@@ -147,7 +147,7 @@ import { argv, env } from "node:process";
 </Tabs.Tab>
 </Tabs>
 
-Environment variables can be specified when a agent is **explicitly created**, but there are some environment variables that are always set by Golem:
+Environment variables can be specified when an agent is **explicitly created**, but there are some environment variables that are always set by Golem:
 
 - `GOLEM_AGENT_ID` - the ID of the agent
 - `GOLEM_AGENT_TYPE` - the agent type (first part of the agent ID)
