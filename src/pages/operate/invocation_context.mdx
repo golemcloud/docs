@@ -9,11 +9,11 @@ By default the invocation context's spans are not used by Golem for anything - i
 ## Automatic invocation context spans
 
 ### Incoming HTTP requests
-The root spans of an invocation are containing information depending on how that invocation was started. When invoking through the [invocation REST API](/invoke/http), [W3C Trace Context](https://www.w3.org/TR/trace-context/) headers are automatically processed to set the root **trace-id** and **parent span-id**.
+The root spans of an invocation contain information depending on how that invocation was started. When invoking through the [invocation REST API](/invoke/http), [W3C Trace Context](https://www.w3.org/TR/trace-context/) headers are automatically processed to set the root **trace-id** and **parent span-id**.
 
 When using [custom APIs](/invoke/making-custom-apis), the same headers are also taken into account by default, but it is also possible to write a **custom Rib script** per endpoint to extract more information from the HTTP requests and define custom **span attributes** with them.
 
-In both cases, when the invocation's trigger is a HTTP request, a spans is added with the following attributes:
+In both cases, when the invocation's trigger is an HTTP request, a span is added with the following attributes:
 
 - `request.method`
 - `request.uri`
