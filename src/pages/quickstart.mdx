@@ -148,7 +148,7 @@ First start the REPL using:
 golem repl
 ```
 
-The REPL uses a special scripting language called [Rib](rib). We can create some counter agents and interact with them using the following commands:
+The REPL uses a special scripting language called [Rib](/rib). We can create some counter agents and interact with them using the following commands:
 
 ```shell copy
 >>> let a1 = counter-agent("agent-1")
@@ -165,13 +165,13 @@ The REPL uses a special scripting language called [Rib](rib). We can create some
 
 Note that the REPL provides autocompletion on Tab.
 
-Check the [Invoke section](invoke) to learn about more about other ways to invoke agents.
+Check the [Invoke section](/invoke) to learn more about other ways to invoke agents.
 
-### Expose a HTTP API
+### Expose an HTTP API
 
 Agents can be invoked from other agents, through the REPL or CLI, or Golem's Invocation API, but Golem Applications can also define **HTTP APIs** that map routes to agents and agent methods.
 
-To finish the QuickStart example with a HTTP POST endpoint for tracking counts, let's open the `golem.yaml` file in the component's directory. It's going to contain a a `components` and a `dependencies` section already.
+To finish the Quickstart example with an HTTP POST endpoint for tracking counts, let's open the `golem.yaml` file in the component's directory. It's going to contain a `components` and a `dependencies` section already.
 
 To define the HTTP API, we add its definition and information about how to expose it:
 
