@@ -870,17 +870,17 @@ will fail to compile.
 
 ## External Interactions
 
-### Http Request Input and Field Selection
+### HTTP Request Input and Field Selection
 
-Rib is currently mainly used in worker-gateway which will allow us to expose Http APIs on top of worker functions.
+Rib is currently mainly used in worker-gateway which will allow us to expose HTTP APIs on top of worker functions.
 If you are using Rib in the context of [worker-gateway](/invoke/making-custom-apis) then
-you can use the variable `request` in your Rib script, which allows you to access various parameters of input Http request.
+you can use the variable `request` in your Rib script, which allows you to access various parameters of an input HTTP request.
 In other words, `request` is a global input to the Rib script when used in API definitions, and
 `worker-gateway` will ensure to pass the value of `request` to the rib evaluator internally.
 
 Please refer to [worker-gateway](/invoke/making-custom-apis) documents for more details.
 
-`request` will hold all the details of an input Http request in gateway,
+`request` will hold all the details of an input HTTP request in gateway,
 such as headers, path, query parameters and body.
 
 #### Request Body Parameters
