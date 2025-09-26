@@ -4,7 +4,7 @@ Golem associates an **invocation context** with each agent invocation. This invo
 
 The invocation context can be queried and manipulated (by adding custom spans with custom attributes) using [the SDK](/develop/additional).
 
-By default the invocation context's spans are not used by Golem for anything - it is just information propagated among agents to be used by either the agents, or **oplog processor plugins** installed to them. It is possible to reconstruct all information about invocation context from the oplog, so oplog processor plugins can be used for example to provide live traces of agents through OpenTelemetry.
+By default, the invocation context's spans are not used by Golem for anything; they are just information propagated among agents to be used by either the agents or **oplog processor plugins** installed to them. It is possible to reconstruct all information about invocation context from the oplog, so oplog processor plugins can be used, for example, to provide live traces of agents through OpenTelemetry.
 
 ## Automatic invocation context spans
 
