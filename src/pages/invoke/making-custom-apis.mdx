@@ -84,10 +84,26 @@ The script must return an object with at least a `status` and a `body` field:
 { status: 200u64, body: "Hello World" }
 ```
 
-Additionally, this response object can also have a `headers` field, which is a map of header names to values:
+Additionally, this response object can also have a `headers` field, which is a map of header names to values.
+
+For example, it is possible to modify the **response content type** by adding a `Content-Type` header:
 
 ```rib
-{ status: 200u64, body: "Hello World", headers: { "Content-Type": "text/plain" } }
+{ status: 200u64, body: "Hello World", headers: { Content-Type: "text/plain" } }
+```
+
+The next example reads a custom header from the requests, and uses it as another custom header that is added to the response:
+
+```rib
+let customer-id: string = request.headers.X-Customer-ID;
+{
+  status: 200u64,
+  body: "The customer id header was ${customer-id}",
+  headers: {
+    Content-Type: "text/plain",
+    X-Request-Customer-ID: customer-id
+  }
+}
 ```
 
 ##### Example
@@ -110,6 +126,8 @@ httpApi:
               let new-value = agent.increment();
               { status: 200u64, body: { result: "incremented ${name}, new value is ${new-value}" } }
 ```
+
+Note that when the content type header is not specified, the `body` is automatically serialized as JSON and the `Content-Type: application/json` header is added to the response.
 
 ##### Optional idempotency key script
 In Golem every request is associated with an _idempotency key_. If there is no special idempotency key script provided, then this key is either taken from the `Idempotency-Key` HTTP header, if any, or otherwise a random key is generated for each request.
