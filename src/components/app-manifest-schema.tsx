@@ -50,13 +50,17 @@ const Releases: { [key in Release]: ReleaseMeta } = {
     otherChanges: <></>,
   },
   [Release.R_1_3_0]: {
-    json: "1.2.5",
+    json: "1.3.0",
     otherChanges: (
       <>
         <div>
           added enum values {code("pretty-json")}, {code("pretty")} and {code("pretty-yaml")} to
           {fieldLink({ path: "profiles.<profile-name>.format" })}
         </div>
+        <div>
+          renamed {code("resetWorkers")} to {code("resetAgents")}
+        </div>
+        <div>deprecated wasm-rpc dependencies</div>
       </>
     ),
   },
