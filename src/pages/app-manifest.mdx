@@ -429,12 +429,12 @@ Available naming related string transforming functions:
       { /* @formatter:off */ }
       ```yaml
       components:
-      pack-ns:component-name:
-      sourceWit: # ...
-      # ...
-      pack:comp-b:
-      sourceWit: # ...
-      # ...
+        pack-ns:component-name:
+          sourceWit: # ...
+          # ...
+        pack:comp-b:
+          sourceWit: # ...
+          # ...
       ```
       { /* @formatter:on */}
     </Example>
@@ -470,12 +470,12 @@ Available naming related string transforming functions:
       { /* @formatter:off */ }
       ```yaml
       components:
-      pack-ns:component-name:
-      # ...
-      componentType: durable
-      pack-ns:component-name:
-      # ...
-      componentType: ephemeral
+        pack-ns:component-name:
+          # ...
+          componentType: durable
+        pack-ns:component-name:
+          # ...
+          componentType: ephemeral
       ```
       { /* @formatter:on */}
     </Example>
@@ -491,15 +491,15 @@ Available naming related string transforming functions:
       { /* @formatter:off */ }
       ```yaml
       components:
-      pack-ns:component-name:
-      # ...
-      files:
-      - sourcePath: ./files/foo.txt
-      targetPath: /files/foo.txt
-      permissions: read-only
-      - sourcePath: ./files/bar.txt
-      targetPath: /files/bar.txt
-      permissions: read-write
+        pack-ns:component-name:
+          # ...
+          files:
+          - sourcePath: ./files/foo.txt
+            targetPath: /files/foo.txt
+            permissions: read-only
+          - sourcePath: ./files/bar.txt
+            targetPath: /files/bar.txt
+            permissions: read-write
       ```
       { /* @formatter:on */}
     </Example>
@@ -578,9 +578,9 @@ Available naming related string transforming functions:
       { /* @formatter:off */ }
       ```yaml
       components:
-      pack-ns:component-name:
-      # ...
-      sourceWit: wit
+        pack-ns:component-name:
+          # ...
+          sourceWit: wit
       ```
       { /* @formatter:on */}
     </Example>
@@ -603,9 +603,9 @@ Available naming related string transforming functions:
       { /* @formatter:off */ }
       ```yaml
       components:
-      pack-ns:component-name:
-      # ...
-      generatedWit: wit-generated
+        pack-ns:component-name:
+          # ...
+          generatedWit: wit-generated
       ```
       { /* @formatter:on */}
     </Example>
@@ -625,9 +625,9 @@ Available naming related string transforming functions:
       { /* @formatter:off */ }
       ```yaml
       components:
-      pack-ns:component-name:
-      # ...
-      componentWasm: build/component.wasm
+        pack-ns:component-name:
+          # ...
+          componentWasm: build/component.wasm
       ```
       { /* @formatter:on */}
     </Example>
@@ -649,9 +649,9 @@ Available naming related string transforming functions:
       { /* @formatter:off */ }
       ```yaml
       components:
-      pack-ns:component-name:
-      # ...
-      linkedWasm: golem-temp/component/component.wasm
+        pack-ns:component-name:
+          # ...
+          linkedWasm: golem-temp/component/component.wasm
       ```
       { /* @formatter:on */}
     </Example>
@@ -667,10 +667,10 @@ Available naming related string transforming functions:
       { /* @formatter:off */ }
       ```yaml
       components:
-      pack-ns:component-name:
-      build:
-      - command: bindgen-tool wit-generated
-      - command: build-tool wit-generated component.wasm
+        pack-ns:component-name:
+          build:
+          - command: bindgen-tool wit-generated
+          - command: build-tool wit-generated component.wasm
       ```
       { /* @formatter:on */}
     </Example>
@@ -747,14 +747,14 @@ Available naming related string transforming functions:
       { /* @formatter:off */ }
       ```yaml
       components:
-      pack-ns:component-name:
-      # ...
-      build:
-      - command: build-tool src-dir out.wasm
-      sources:
-      - src-dir/*
-      targets:
-      - out.wasm
+        pack-ns:component-name:
+          # ...
+          build:
+          - command: build-tool src-dir out.wasm
+            sources:
+            - src-dir/*
+            targets:
+            - out.wasm
       ```
       { /* @formatter:on */}
     </Example>
@@ -797,11 +797,11 @@ Available naming related string transforming functions:
       { /* @formatter:off */ }
       ```yaml
       components:
-      pack-ns:component-name:
-      # ...
-      customCommands:
-      npm-install:
-      - command: npm install
+        pack-ns:component-name:
+          # ...
+          customCommands:
+            npm-install:
+            - command: npm install
       ```
       { /* @formatter:on */}
     </Example>
@@ -876,15 +876,15 @@ Available naming related string transforming functions:
       { /* @formatter:off */ }
       ```yaml
       components:
-      pack-ns:component-name:
-      profiles:
-      debug:
-      build:
-      - command: build-tool --debug out.wasm
-      release:
-      build:
-      - command: build-tool --release out.wasm
-      defaultProfile: release
+        pack-ns:component-name:
+          profiles:
+            debug:
+              build:
+              - command: build-tool --debug out.wasm
+            release:
+              build:
+              - command: build-tool --release out.wasm
+          defaultProfile: release
       ```
       { /* @formatter:on */}
     </Example>
@@ -1144,8 +1144,8 @@ Available naming related string transforming functions:
       { /* @formatter:off */ }
       ```yaml
       customCommands:
-      npm-install:
-      - command: npm install
+        npm-install:
+        - command: npm install
       ```
       { /* @formatter:on */}
     </Example>
@@ -1585,13 +1585,13 @@ Available naming related string transforming functions:
       { /* @formatter:off */ }
       ```yaml
       templates:
-      rust:
-      profiles:
-      debug:
-      # ...
-      release:
-      # ...
-      defaultProfile: debug
+        rust:
+          profiles:
+            debug:
+              # ...
+            release:
+              # ...
+          defaultProfile: debug
       ```
       { /* @formatter:on */}
     </Example>
