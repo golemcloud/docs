@@ -50,7 +50,7 @@ On **Golem Cloud** components are organized into **projects**.
 Existing projects can be listed using the `project list` subcommand:
 
 ```shell copy
-golem project list
+golem cloud project list
 ```
 
 ### Adding projects
@@ -58,7 +58,7 @@ golem project list
 A new project can be created using `project add`. The command expects a project name and description:
 
 ```shell copy
-golem project add --project-name "Golem Demo" --project-description "A new project for demonstrating the project feature"
+golem cloud project add "Golem Demo" --description "A new project for demonstrating the project feature"
 ```
 
 When creating components or agents, the project can be specified with the `--project-name` flag. Every user has a **default project** which is used when no explicit project is specified.
@@ -74,7 +74,7 @@ Projects can be shared among multiple Golem Cloud accounts.
 To share a project, use the `share` subcommand:
 
 ```shell copy
-golem share --project-name "Golem Demo" --recipient-account-id 08bc0eac-5c51-40a5-8bc6-5c8928efb475 --project-actions ViewWorker --project-actions ViewComponent
+golem cloud grant --project-name "Golem Demo" --recipient-account-id 08bc0eac-5c51-40a5-8bc6-5c8928efb475 --project-actions ViewWorker --project-actions ViewComponent
 ```
 
 This example shares the "Golem Demo" project with the account identified by `08bc0eac-5c51-40a5-8bc6-5c8928efb475` and grants component and agent **view** permissions for it.
