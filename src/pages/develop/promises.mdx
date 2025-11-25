@@ -24,8 +24,7 @@ When a promise is completed, an arbitrary byte array can be attached to it as a 
         To create a promise simply call the `create_promise` function:
 
         ```rust
-
-        use golem_rust::golem_agentic::golem::api::host::{create_promise, PromiseId};
+        use golem_rust::bindings::golem::api::host::create_promise;
 
         let promise_id: PromiseId = create_promise()
         ```
@@ -94,26 +93,12 @@ The returned value has the type `PromiseId`, and defined as the following (inclu
     </Tabs.Tab>
 </Tabs>
 
-### Deleting a promise
-
-If a promise is no longer used, it has to be deleted with:
-
-<Tabs items={["TypeScript"]}>
-    <Tabs.Tab>
-    ```typescript
-    import { deletePromise, PromiseId } from "@golemcloud/golem-ts-sdk"
-
-    deletePromise(promiseId)
-    ```
-    </Tabs.Tab>
-</Tabs>
-
 ### Awaiting a promise
 
 To await a promise, use the async `awaitPromise` function, which returns the promise result as a byte array payload.
 Here's an example that awaits a promise, then decodes the payload from JSON format:
 
-<Tabs items={["TypeScript"]}>
+<Tabs items={["TypeScript", "Rust"]}>
     <Tabs.Tab>
     ```typescript
     import { awaitPromise, PromiseId } from "@golemcloud/golem-ts-sdk"
@@ -122,13 +107,20 @@ Here's an example that awaits a promise, then decodes the payload from JSON form
     const payload = JSON.parse(new TextDecoder().decode(byteArrayPayload))
     ```
     </Tabs.Tab>
+    <Tabs.Tab>
+    ```rust
+     use golem_rust::await_promise_json;
+
+     const payload: String = await_promise_json(&promise_id);
+     ```
+     </Tabs.Tab>
 </Tabs>
 
 Note that if an agent is only **awaiting** Golem promises (one or more), the agent gets suspended and is not going to consume any resources while waiting.
 
 ### Completing a promise from within an agent
 
-<Tabs items={["TypeScript"]}>
+<Tabs items={["TypeScript", "Rust"]}>
     <Tabs.Tab>
     To complete a promise from within an agent, use the `completePromise` function.
     The following example completes a promise with a value encoded as JSON:
@@ -144,6 +136,28 @@ Note that if an agent is only **awaiting** Golem promises (one or more), the age
     const success: boolean = completePromise(promiseId, byteArrayPayload)
     ```
     </Tabs.Tab>
+        <Tabs.Tab>
+        To complete a promise from within an agent, use the `complete_promise` function.
+
+        ```rust
+        use golem_rust::bindings::golem::api::host::{PromiseId};
+        use golem_rust::complete_promise_json;
+        use serde::Serialize;
+
+        #[derive(Serialize)]
+        struct Data {
+            id: String,
+            meta: String,
+        }
+
+        let data = Data {
+          id: "value".to_string(),
+          meta: "data".to_string(),
+        };
+
+        let result: Result<bool, serde_json::error::Error> = complete_promise_json(&promise_id, data);
+        ```
+        </Tabs.Tab>
 </Tabs>
 
 ### Completing a promise from an external source
