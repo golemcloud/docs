@@ -10,7 +10,7 @@ When a promise is completed, an arbitrary byte array can be attached to it as a 
 
 ### Creating a promise
 
-<Tabs items={["TypeScript"]}>
+<Tabs items={["TypeScript", "Rust"]}>
     <Tabs.Tab>
         To create a promise simply call the `createPromise` function:
 
@@ -20,11 +20,21 @@ When a promise is completed, an arbitrary byte array can be attached to it as a 
         const promiseId: PromiseId = createPromise()
         ```
     </Tabs.Tab>
+   <Tabs.Tab>
+        To create a promise simply call the `create_promise` function:
+
+        ```rust
+
+        use golem_rust::golem_agentic::golem::api::host::{create_promise, PromiseId};
+
+        let promise_id: PromiseId = create_promise()
+        ```
+    </Tabs.Tab>
 </Tabs>
 
 The returned value has the type `PromiseId`, and defined as the following (including the nested types):
 
-<Tabs items={["TypeScript"]}>
+<Tabs items={["TypeScript", "Rust"]}>
     <Tabs.Tab>
         ```typescript
         export type OplogIndex = bigint
@@ -50,6 +60,35 @@ The returned value has the type `PromiseId`, and defined as the following (inclu
         export interface PromiseId {
             agentId: AgentId
             oplogIdx: OplogIndex
+        }
+        ```
+    </Tabs.Tab>
+
+    <Tabs.Tab>
+        ```rust
+        pub type OplogIndex = u64;
+
+        pub struct Uuid {
+            high_bits: u64
+            low_bits: u64
+        }
+
+        // Represents a Component
+        pub struct ComponentId {
+            uuid: Uuid
+        }
+
+        // Represents an agent
+        pub struct AgentId {
+            component_id: ComponentId
+            agent_id: string
+        }
+
+        // A promise ID is a value that can be passed to an external Golem API to complete that promise
+        // from an arbitrary external source, while Golem agents can await for this completion.
+        pub struct PromiseId {
+          pub agent_id: AgentId,
+          pub oplog_idx: OplogIndex,
         }
         ```
     </Tabs.Tab>
