@@ -2,7 +2,7 @@ import { Tabs } from "nextra/components"
 
 # HTTP requests
 
-<Tabs items={["TypeScript"]}>
+<Tabs items={["TypeScript", "Rust"]}>
 <Tabs.Tab>
     HTTP requests can be made with the standard `fetch` function.
 
@@ -23,5 +23,71 @@ import { Tabs } from "nextra/components"
     console.log("Body: ", data);
 });
     ```
+</Tabs.Tab>
+
+<Tabs.Tab>
+    HTTP requests can be made using `golem-wasi-http` crate that uses wasi-http as it's backend.
+    Make sure to have the crate added to your `Cargo.toml`:
+
+    ```toml
+    [dependencies]
+    golem-wasi-http = {version = "0.1", features = ["json"] }
+    ```
+
+
+    ```rust
+    use serde::{Deserialize, Serialize};
+    use golem_wasi_http::Client;
+
+    #[derive(Serialize, Deserialize)]
+    struct ExampleRequest {
+        title: String,
+        body: String,
+        user_id: u16
+    }
+
+    #[derive(Debug, Serialize, Deserialize)]
+    struct ExampleResponse {
+        message: Option<String>,
+    }
+
+    let port = std::env::var("PORT").unwrap_or("9999".to_string());
+
+    let response = Client::new()
+      .post(&format!("http://localhost:{port}/todos"))
+      .header("X-Test", "Golem")
+      .json(&request_body)
+      .basic_auth("some", Some("body"))
+      .send()
+      .unwrap();
+
+    let result: ExampleResponse =  response.json().unwrap();
+
+    println!("Received {:?}", result);
+    ```
+
+    If you need the async client, add `async` into the list of features for `golem-wasi-http` in your `Cargo.toml`:
+
+    ```toml
+    [dependencies]
+    golem-wasi-http = {version = "0.1", features = ["json", "async"] }
+    ```
+
+    With this `send` will return a future that you can `.await` on, and similary for `json` method:
+
+    ```rust
+
+    let response = Client::new()
+      .post(&format!("http://localhost:{port}/todos"))
+      .header("X-Test", "Golem")
+      .json(&request_body)
+      .basic_auth("some", Some("body"))
+      .send()
+      .await
+      .unwrap();
+
+    let result: ExampleResponse =  response.json().await.unwrap();
+    ```
+
 </Tabs.Tab>
 </Tabs>
