@@ -31,6 +31,7 @@ declare module 'golem:api/host@1.1.7' {
 ```
 </Tabs.Tab>
 
+<Tabs.Tab>
 `fork` and `ForkResult` can be imported from `golem_rust::fork` and `golem_rust::ForkResult` respectively
 
 ```rust
@@ -60,7 +61,7 @@ Using this `fork` function from a component that was created from Golem's built-
 
 The following code snippet demonstrates calling `fork` and continuing on two different parallel branches based on its result value:
 
-<Tabs items={["TypeScript"]}>
+<Tabs items={["TypeScript", "Rust"]}>
   <Tabs.Tab>
   ```typescript
   import { BaseAgent, agent } from '@golemcloud/golem-ts-sdk';
@@ -90,7 +91,49 @@ The following code snippet demonstrates calling `fork` and continuing on two dif
   }
   ```
   </Tabs.Tab>
+  <Tabs.Tab>
+  ```rust
+use golem_rust::bindings::golem::api::host::create_promise;
+use golem_rust::ForkResult;
+use golem_rust::{
+    agent_definition, agent_implementation, await_promise_json, complete_promise_json, fork,
+};
 
+#[agent_definition]
+pub trait ExampleAgent {
+    async fn new(id: String) -> Self;
+    async fn run(&self) -> Result<(), String>;
+}
+
+struct ExampleAgentImpl {
+    id: String,
+}
+
+#[agent_implementation]
+impl ExampleAgent for ExampleAgentImpl {
+    async fn new(id: String) -> Self {
+        ExampleAgentImpl { id }
+    }
+
+    async fn run(&self) -> Result<(), String> {
+        let promise_id = create_promise();
+
+        match fork() {
+            ForkResult::Original(_) => {
+                // ... do some more work;
+
+                Ok(())
+            }
+            ForkResult::Forked(_) => {
+                // do some work in parallel to the original agent
+
+                Ok(())
+            }
+        }
+    }
+}
+  ```
+  </Tabs.Tab>
 </Tabs>
 
 ## Join
@@ -107,7 +150,7 @@ The high level idea is the following:
 The following code snippet demonstrates this pattern:
 
 
-<Tabs items={["TypeScript"]}>
+<Tabs items={["TypeScript", "Rust"]}>
   <Tabs.Tab>
   ```typescript
   import { BaseAgent, agent } from '@golemcloud/golem-ts-sdk';
@@ -154,5 +197,72 @@ The following code snippet demonstrates this pattern:
   </Callout>
 
   </Tabs.Tab>
+  <Tabs.Tab>
+  ```rust
+use golem_rust::bindings::golem::api::host::create_promise;
+use golem_rust::ForkResult;
+use golem_rust::{
+    agent_definition, agent_implementation, await_promise_json, complete_promise_json, fork,
+};
+use serde::Deserialize;
+use serde::Serialize;
 
+struct ExampleAgentImpl {
+    id: String,
+}
+
+#[derive(Serialize, Deserialize)]
+struct RunResult {
+    message: String,
+}
+
+#[agent_definition]
+pub trait ExampleAgent {
+    async fn new(id: String) -> Self;
+    async fn run(&self) -> Result<(), String>;
+}
+
+#[agent_implementation]
+impl ExampleAgent for ExampleAgentImpl {
+    async fn new(id: String) -> Self {
+        ExampleAgentImpl { id }
+    }
+
+    async fn run(&self) -> Result<(), String> {
+        let promise_id = create_promise();
+
+        match fork() {
+            ForkResult::Original(_) => {
+                let local_result = RunResult {
+                    message: format!("Hello from original agent with id: {}", self.id),
+                };
+
+                let forked_result: RunResult =
+                    await_promise_json(&promise_id).map_err(|err| err.to_string())?;
+
+                println!("local result : {}", local_result.message);
+                println!("forked result: {}", forked_result.message);
+
+                Ok(())
+            }
+            ForkResult::Forked(_) => {
+                let result = RunResult {
+                    message: format!("Hello from forked agent with id: {}", self.id),
+                };
+
+                complete_promise_json(&promise_id, result).map_err(|err| err.to_string())?;
+
+                Ok(())
+            }
+        }
+    }
+}
+
+  ```
+
+  <Callout type="warning">
+  Note that **Golem Promises** are NOT JavaScript Promises, and the API to create, complete and await them is currently **blocking**.
+  </Callout>
+
+  </Tabs.Tab>
 </Tabs>
