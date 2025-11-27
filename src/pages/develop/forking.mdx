@@ -101,8 +101,8 @@ use golem_rust::{
 
 #[agent_definition]
 pub trait ExampleAgent {
-    async fn new(id: String) -> Self;
-    async fn run(&self) -> Result<(), String>;
+    fn new(id: String) -> Self;
+    fn run(&self) -> Result<(), String>;
 }
 
 struct ExampleAgentImpl {
@@ -111,11 +111,11 @@ struct ExampleAgentImpl {
 
 #[agent_implementation]
 impl ExampleAgent for ExampleAgentImpl {
-    async fn new(id: String) -> Self {
+    fn new(id: String) -> Self {
         ExampleAgentImpl { id }
     }
 
-    async fn run(&self) -> Result<(), String> {
+    fn run(&self) -> Result<(), String> {
         let promise_id = create_promise();
 
         match fork() {
@@ -218,17 +218,17 @@ struct RunResult {
 
 #[agent_definition]
 pub trait ExampleAgent {
-    async fn new(id: String) -> Self;
-    async fn run(&self) -> Result<(), String>;
+    fn new(id: String) -> Self;
+    fn run(&self) -> Result<(), String>;
 }
 
 #[agent_implementation]
 impl ExampleAgent for ExampleAgentImpl {
-    async fn new(id: String) -> Self {
+    fn new(id: String) -> Self {
         ExampleAgentImpl { id }
     }
 
-    async fn run(&self) -> Result<(), String> {
+    fn run(&self) -> Result<(), String> {
         let promise_id = create_promise();
 
         match fork() {
@@ -250,6 +250,8 @@ impl ExampleAgent for ExampleAgentImpl {
                     message: format!("Hello from forked agent with id: {}", self.id),
                 };
 
+                println!("forked result : {}", result.message);
+
                 complete_promise_json(&promise_id, result).map_err(|err| err.to_string())?;
 
                 Ok(())
@@ -257,6 +259,7 @@ impl ExampleAgent for ExampleAgentImpl {
         }
     }
 }
+
 
   ```
 
