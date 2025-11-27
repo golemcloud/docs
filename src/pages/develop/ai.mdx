@@ -34,7 +34,7 @@ The list of supported LLM providers is the following:
 
 The core interface for LLMs:
 
-<Tabs items={["TypeScript"]}>
+<Tabs items={["TypeScript", "Rust"]}>
      <Tabs.Tab>
      ```typescript
      declare module 'golem:llm/llm@1.0.0' {
@@ -55,6 +55,11 @@ The core interface for LLMs:
     }
      ```
      </Tabs.Tab>
+    <Tabs.Tab>
+     ```rust
+     // Find details in golem_rust::golem_ai::golem::llm module
+     ```
+     </Tabs.Tab>
 </Tabs>
 
 ## Graph Databases
@@ -67,7 +72,7 @@ The list of supported graph databases is the following:
 
 The core interface for graph databases:
 
-<Tabs items={["TypeScript"]}>
+<Tabs items={["TypeScript", "Rust"]}>
      <Tabs.Tab>
      ```typescript
      declare module 'golem:graph/transactions@1.0.0' {
@@ -196,6 +201,12 @@ The core interface for graph databases:
      }
      ```
      </Tabs.Tab>
+    <Tabs.Tab>
+     ```rust
+       // Find details in golem_rust::golem_ai::golem::graph::transactions module
+     }
+     ```
+     </Tabs.Tab>
 </Tabs>
 
 ## Search Engines
@@ -209,7 +220,7 @@ The list of supported search engines is the following:
 
 The core interface for search engines:
 
-<Tabs items={["TypeScript"]}>
+<Tabs items={["TypeScript", "Rust"]}>
      <Tabs.Tab>
      ```typescript
      declare module 'golem:search/core@1.0.0' {
@@ -269,6 +280,12 @@ The core interface for search engines:
      }
      ```
      </Tabs.Tab>
+     <Tabs.Tab>
+     ```rust
+         // Find details in golem_rust::golem_ai::golem::search::core module
+      }
+     ```
+     </Tabs.Tab>
 </Tabs>
 
 ## Web Search Engines
@@ -282,7 +299,7 @@ The list of supported web search engines is the following:
 
 The core interface for web search engines:
 
-<Tabs items={["TypeScript"]}>
+<Tabs items={["TypeScript", "Rust"]}>
      <Tabs.Tab>
      ```typescript
      declare module 'golem:web-search/web-search@1.0.0' {
@@ -311,6 +328,12 @@ The core interface for web search engines:
      }
      ```
      </Tabs.Tab>
+     <Tabs.Tab>
+     ```rust
+            // Find details in golem_rust::golem_ai::golem::web_search module
+        }
+     ```
+     </Tabs.Tab>
 </Tabs>
 
 ## Speech to Text
@@ -325,7 +348,7 @@ The list of supported speech to text providers is the following:
 
 The core interface for speech to text providers:
 
-<Tabs items={["TypeScript"]}>
+<Tabs items={["TypeScript", "Rust"]}>
      <Tabs.Tab>
      ```typescript
      declare module 'golem:stt/transcription@1.0.0' {
@@ -341,6 +364,11 @@ The core interface for speech to text providers:
      }
      ```
      </Tabs.Tab>
+     <Tabs.Tab>
+     ```rust
+       // Find details in golem_rust::golem_ai::golem::stt::transcription module
+     ```
+     </Tabs.Tab>
 </Tabs>
 
 ## Video Generation
@@ -354,7 +382,7 @@ The list of supported video generation providers is the following:
 
 The core interface for video generation providers:
 
-<Tabs items={["TypeScript"]}>
+<Tabs items={["TypeScript", "Rust"]}>
      <Tabs.Tab>
      ```typescript
      declare module 'golem:video-generation/video-generation@1.0.0' {
@@ -404,6 +432,16 @@ The core interface for video generation providers:
      }
      ```
      </Tabs.Tab>
+     <Tabs.Tab>
+        ```rust
+        // Find details in the following modules
+        // golem_rust::golem_ai::golem::video_generation::video_generation
+        // golem_rust::golem_ai::golem::video_generation::lip_sync
+        // golem_rust::golem_ai::golem::video_generation::advanced
+
+        ```
+     </Tabs.Tab>
+
 </Tabs>
 
 ## Code Snippet Execution
@@ -415,7 +453,7 @@ The list of supported languages is the following:
 
 The core interface for code snippet execution:
 
-<Tabs items={["TypeScript"]}>
+<Tabs items={["TypeScript", "Rust"]}>
      <Tabs.Tab>
      ```typescript
      declare module 'golem:exec/executor@1.0.0' {
@@ -469,5 +507,10 @@ The core interface for code snippet execution:
        // ...
      }
      ```
+     </Tabs.Tab>
+     <Tabs.Tab>
+        ```rust
+        // Find details in the golem_rust::golem_ai::golem::exec::executor module
+        ```
      </Tabs.Tab>
 </Tabs>
