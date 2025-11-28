@@ -110,8 +110,14 @@ Here's an example that awaits a promise, then decodes the payload from JSON form
     <Tabs.Tab>
     ```rust
      use golem_rust::await_promise_json;
+     use serde::{Serialize, Deserialize}
 
-     const payload: String = await_promise_json(&promise_id);
+     #[derive(Serialize, Deserialize)]
+     struct MyPayload {
+       id: String,
+     }
+
+     const payload: MyPayload = await_promise_json(&promise_id);
      ```
      </Tabs.Tab>
 </Tabs>

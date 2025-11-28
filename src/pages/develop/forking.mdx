@@ -168,7 +168,7 @@ The following code snippet demonstrates this pattern:
     async run() {
       const promiseId: PromiseId = createPromise();
 
-      switch (fork(`example-agent("${this.name}",fork)`)) {
+      switch (fork()) {
         case "original": {
           const localResult = ...; // ... do some more work;
 
@@ -262,10 +262,5 @@ impl ExampleAgent for ExampleAgentImpl {
 
 
   ```
-
-  <Callout type="warning">
-  Note that **Golem Promises** are NOT JavaScript Promises, and the API to create, complete and await them is currently **blocking**.
-  </Callout>
-
   </Tabs.Tab>
 </Tabs>
