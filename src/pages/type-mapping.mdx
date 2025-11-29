@@ -8,7 +8,7 @@ The types used in the component's code are mapped to the types of Rib (WebAssemb
 
 This section describes how various types of the used programming language are mapping to types used by the Rib scripting language and the CLI invoke functions. These are WebAssembly component-model types, and their values are described using the [WAVE (WebAssembly Value Encoding)](https://github.com/bytecodealliance/wasm-tools/tree/main/crates/wasm-wave) format.
 
-<Tabs items={["TypeScript"]}>
+<Tabs items={["TypeScript", "Rust"]}>
     <Tabs.Tab>
         The following TypeScript types are supported:
 
@@ -39,6 +39,32 @@ This section describes how various types of the used programming language are ma
         | `Float32Array` | `list<f32>`            | `[3.4028235e+38, 1.175494e-38, 0, -1.175494e-38, -3.4028235e+38]` | |
         | `Float64Array` | `list<f64>`            | `[1.7976931348623157e+308, 2.2250738585072014e-308, 0, -2.2250738585072014e-308, -1.7976931348623157e+308]` | |
     </Tabs.Tab>
+    <Tabs.Tab>
+            The following Rust types are supported:
+
+            | Rust type            | WIT type               | Example Rib value                                    | Remarks
+            | -------------------- | -------------------- | ---------------------------------------------------- | -------
+            | `String`             | `string`             | `"hello world".to_string()`                          | |
+            | `bool`               | `bool`               | `true`, `false`                                     | |
+            | `f64`                | `f64`                | `1234.0`                                            | |
+            | `f32`                | `f32`                | `3.14`                                              | |
+            | `i8`                 | `s8`                 | `-128, 0, 127`                                     | |
+            | `u8`                 | `u8`                 | `0, 255`                                           | |
+            | `i16`                | `s16`                | `-32768, 0, 32767`                                 | |
+            | `u16`                | `u16`                | `0, 65535`                                         | |
+            | `i32`                | `s32`                | `-2147483648, 0, 2147483647`                       | |
+            | `u32`                | `u32`                | `0, 4294967295`                                    | |
+            | `i64`                | `s64`                | `-9223372036854775808, 0, 9223372036854775807`     | |
+            | `u64`                | `u64`                | `0, 18446744073709551615`                           | |
+            | `Vec<T>`             | `list<T>`            | `vec![1,2,3]`                                      | For arrays and slices |
+            | `[T; N]`             | `list<T>`            | `[1, 2, 3]`                                        | Fixed-size arrays |
+            | `Option<T>`          | `option<T>`          | `Some(42)`, `None`                                  | |
+            | `struct MyStruct { field1: T1, field2: T2 }` | `record { ... }` | `{ field1: "value", field2: 42 }`               | |
+            | `enum MyEnum { X(T1), Y(T2), Z }` | `variant { ... }` | `X("hello")`                                      | Variants can have optional values |
+            | `()`                 | `unit`               | `()`                                                | Unit type |
+            | `(T1, T2, T3)`      | `tuple<...>`         | `(42, "hello", true)`                               | Tuples |
+            | `HashMap<K, V>`      | `list<tuple<K, V>>`  | `[("key1", 100), ("key2", -2)]`                    | |
+     </Tabs.Tab>
 </Tabs>
 
 There are some special, Golem agent specific types that can be used in the agent constructor and methods as well:
