@@ -644,6 +644,108 @@ This can be useful if state needs to be shared between different agents or if th
         stream the data to the key-value store. For small values, the sync variants are more convenient, directly taking and returning
         a `Uint8Array`.
     </Tabs.Tab>
+
+       <Tabs.Tab>
+            There are two primary modules for using the key-value store:
+            - `golem_rust::bindings::wasi::keyvalue::eventual` defines an API for an eventually consistent key-value store
+            - `golem_rust::bindings::wasi::keyvalue::eventual_batch` defines an API with batch operations working on multiple keys
+
+            The primary interface to work with the key-value pairs consists of the four basic operations:
+
+            ```rust
+            /**
+            * Get the value associated with the key in the bucket.
+            * The value is returned as an option. If the key-value pair exists in the
+            * bucket, it returns `Ok(value)`. If the key does not exist in the
+            * bucket, it returns `Ok(none)`.
+            * If any other error occurs, it returns an `Err(error)`.
+            * @throws Error
+            */
+            pub fn get(bucket: &Bucket, key: &str) -> Result<Option<IncomingValue>, Error>
+            /**
+            * Set the value associated with the key in the bucket. If the key already
+            * exists in the bucket, it overwrites the value.
+            * If the key does not exist in the bucket, it creates a new key-value pair.
+            * If any other error occurs, it returns an `Err(error)`.
+            * @throws Error
+            */
+            pub fn set(bucket: &Bucket, key: &str, outgoing_value: &OutgoingValue) -> Result<(), Error>
+            /**
+            * Delete the key-value pair associated with the key in the bucket.
+            * If the key does not exist in the bucket, it does nothing.
+            * If any other error occurs, it returns an `Err(error)`.
+            * @throws Error
+            */
+            pub fn delete(bucket: &Bucket, key: &str) -> Result<(), Error>
+            /**
+            * Check if the key exists in the bucket.
+            * If the key exists in the bucket, it returns `Ok(true)`. If the key does
+            * not exist in the bucket, it returns `Ok(false)`.
+            * If any other error occurs, it returns an `Err(error)`.
+            * @throws Error
+            */
+            pub fn exists(bucket: &Bucket, key: &str) -> Result<bool, Error>
+            ```
+
+            The batch API defines similar functions such as `get_many` and `set_many`, but working on multiple keys at once.
+
+            The `IncomingValue` is  basically a handle to a WASI resource that contains the value.
+            To actually extract the bytes, it defines two consume methods.
+
+            The `OutgoingValue` is a handle to a WASI resource that can be used to write the value.
+            It defines methods to write the bytes into the resource.
+
+            Similarly,
+
+            ```rust
+            impl OutgoingValue {
+                pub fn new_outgoing_value() -> OutgoingValue {
+                /**
+                 * Writes the value to the output-stream asynchronously.
+                 * If any other error occurs, it returns an `Err(error)`.
+                 * @throws Error
+                 */
+                pub fn outgoing_value_write_body_async(&self) -> Result<OutgoingValueBodyAsync, Error>
+                /**
+                 * Writes the value to the output-stream synchronously.
+                 * If any other error occurs, it returns an `Err(error)`.
+                 * @throws Error
+                 */
+                pub fn outgoing_value_write_body_sync(&self, value: &[u8]) -> Result<(), Error>
+            }
+
+
+            impl IncomingValue {
+                /**
+                 * Consumes the value synchronously and returns the value as a list of bytes.
+                 * If any other error occurs, it returns an `Err(error)`.
+                 * @throws Error
+                 */
+                pub fn incoming_value_consume_sync(&self) -> Result<IncomingValueSyncBody, Error>
+                /**
+                 * Consumes the value asynchronously and returns the value as an `input-stream`.
+                 * If any other error occurs, it returns an `Err(error)`.
+                 * @throws Error
+                 */
+                pub fn incoming_value_consume_async(&self) -> Result<IncomingValueAsyncBody, Error>
+                /**
+                 * The size of the value in bytes.
+                 * If the size is unknown or unavailable, this function returns an `Err(error)`.
+                 * @throws Error
+                 */
+                pub fn size(&self) -> u64
+            }
+
+            pub type OutgoingValueBodyAsync = OutputStream;
+            pub type OutgoingValueBodySync = Vec<u8>;
+            pub type IncomingValueAsyncBody = InputStream;
+            pub type IncomingValueSyncBody = Vec<u8>;
+            ```
+
+            The streaming variants of setting and consuming the values may be used by the underlying implementation to directly
+            stream the data to the key-value store. For small values, the sync variants are more convenient, directly taking and returning
+            a `Vec<u8>`.
+        </Tabs.Tab>
 </Tabs>
 
 ### The WASI Blob Store interface
