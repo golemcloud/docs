@@ -685,8 +685,56 @@ The core interface for code snippet execution:
      ```
      </Tabs.Tab>
      <Tabs.Tab>
+      Find the following in the `golem_rust::golem_ai::golem::exec::executor`
         ```rust
-        // Find details in the golem_rust::golem_ai::golem::exec::executor module
+        /**
+          * Blocking, non-streaming execution
+          * - `lang` specifies the programming language and version.
+          * - `modules` are additional code files to include in the execution context. these can be imported in `snippet` in a language-specific way.
+          * - `snippet` is the top level code to execute.
+          * - `options` is controlling the script runner environment, see the run-options record for more details
+          * The returned value captures the stdout and stderr of the executed snippet.
+          */
+        pub fn run(lang: &Language, modules: &[File], snippet: &str, options: &RunOptions) -> Result<ExecResult, Error>;
+
+
+        impl Session {
+         /**
+           * Create a new session for executing code snippets in the specified language, with a set of additional
+           * code files that can be imported in the executed snippets.
+           */
+          pub fn new(lang: &Language, modules: &[File]) -> Self;
+
+         /**
+           * Upload a data file to the session, which can be accessed in the executed snippets through standard file system APIs.
+           */
+          pub fn upload(&self, file: &File) -> Result<(), Error>
+
+         /**
+           * Execute a code snippet in the session in a blocking way
+           * - `snippet` is the top level code to execute.
+           * - `options` is controlling the script runner environment, see the run-options record for more details
+           * The returned value captures the stdout and stderr of the executed snippet.
+           * @throws Error
+           */
+          pub fn run(&self, snippet: &str, options: &RunOptions) -> Result<ExecResult, Error>;
+
+        /**
+          * Downloads a data file from the session.
+          */
+          pub fn download(&self, path: &str) -> Result<Vec<u8>, Error>;
+
+        /**
+          * Lists all the data files available in the session. These will include the ones that were `upload`ed and also
+          * any other file created by the executed snippets.
+          */
+          pub fn list_files(&self, dir: &str) -> Result<Vec<String>, Error>;
+
+         /**
+          * Sets the current working directory within the session.
+          */
+          pub fn set_working_dir(&self, path: &str) -> Result<(), Error>;
+        }
         ```
      </Tabs.Tab>
 </Tabs>
