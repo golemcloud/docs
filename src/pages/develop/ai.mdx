@@ -56,8 +56,23 @@ The core interface for LLMs:
      ```
      </Tabs.Tab>
     <Tabs.Tab>
+
+    Find the following functions in package `golem_rust::golem_ai::golem::llm::llm`
+
      ```rust
-     // Find details in golem_rust::golem_ai::golem::llm module
+
+    /**
+     * --- Core Functions --- Make a single call to the LLM. To continue the conversation:
+     * - append tool responses and new messages to the events and use send again
+     * or use the chat-session wrapper, which help in maintaining the chat events
+     */
+     pub fn send(events: &[Event], config: &Config) -> Result<Response, Error>
+
+    /**
+     * Makes a single call to the LLM and gets back a streaming API to receive the response in chunks.
+     */
+     pub fn stream(events: &[Event], config: &Config) -> ChatStream
+
      ```
      </Tabs.Tab>
 </Tabs>
@@ -202,9 +217,109 @@ The core interface for graph databases:
      ```
      </Tabs.Tab>
     <Tabs.Tab>
+     The `Transaction` in golem_rust::golem_ai::golem::graph::transactions module exposes the following methods
      ```rust
-       // Find details in golem_rust::golem_ai::golem::graph::transactions module
+
+     impl Transaction {
+               /**
+                 * === QUERY OPERATIONS ===
+                 * Execute a database-specific query string
+                 */
+                pub fn execute_query(&self, options: &ExecuteQueryOptions) -> Result<QueryExecutionResult, GraphError>;
+                /**
+                 * == TRAVESAL OPERATIONS ==
+                 * Find shortest path between two vertices
+                 */
+                pub fn find_shortest_path(&self, options: &FindShortestPathOptions) -> Result<Option<Path>, GraphError>
+                /**
+                 * Find all paths between two vertices (up to limit)
+                 */
+                pub fn find_all_paths(&self, options: &FindAllPathsOptions) -> Result<_rt::Vec<Path>, GraphError>
+                /**
+                 * Get k-hop neighborhood around a vertex
+                 */
+                pub fn get_neighborhood(&self, options: &GetNeighborhoodOptions) -> Result<Subgraph, GraphError>
+                /**
+                 * Check if path exists between vertices
+                 */
+                pub fn path_exists(&self, options: &PathExistsOptions) -> Result<bool, GraphError>
+                /**
+                 * Get vertices at specific distance from source
+                 */
+                pub fn get_vertices_at_distance(&self, options: &GetVerticesAtDistanceOptions) -> Result<_rt::Vec<Vertex>, GraphError>
+                /**
+                 * Get adjacent vertices through specified edge types
+                 */
+                pub fn get_adjacent_vertices(&self, options: &GetAdjacentVerticesOptions) -> Result<_rt::Vec<Vertex>, GraphError>
+                /**
+                 * Get edges connected to a vertex
+                 */
+                pub fn get_connected_edges(&self, options: &GetConnectedEdgesOptions) -> Result<_rt::Vec<Edge>, GraphError>
+                /**
+                 * === VERTEX OPERATIONS ===
+                 * Create a new vertex
+                 */
+                pub fn create_vertex(&self, options: &CreateVertexOptions) -> Result<Vertex, GraphError>
+                /**
+                 * Create multiple vertices in a single operation
+                 */
+                pub fn create_vertices(&self, vertices: &[CreateVertexOptions]) -> Result<Vec<Vertex>, GraphError>
+                /**
+                 * Get vertex by ID
+                 */
+                pub fn get_vertex(&self, id: &ElementId) -> Result<Option<Vertex>, GraphError>
+                /**
+                 * Update vertex properties (replaces all properties)
+                 */
+                pub fn update_vertex(&self, options: &UpdateVertexOptions) -> Result<Vertex, GraphError>
+                /**
+                 * Delete vertex (and optionally its edges)
+                 */
+                pub fn delete_vertex(&self, id: &ElementId, delete_edges: bool) -> Result<(), GraphError>
+                /**
+                 * Find vertices by type and optional filters
+                 */
+                pub fn find_vertices(&self, options: &FindVerticesOptions) -> Result<_rt::Vec<Vertex>, GraphError>
+                /**
+                 * === EDGE OPERATIONS ===
+                 * Create a new edge
+                 */
+                pub fn create_edge(&self, options: &CreateEdgeOptions) -> Result<Edge, GraphError>
+                /**
+                 * Create multiple edges in a single operation
+                 */
+                pub fn create_edges(&self, edges: &[CreateEdgeOptions]) -> Result<Vec<Edge>, GraphError>
+                /**
+                 * Get edge by ID
+                 */
+                pub fn get_edge(&self, id: &ElementId) -> Result<Option<Edge>, GraphError>
+                /**
+                 * Update edge properties
+                 */
+                pub fn update_edge(&self, options: &UpdateEdgeOptions) -> Result<Edge, GraphError>
+                /**
+                 * Delete edge
+                 */
+                pub fn delete_edge(&self, id: &ElementId) -> Result<(), GraphError>
+                /**
+                 * Find edges by type and optional filters
+                 */
+                pub fn find_edges(&self, options: &FindEdgesOptions) -> Result<_rt::Vec<Edge>, GraphError>
+                /**
+                 * === TRANSACTION CONTROL ===
+                 * Commit the transaction
+                 */
+                pub fn commit(&self) -> Result<(), GraphError>
+                /**
+                 * Rollback the transaction
+                 */
+                pub fn rollback(&self) -> Result<(), GraphError>
+                /**
+                 * Check if transaction is still active
+                 */
+                pub fn is_active(&self) -> bool
      }
+
      ```
      </Tabs.Tab>
 </Tabs>
@@ -281,8 +396,32 @@ The core interface for search engines:
      ```
      </Tabs.Tab>
      <Tabs.Tab>
+     Find the following functions in package `golem_rust::golem_ai::golem::search::core`
+
      ```rust
-         // Find details in golem_rust::golem_ai::golem::search::core module
+        pub fn create_index(options: &CreateIndexOptions) -> Result<(), SearchError>
+
+        pub fn delete_index(name: &str) -> Result<(), SearchError>
+
+        pub fn list_indexes() -> Result<_rt::Vec<IndexName>, SearchError>
+
+        pub fn upsert(index: &str, doc: &Doc) -> Result<(), SearchError>
+
+        pub fn upsert_many(index: &str, docs: &[Doc]) -> Result<(), SearchError>
+
+        pub fn delete(index: &str, id: &str) -> Result<(), SearchError>
+
+        pub fn delete_many(index: &str, ids: &[DocumentId]) -> Result<(), SearchError>
+
+        pub fn get(index: &str, id: &str) -> Result<Option<Doc>, SearchError>
+
+        pub fn search(index: &str, query: &SearchQuery) -> Result<SearchResults, SearchError>
+
+        pub fn stream_search(index: &str, query: &SearchQuery) -> Result<SearchStream, SearchError>
+
+        pub fn get_schema(index: &str) -> Result<Schema, SearchError>
+
+        pub fn update_schema(index: &str, schema: &Schema) -> Result<(), SearchError>
       }
      ```
      </Tabs.Tab>
@@ -329,8 +468,32 @@ The core interface for web search engines:
      ```
      </Tabs.Tab>
      <Tabs.Tab>
+     Find following functions in `golem_rust::golem_ai::golem::web_search::web_search`
+
      ```rust
-            // Find details in golem_rust::golem_ai::golem::web_search module
+        /**
+        * Start a search session, returning a search context
+        */
+        pub fn start_search(params: &SearchParams) -> Result<SearchSession, SearchError>;
+
+        /**
+          * One-shot search that returns results immediately (limited result count)
+          * @throws SearchError
+          */
+        pub fn search_once(params: &SearchParams) -> Result<(_rt::Vec<SearchResult>, Option<SearchMetadata>), SearchError>;
+
+        impl SearchSession {
+
+         /**
+           * Get the next page of results
+           */
+           pub fn next_page(&self) -> Result<_rt::Vec<SearchResult>, SearchError>
+
+         /**
+           * Retrieve session metadata (after any query)
+           */
+           pub fn get_metadata(&self) -> Option<SearchMetadata>
+
         }
      ```
      </Tabs.Tab>
