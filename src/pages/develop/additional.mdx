@@ -222,7 +222,7 @@ The `golem:durability` package contains an API that libraries can leverage to pr
 
 #### Types
 
-<Tabs items={["TypeScript"]}>
+<Tabs items={["TypeScript", "Rust"]}>
     <Tabs.Tab>
     The durability API can be imported from the `golem:durability/durability@1.2.1` module.
 
@@ -288,16 +288,84 @@ export type PersistenceLevel = {
 
 Here the `isLive` field indicates whether the executor is currently _replaying_ an agent's previously persisted state or side effects should be executed. The `persistenceLevel` is a user-configurable setting that can turn off persistence for certain sections of the code.
 
-The `PersistedTypedDurableFunctionInvocation` is a record holding all the information about one persisted durable function. This should be used during _replay_ to simulate the side effect instead of actually running it.
+The `PersistedDurableFunctionInvocation` is a record holding all the information about one persisted durable function. This should be used during _replay_ to simulate the side effect instead of actually running it.
 
 ```typescript
-export type PersistedTypedDurableFunctionInvocation = {
+export type PersistedDurableFunctionInvocation = {
   timestamp: Datetime;
   functionName: string;
   response: ValueAndType;
   functionType: DurableFunctionType;
   entryVersion: OplogEntryVersion;
 };
+```
+
+</Tabs.Tab>
+
+    <Tabs.Tab>
+    The durability API can be imported from the `golem_rust::bindings::golem::durability` module.
+
+The `DurableFunctionType` type categorizes a durable function in the following way:
+
+```rust
+pub type DurableFunctionType = WrappedFunctionType;
+
+pub enum WrappedFunctionType {
+  ReadLocal,
+  WriteLocal,
+  ReadRemote,
+  WriteRemote,
+  WriteRemoteBatched(Option<OplogIndex>),
+  WriteRemoteTransaction(Option<OplogIndex>),
+}
+```
+
+- `ReadLocal` indicates that the side effect reads from the agent's local state (for example local file system, random generator, etc.)
+- `WriteLocal` indicates that the side effect writes to the agent's local state (for example local file system)
+- `ReadRemote` indicates that the side effect reads from external state (for example a key-value store)
+- `WriteRemote` indicates that the side effect manipulates external state (for example an RPC call)
+- `WriteRemoteBatched` indicates that the side effect manipulates external state through multiple invoked functions (for example an HTTP request where reading the response involves multiple host function calls)
+- `WriteRemoteTransaction` indicates that the side effect manipulates external state through multiple invoked functions, and all of them are part of a single transaction (for example a database transaction)
+
+The `DurableExecutionState` type provides information about the current execution state, and can be queried using the `current_durable_execution_state` function:
+
+```rust
+/**
+ * Gets the current durable execution state
+ */
+fn current_durable_execution_state(): DurableExecutionState;
+
+pub struct DurableExecutionState {
+  // If true, the executor is in live mode, side-effects should be performed and persisted
+  // If false, the executor is in replay mode, side-effects should be replayed from the persisted data
+  pub is_live: bool,
+  // The currently active persistence level
+  pub persistence_level: PersistenceLevel,
+}
+
+/**
+ * Configurable persistence level for agents
+ */
+pub enum PersistenceLevel {
+  PersistNothing,
+  PersistRemoteSideEffects,
+  Smart
+}
+
+
+pub struct PersistedDurableFunctionInvocation {
+  // The timestamp of the invocation.
+  pub timestamp: Datetime,
+  // The invoked function\'s unique name
+  pub function_name: _rt::String,
+  // Arbitrary structured value (and type) describing the invocation\'s result
+  pub response: ValueAndType,
+  // Type of the durable function invocation
+  pub function_type: DurableFunctionType,
+  // Oplog entry version
+  pub entry_version: OplogEntryVersion,
+}
+
 ```
 
 </Tabs.Tab>
@@ -309,7 +377,12 @@ The durability API consists of a couple of low-level functions that must be call
 
 The logic to be implemented is the following, in pseudocode:
 
-```ts
+
+
+<Tabs items={["TypeScript", "Rust"]}>
+    <Tabs.Tab>
+
+```typescript
 observeFunctionCall("interface", "function")
 state = currentDurableExecutionState()
 if (state.isLive) {
@@ -322,6 +395,41 @@ if (state.isLive) {
 }
 ```
 
+</Tabs.Tab>
+
+<Tabs.Tab>
+    ```rust
+  use golem_rust::Schema
+
+  #[derive(Schema)]
+  pub struct FunctionResult {
+    value: String
+  }
+
+  observe_function_call("iface", "function");
+
+  let state = current_durable_execution_state();
+
+  if (state.is_live) {
+      let input = "foo".to_string();
+      let result: FunctionResult = perform_side_effect("foo".to_string());
+
+      // the input and output must be encoded to ValueAndType
+      // `into_value_and_type` will be automatically available for all types deriving Schema
+      persist_durable_function_invocation("function",  &input.into_value_and_type() , &result.into_value_and_type(), DurableFunctionType::ReadRemote);
+  } else {
+     let persisted =  read_persisted_durable_function_invocation();
+
+     // the result must be can be decoded from ValueAndType, as long as the type derives Schema
+     let result: FunctionResult =  FunctionResult::from_value_and_type(persisted.response).expect("failed to decode");
+  }
+
+    ```
+
+  </Tabs.Tab>
+</Tabs>
+
+
 The `input` and `result` values must be encoded into `ValueAndType`, the dynamic value representation from the `golem:rpc` package.
 
 In cases when a durable function's execution interleaves with other calls, the `beginDurableFunction` and `endDurableFunction` calls can be used to mark the beginning and end of the operation.
@@ -333,7 +441,7 @@ Golem associates an **invocation context** with each invocation, which contains 
 
 The spans are not automatically sent to any tracing system but they can be reconstructed from the oplog, for example using **oplog processor plugins**, to provide real-time tracing information.
 
-<Tabs items={["TypeScript"]}>
+<Tabs items={["TypeScript", "Rust"]}>
     <Tabs.Tab>
 To get the current invocation context, use the `currentContext` host function, imported from `golem:api/context@1.1.7`:
 
