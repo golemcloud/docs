@@ -860,4 +860,92 @@ The `wasi:blobstore` interface provides a way to store and retrieve large binary
 
         The `IncomingValue` and `OutgoingValue` classes are, similar to the **key-value store interface**, providing two ways to work with the blobs: synchronously using `UInt8Array`s or using the `InputStream` and `OutputStream` interfaces for saving/loading the data by chunks.
     </Tabs.Tab>
+
+    <Tabs.Tab>
+        The Blob Store API organizes blobs identified by _object names_ into **containers**. The `golem_rust::bindings::wasi::blobstore::blobstore` has functions to create, get and delete these containers by name:
+
+        ```rust
+           /**
+            * creates a new empty container
+            */
+           pub fn create_container(name: &str) -> Result<Container, Error>
+           /**
+            * retrieves a container by name
+            */
+           pub fn get_container(name: &str) -> Result<Container, Error>
+           /**
+            * deletes a container and all objects within it
+            */
+           pub fn delete_container(name: &str) -> Result<(), Error>
+           /**
+            * returns true if the container exists
+            */
+           pub fn container_exists(name: &str) -> Result<bool, Error>
+           /**
+            * copies (duplicates) an object, to the same or a different container.
+            * returns an error if the target container does not exist.
+            * overwrites destination object if it already existed.
+            */
+           pub fn copy_object(src: &ObjectId, dest: &ObjectId) -> Result<(), Error>
+           /**
+            * moves or renames an object, to the same or a different container
+            * returns an error if the destination container does not exist.
+            * overwrites destination object if it already existed.
+            */
+           pub fn move_object(src: &ObjectId, dest: &ObjectId) -> Result<(), Error>
+        ```
+
+        A `Container` in  is a class providing read-write access for the blobs in it:
+
+        ```rust
+        impl Container {
+            /**
+             * returns container name
+             */
+            pub fn name(&self) -> Result<String, Error>
+            /**
+             * returns container metadata
+             */
+            pub fn info(&self) -> Result<ContainerMetadata, Error>
+            /**
+             * retrieves an object or portion of an object, as a resource.
+             * Start and end offsets are inclusive.
+             * Once a data-blob resource has been created, the underlying bytes are held by the blobstore service for the lifetime
+             * of the data-blob resource, even if the object they came from is later deleted.
+             */
+            pub fn get_data(&self, name: &str, start: u64, end: u64) -> Result<IncomingValue, Error>
+            /**
+             * creates or replaces an object with the data blob.
+             */
+            pub fn write_data(&self, name: &str, data: &OutgoingValue) -> Result<(), Error>
+            /**
+             * returns list of objects in the container. Order is undefined.
+             */
+            pub fn list_objects(&self) -> Result<StreamObjectNames, Error>
+            /**
+             * deletes object.
+             * does not return error if object did not exist.
+             */
+            pub fn delete_object(&self, name: &str) -> Result<(), Error>
+            /**
+             * deletes multiple objects in the container
+             */
+            pub fn delete_objects(&self, names: &[ObjectName]) -> Result<(), Error>
+            /**
+             * returns true if the object exists in this container
+             */
+            pub fn has_object(&self, name: &str) -> Result<bool, Error>
+            /**
+             * returns metadata for the object
+             */
+            pub fn object_info(&self, name: &str) -> Result<ObjectMetadata, Error>
+            /**
+             * removes all objects within the container, leaving the container empty.
+             */
+            pub fn clear(&self) -> Result<(), Error>
+        }
+        ```
+
+        The `IncomingValue` and `OutgoingValue` classes are, similar to the **key-value store interface**, providing two ways to work with the blobs: synchronously using `UInt8Array`s or using the `InputStream` and `OutputStream` interfaces for saving/loading the data by chunks.
+    </Tabs.Tab>
 </Tabs>
