@@ -66,13 +66,20 @@ It is possible to query **metadata** for Golem agents. This metadata is defined 
      * Metadata about an agent
      */
      pub struct AgentMetadata {
-       #[doc = " The agent ID, consists of the component ID, agent type and agent parameters"] pub agent_id: AgentId,
-       #[doc = " Command line arguments seen by the agent"] pub args: Vec::<String>,
-       #[doc = " Environment variables seen by the agent"] pub env: Vec::<(String, String,)>,
-       #[doc = " Configuration variables seen by the agent"] pub config_vars: Vec::<(String, String,)>,
-       #[doc = " The current agent status"] pub status: AgentStatus,
-       #[doc = " The component version the agent is running with"] pub component_version: u64,
-       #[doc = " The agent\'s current retry count"] pub retry_count: u64,
+       // The agent ID, consists of the component ID, agent type and agent parameters
+       pub agent_id: AgentId,
+       // Command line arguments seen by the agent
+       pub args: Vec<String>,
+       // Environment variables seen by the agent
+       pub env: Vec::<(String, String,)>,
+       // Configuration variables seen by the agent
+       pub config_vars: Vec::<(String, String,)>,
+       // The current agent status
+       pub status: AgentStatus,
+       // The component version the agent is running with
+       pub component_version: u64,
+       // The agent\'s current retry count
+       pub retry_count: u64,
      }
     ```
 
