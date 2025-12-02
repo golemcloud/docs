@@ -10,12 +10,18 @@ It is guaranteed that this idempotency key will always be the same (per occurren
 
 To generate an idempotency key:
 
-<Tabs items={["TypeScript"]}>
+<Tabs items={["TypeScript", "Rust"]}>
     <Tabs.Tab>
 ```typescript
 import { generateIdempotencyKey, Uuid } from "golem:api/host@1.1.7";
 
 const key: Uuid = generateIdempotencyKey();
+```
+    </Tabs.Tab>
+    <Tabs.Tab>
+```rust
+use golem_rust::{Uuid, generate_idempotency_key};
+let key: Uuid = generate_idempotency_key();
 ```
     </Tabs.Tab>
 </Tabs>
@@ -24,7 +30,7 @@ const key: Uuid = generateIdempotencyKey();
 
 It is possible to query **metadata** for Golem agents. This metadata is defined by the `AgentMetadata` interface:
 
-<Tabs items={["TypeScript"]}>
+<Tabs items={["TypeScript", "Rust"]}>
     <Tabs.Tab>
     ```typescript
     /**
@@ -54,6 +60,29 @@ It is possible to query **metadata** for Golem agents. This metadata is defined 
     - `getAgentMetadata(agentId: AgentId)` returns the metadata for a specific agent given by its `AgentId`
 
     </Tabs.Tab>
+    <Tabs.Tab>
+    ```rust
+    /**
+     * Metadata about an agent
+     */
+     pub struct AgentMetadata {
+       #[doc = " The agent ID, consists of the component ID, agent type and agent parameters"] pub agent_id: AgentId,
+       #[doc = " Command line arguments seen by the agent"] pub args: Vec::<String>,
+       #[doc = " Environment variables seen by the agent"] pub env: Vec::<(String, String,)>,
+       #[doc = " Configuration variables seen by the agent"] pub config_vars: Vec::<(String, String,)>,
+       #[doc = " The current agent status"] pub status: AgentStatus,
+       #[doc = " The component version the agent is running with"] pub component_version: u64,
+       #[doc = " The agent\'s current retry count"] pub retry_count: u64,
+     }
+    ```
+
+    There are two exported functions to query agent metadata:
+
+    - `get_self_metadata()` returns the metadata for the current agent
+    - `get_agent_metadata(agent_id: &AgentId)` returns the metadata for a specific agent given by its `AgentId`
+
+    </Tabs.Tab>
+
 </Tabs>
 
 ### Enumerate agents
@@ -66,7 +95,7 @@ Agent enumeration is a feature of Golem available both through the public HTTP A
 
 The following example demonstrates how to use the agent enumeration API:
 
-<Tabs items={["TypeScript"]}>
+<Tabs items={["TypeScript", "Rust"]}>
     <Tabs.Tab>
 ```typescript
 import {
@@ -105,13 +134,46 @@ while ((batch = getter.getNext()) !== undefined) {
 }
 ```
     </Tabs.Tab>
+
+   <Tabs.Tab>
+```rust
+use golem_rust::{
+    bindings::golem::api::host::{AgentAnyFilter, GetAgents},
+    wasm_rpc::{ComponentId, Uuid},
+    Uuid
+};
+
+let component_id: ComponentId = /** */
+
+let filter = AgentAnyFilter {
+   filters: vec![AgentAllFilter {
+     filters: vec![AgentPropertyFilter::Status(AgentStatusFilter {
+       comparator: FilterComparator::Equal,
+       value: AgentStatus::Idle,
+     })],
+   }],
+};
+
+let getter = GetAgents::new(component_id, Some(&filter), true);
+
+let mut batch = getter.get_next();
+
+let mut agents: Vec<AgentMetadata> = vec![];
+
+while batch.is_some() {
+  agents.extend(batch.unwrap());
+  batch = getter.get_next();
+}
+
+```
+    </Tabs.Tab>
 </Tabs>
 
 The third parameter of the `GetAgents` constructor enables `precise` mode. In this mode, Golem will calculate the latest metadata for each returned agent; otherwise, it uses only the last cached values.
 
 ### Update an agent
 
-<Tabs items={["TypeScript"]}>
+<Tabs items={["TypeScript", "Rust"]}>
     <Tabs.Tab>
 To trigger an update for a given agent from one component version to another, use the `updateAgent` function:
 
@@ -125,6 +187,20 @@ const agentId: AgentId = {
 const targetVersion: ComponentVersion = 1n
 
 updateAgent(agentId, targetVersion, "automatic")
+```
+    </Tabs.Tab>
+
+    <Tabs.Tab>
+To trigger an update for a given agent from one component version to another, use the `update_agent` function:
+
+```rust
+use golem_rust::bindings::golem::api::host::{update_agent, AgentId, ComponentVersion, UpdateMode};
+
+let target_component_version: ComponentVersion = 1;
+
+let agent_id: AgentId = todo!("...");
+
+update_agent(&agent_id, target_component_version, UpdateMode::Automatic);
 ```
     </Tabs.Tab>
 </Tabs>
@@ -319,7 +395,7 @@ Although Golem agents can store their state completely in their own memory, it i
 
 This can be useful if state needs to be shared between different agents or if the size of this state is too large to be stored in memory. The keys are accessible for every agent of an _application_ - no matter which component they are defined in, or which agent type they belong to.
 
-<Tabs items={["TypeScript"]}>
+<Tabs items={["TypeScript", "Rust"]}>
     <Tabs.Tab>
         There are two primary modules for using the key-value store:
         - `wasi:keyvalue/eventual@0.1.0` defines an API for an eventually consistent key-value store
@@ -420,7 +496,7 @@ This can be useful if state needs to be shared between different agents or if th
 
 The `wasi:blobstore` interface provides a way to store and retrieve large binary data. This can be useful for storing large files or other binary data that is too large to be stored in the agent's memory. The blobs are accessible for every agent of an _application_ - no matter which component they are defined in, or which agent type they belong to.
 
-<Tabs items={["TypeScript"]}>
+<Tabs items={["TypeScript", "Rust"]}>
     <Tabs.Tab>
         The Blob Store API organizes blobs identified by _object names_ into **containers**. The `wasi:blobstore/blobstore` module exports functions to create, get and delete these containers by name:
 
