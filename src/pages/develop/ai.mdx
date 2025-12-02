@@ -527,9 +527,12 @@ The core interface for speech to text providers:
      }
      ```
      </Tabs.Tab>
+     Find the following functions in `golem_rust::golem_ai::golem::stt::transcription`
      <Tabs.Tab>
      ```rust
-       // Find details in golem_rust::golem_ai::golem::stt::transcription module
+       pub fn transcribe(request: &TranscriptionRequest) -> Result<TranscriptionResult, SttError>;
+
+       pub fn transcribe_many(requests: &[TranscriptionRequest]) -> Result<MultiTranscriptionResult, SttError>;
      ```
      </Tabs.Tab>
 </Tabs>
@@ -597,11 +600,21 @@ The core interface for video generation providers:
      </Tabs.Tab>
      <Tabs.Tab>
         ```rust
-        // Find details in the following modules
-        // golem_rust::golem_ai::golem::video_generation::video_generation
-        // golem_rust::golem_ai::golem::video_generation::lip_sync
-        // golem_rust::golem_ai::golem::video_generation::advanced
+        // Find the following functions in `golem_rust::golem_ai::golem::video_generation::video_generation`
 
+        pub fn generate(input: &MediaInput, config: &GenerationConfig) -> Result<String, VideoError>
+        pub fn poll(job_id: &str) -> Result<VideoResult, VideoError>
+        pub fn cancel(job_id: &str) -> Result<String, VideoError>
+
+        // Find the following functions in `golem_rust::golem_ai::golem::video_generation::lip_sync`
+
+        pub fn generate_lip_sync(video: &LipSyncVideo, audio: &AudioSource) -> Result<_rt::String, VideoError>
+        pub fn list_voices(language: Option<&str>) -> Result<_rt::Vec<VoiceInfo>, VideoError>
+
+       // Find the following functions in `golem_rust::golem_ai::golem::video_generation::advanced`
+       pub fn extend_video(options: &ExtendVideoOptions) -> Result<_rt::String, VideoError>
+       pub fn upscale_video(input: &BaseVideo) -> Result<_rt::String, VideoError>
+       pub fn generate_video_effects(options: &GenerateVideoEffectsOptions) -> Result<_rt::String, VideoError>
         ```
      </Tabs.Tab>
 
