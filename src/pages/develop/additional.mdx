@@ -493,6 +493,52 @@ and then use the `Span` class's methods:
 If `finish` is not explicitly called on the span, it is going to be finished when the garbage collector deletes the span object.
 
 </Tabs.Tab>
+
+    <Tabs.Tab>
+To get the current invocation context, use the `current_context` host function, imported from `golem_rust::bindings::golem::api::context`:
+
+```rust
+/**
+ * Invocation context support
+ */
+fn current_context(): InvocationContext;
+```
+
+The `InvocationContext` itself is a **class** with various methods for querying attributes of the invocation context:
+
+| method | description |
+| ------ | ----------- |
+| `trace_id` | Returns the trace ID associated with the context, coming from either an external trace header or generated at the edge of Golem |
+| `span_id` | Returns the span ID associated with the context |
+| `parent` | Returns the parent invocation context, if any |
+| `get_attribute` | Gets an attribute from the context by key |
+| `get_attributes` | Gets all attributes from the context |
+| `get_attribute_chain` | Gets all values of a given attribute from the current and parent contexts |
+| `get_attribute_chains` | Get all attributes and their previous values |
+| `trace_context_headers` | Gets the W3C Trace Context headers associated with the current invocation context |
+
+Custom attributes can only be set on **custom spans**. First start a new span using `start_span`
+
+```rust
+/**
+ * Starts a new `span` with the given name, as a child of the current invocation context
+ */
+pub fn start_span(name: &str) -> Span
+```
+
+and then use the `Span` class's methods:
+
+| method | description |
+| ------ | ----------- |
+| `started_at` | Returns the timestamp when the span was started |
+| `set_attribute` | Sets an attribute on the span |
+| `set_attributes` | Sets multiple attributes on the span |
+| `finish` | Ends the current span |
+
+If `finish` is not explicitly called on the span, it is going to be finished when the garbage collector deletes the span object.
+
+</Tabs.Tab>
+
 </Tabs>
 
 The custom spans are pushed onto the invocation context stack, so whenever an RPC call or HTTP call is made, their parent span(s) will include the user-defined custom spans as well as the rest of the invocation context.
