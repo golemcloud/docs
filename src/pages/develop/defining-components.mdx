@@ -208,6 +208,8 @@ The SDK supports a large variety of data types to be used in agent constructors 
 
     <Tabs.Tab>
     In Rust any data type that implements the `golem_rust::Schema` trait can be used as parameters and return types of agent metods and constructors. For user-defined types, use `#[derive(Schema)]` to derive the implementation automatically. See the [page about data type mapping](/type-mapping) for more details about the supported built-in types.
+
+    Note that parameters must be passed by value to agent methods, not as references (`Schema` is not implemented for `&T`).
     </Tabs.Tab>
 </Tabs>
 
