@@ -1,5 +1,3 @@
-import { Callout } from "nextra/components"
-
 # Golem Application Manifest
 
 The _Golem Application Manifest_ document format is used by `golem`, usually stored in files named `golem.yaml`, and they are the intended way to define, build, deploy and manage Golem Applications and Environments.
@@ -26,10 +24,10 @@ golem component new ts app:component-b
 When using the `app new` command, it will create:
 
 - common directory for the given language (`common-rust` and `common-ts`):
-  - this directory contains the languages specific _Application Manifest Template_, which defines how to
-    build the components
-  - can be used for shared subprojects
-  - might contain other shared configurations
+- this directory contains the languages specific _Application Manifest Template_, which defines how to
+build the components
+- can be used for shared subprojects
+- might contain other shared configurations
 - directory for components for the given language (`components-rust` and `components-ts`)
 
 Let's rename one of the generated agents, so they are unique for the deployment. In `components-ts/app-component-b/src/main.ts` change:
@@ -148,6 +146,16 @@ Application custom commands:
   ts-npm-install
 ```
 
+## Starting the local development server
+
+The `golem` CLI also includes a local development server that can be used to quickly develop, deploy, test and debug Golem applications locally.
+To start the server use:
+```shell
+golem server run
+```
+
+The above command will quickly boot the server, and then it will keep logging to the terminal, so let's switch to another terminal to continue with building and deploying our application..
+
 ## Building and deploying the application
 
 Because the _ts_ components use npm, we have to use `npm install` before building the components. We can also see that this has a wrapper custom command in the manifest called `npm-install`, and `golem` itself will automatically run it before a build. Let's see an example for both:
@@ -209,10 +217,10 @@ Components:
 ```
 
 Notice how only app:component-a is selected in the above example, the same selection logic is used when building.
-On the other hand, deploying will always deploy the whole application atomically, so it is ensured that all our agents
+On the other hand, deploying _will always deploy the whole application atomically_, so it is ensured that all our agents
 are up-to-date.
 
-When developing locally, it is often useful to drop all our existing durable agents, and have a fresh clean environment
+When developing locally, it is often useful to drop all our existing durable agents and have a fresh clean environment
 for testing. For this, use:
 
 ```shell
@@ -222,7 +230,7 @@ golem deploy --reset
 ## Targeting Golem Cloud, or other environments
 By default, most `golem` commands will target the local Golem server.
 
-To access Golem's own hosted Golem Cloud (or other custom installations), we can simply use the same commands as before
+To access Golem's own hosted _Golem Cloud_ (or other custom installations), we can simply use the same commands as before
 but select the cloud environment with one of the following ways:
 ```shell
 # Explicitly selecting the cloud (or a custom) environment
@@ -237,3 +245,5 @@ golem -C build
 export GOLEM_ENVIRONMENT=cloud
 golem deploy
 ```
+
+For more information see the next seection about [Environments and Profiles](/cli/envs_and_profiles).
