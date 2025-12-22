@@ -279,7 +279,7 @@ Available naming related string transforming functions:
     path: "httpApi.deployments",
     since: Release.R_1_2_4
   }}>
-    ***Optional map of HTTP API deployments*** by **profile name**.
+    ***Optional map of HTTP API deployments*** by **environment name**.
   </Field>
 
   <Field meta={{
@@ -304,13 +304,6 @@ Available naming related string transforming functions:
   </Field>
 
   <Field meta={{
-    path: "profiles",
-    since: Release.R_1_2_4
-  }}>
-    ***Optional custom or customized*** profiles for the application by **profile name**.
-  </Field>
-
-  <Field meta={{
     path: "environments",
     since: Release.R_1_4_0
   }}>
@@ -318,109 +311,129 @@ Available naming related string transforming functions:
   </Field>
 
   <Field meta={{
-    path: "profiles.<profile-name>.default",
-    since: Release.R_1_2_4
+    path: "environments.<environment-name>.default",
+    since: Release.R_1_4_0
   }}>
-    ***Optional boolean*** which defaults to false. Only one profile can be marked as default.
+    ***Optional boolean*** which when set to true marks the environment as default. Only one environment can be marked as default. If missing, the first environment is used as default.
   </Field>
 
   <Field meta={{
-    path: "profiles.<profile-name>.cloud",
-    since: Release.R_1_2_4
+    path: "environments.<environment-name>.account",
+    since: Release.R_1_4_0
   }}>
-    ***Optional boolean*** which marks the profile as a cloud profile. Implicitly true for
+    ***Optional account*** that owns the application environment. When not specified then the current user will be used.
   </Field>
 
   <Field meta={{
-    path: "profiles.<profile-name>.project",
-    since: Release.R_1_2_4
+    path: "environments.<environment-name>.server",
+    since: Release.R_1_4_0
   }}>
-    ***Optional project reference*** for the profile.
+    ***Optional server configuration*** for the environment. Accepted values:
+    <EnumValues>
+      <EnumValue meta={{value: "local", since: Release.R_1_4_0}}></EnumValue>
+      <EnumValue meta={{value: "cloud", since: Release.R_1_4_0}}></EnumValue>
+    </EnumValues>
+
+    or a ***custom server object*** with the fields documented below.
   </Field>
 
   <Field meta={{
-    path: "profiles.<profile-name>.url",
-    since: Release.R_1_2_4
+    path: "environments.<environment-name>.server.url",
+    since: Release.R_1_4_0
   }}>
-    ***Optional custom URL*** for golem services.
+    ***Required URL*** for custom servers.
   </Field>
 
   <Field meta={{
-    path: "profiles.<profile-name>.workerUrl",
-    since: Release.R_1_2_4
+    path: "environments.<environment-name>.server.workerUrl",
+    since: Release.R_1_4_0
   }}>
     ***Optional custom URL*** for golem worker service.
   </Field>
 
   <Field meta={{
-    path: "profiles.<profile-name>.format",
-    since: Release.R_1_2_4
+    path: "environments.<environment-name>.server.allowInsecure",
+    since: Release.R_1_4_0
   }}>
-    ***Optional default format*** for the profile, accepted values:
+    ***Optional boolean*** which defaults to false, when set to true it allows insecure connections to the server.
+  </Field>
+
+  <Field meta={{
+    path: "environments.<environment-name>.server.auth.oauth2",
+    since: Release.R_1_4_0
+  }}>
+    ***Optional boolean*** which when set to true selects OAuth2 based authentication.
+  </Field>
+
+  <Field meta={{
+    path: "environments.<environment-name>.server.auth.staticToken",
+    since: Release.R_1_4_0
+  }}>
+    ***Optional string*** static token for authentication when using static token based authentication.
+  </Field>
+
+  <Field meta={{
+    path: "environments.<environment-name>.componentPresets",
+    since: Release.R_1_4_0
+  }}>
+    ***Optional preset name or list of preset names*** which will be used for the application in the given environment.
+  </Field>
+
+  <Field meta={{
+    path: "environments.<environment-name>.cli.format",
+    since: Release.R_1_4_0
+  }}>
+    ***Optional default format*** for the environment, accepted values:
     <EnumValues>
-      <EnumValue meta={{value: "text", since: Release.R_1_2_4, isDefault: true}}></EnumValue>
-      <EnumValue meta={{value: "json", since: Release.R_1_2_4}}></EnumValue>
-      <EnumValue meta={{value: "pretty-json", since: Release.R_1_3_0}}></EnumValue>
-      <EnumValue meta={{value: "pretty", since: Release.R_1_3_0}}>alias for `pretty-json`</EnumValue>
-      <EnumValue meta={{value: "yaml", since: Release.R_1_2_4}}></EnumValue>
-      <EnumValue meta={{value: "pretty-yaml", since: Release.R_1_3_0}}></EnumValue>
+      <EnumValue meta={{value: "text", since: Release.R_1_4_0, isDefault: true}}></EnumValue>
+      <EnumValue meta={{value: "json", since: Release.R_1_4_0}}></EnumValue>
+      <EnumValue meta={{value: "pretty-json", since: Release.R_1_4_0}}></EnumValue>
+      <EnumValue meta={{value: "pretty", since: Release.R_1_4_0}}>alias for `pretty-json`</EnumValue>
+      <EnumValue meta={{value: "yaml", since: Release.R_1_4_0}}></EnumValue>
+      <EnumValue meta={{value: "pretty-yaml", since: Release.R_1_4_0}}></EnumValue>
     </EnumValues>
   </Field>
 
   <Field meta={{
-    path: "profiles.<profile-name>.buildProfile",
-    since: Release.R_1_2_4
+    path: "environments.<environment-name>.cli.autoConfirm",
+    since: Release.R_1_4_0
   }}>
-    ***Optional default build profile***.
+    ***Optional boolean*** which when set enables the auto-confirm (*yes*) flag by default.
   </Field>
 
   <Field meta={{
-    path: "profiles.<profile-name>.autoConfirm",
-    since: Release.R_1_2_4
+    path: "environments.<environment-name>.cli.redeployAgents",
+    since: Release.R_1_4_0
   }}>
-    ***Optional boolean*** which defaults to false, when set to true it
-    enables the auto-confirm (*yes*) flag by default.
+    ***Optional boolean*** which when set enables *redeploy-agents* flag by default.
   </Field>
 
   <Field meta={{
-    path: "profiles.<profile-name>.redeployWorkers",
-    since: Release.R_1_2_4,
-    deprecated: Release.R_1_3_0
+    path: "environments.<environment-name>.cli.reset",
+    since: Release.R_1_4_0
   }}>
-    ***Optional boolean*** which defaults to false, when set to true it
-    enables *redeploy-workers* flag by default.
+    ***Optional boolean*** which when set enables *reset* flag by default.
   </Field>
 
   <Field meta={{
-    path: "profiles.<profile-name>.redeployAgents",
-    since: Release.R_1_2_4,
+    path: "environments.<environment-name>.deployment.compatibilityCheck",
+    since: Release.R_1_4_0
   }}>
-    ***Optional boolean*** which defaults to false, when set to true it
-    enables *redeploy-agents* flag by default.
+    ***Optional boolean*** to enable compatibility checks during deployment.
   </Field>
 
   <Field meta={{
-    path: "profiles.<profile-name>.redeployHttpApi",
-    since: Release.R_1_2_4
+    path: "environments.<environment-name>.deployment.versionCheck",
+    since: Release.R_1_4_0
   }}>
-    ***Optional boolean*** which defaults to false, when set to true it
-    enables *redeploy-http-api* flag by default.
+    ***Optional boolean*** to enable version checks during deployment.
   </Field>
 
   <Field meta={{
-    path: "profiles.<profile-name>.redeployAll",
-    since: Release.R_1_2_4
+    path: "environments.<environment-name>.deployment.securityOverrides",
+    since: Release.R_1_4_0
   }}>
-    ***Optional boolean*** which defaults to false, when set to true it
-    enables *redeploy-all* flag by default.
-  </Field>
-
-  <Field meta={{
-    path: "profiles.<profile-name>.reset",
-    since: Release.R_1_3_0
-  }}>
-    ***Optional boolean*** which defaults to false, when set to true it
-    enables *reset* flag by default.
+    ***Optional boolean*** to allow security overrides during deployment.
   </Field>
 
   <Field meta={{
@@ -462,6 +475,22 @@ Available naming related string transforming functions:
   </Field>
 
   <Field meta={{
+    path: "components.<component-name>.presets",
+    since: Release.R_1_4_0
+  }}>
+    ***Optional map of presets*** used to define preset variations for a component.
+
+    A _preset_ contains the same fields as a component. Presets can also specify a <FieldLink path="components.<component-name>.presets.<preset-name>.default"/> flag to mark it as the default preset for selection.
+  </Field>
+
+  <Field meta={{
+    path: "components.<component-name>.presets.<preset-name>.default",
+    since: Release.R_1_4_0
+  }}>
+    ***Optional boolean*** which when set to true marks the preset as the default for selection.
+  </Field>
+
+  <Field meta={{
     path: "components.<component-name>.componentType",
   }}>
     ***Optional string enum of component types,*** accepted values:
@@ -491,6 +520,18 @@ Available naming related string transforming functions:
   </Field>
 
   <Field meta={{
+    path: "components.<component-name>.buildMergeMode",
+    since: Release.R_1_4_0
+  }}>
+    ***Optional merge mode*** for <FieldLink path="components.<component-name>.build"/>. Accepted values:
+    <EnumValues>
+      <EnumValue meta={{value: "append", since: Release.R_1_4_0, isDefault: true}}></EnumValue>
+      <EnumValue meta={{value: "prepend", since: Release.R_1_4_0}}></EnumValue>
+      <EnumValue meta={{value: "replace", since: Release.R_1_4_0}}></EnumValue>
+    </EnumValues>
+  </Field>
+
+  <Field meta={{
     path: "components.<component-name>.files",
   }}>
     ***Optional list of files entries,*** which can be used for defining the _Initial File System_ for the component.
@@ -512,6 +553,18 @@ Available naming related string transforming functions:
       { /* @formatter:on */}
     </Example>
 
+  </Field>
+
+  <Field meta={{
+    path: "components.<component-name>.filesMergeMode",
+    since: Release.R_1_4_0
+  }}>
+    ***Optional merge mode*** for <FieldLink path="components.<component-name>.files"/>. Accepted values:
+    <EnumValues>
+      <EnumValue meta={{value: "append", since: Release.R_1_4_0, isDefault: true}}></EnumValue>
+      <EnumValue meta={{value: "prepend", since: Release.R_1_4_0}}></EnumValue>
+      <EnumValue meta={{value: "replace", since: Release.R_1_4_0}}></EnumValue>
+    </EnumValues>
   </Field>
 
   <Field
@@ -549,6 +602,18 @@ Available naming related string transforming functions:
     since: Release.R_1_2_2
   }}>
     ***Optional list of component plugin installation entries,***
+  </Field>
+
+  <Field meta={{
+    path: "components.<component-name>.pluginsMergeMode",
+    since: Release.R_1_4_0
+  }}>
+    ***Optional merge mode*** for <FieldLink path="components.<component-name>.plugins"/>. Accepted values:
+    <EnumValues>
+      <EnumValue meta={{value: "append", since: Release.R_1_4_0, isDefault: true}}></EnumValue>
+      <EnumValue meta={{value: "prepend", since: Release.R_1_4_0}}></EnumValue>
+      <EnumValue meta={{value: "replace", since: Release.R_1_4_0}}></EnumValue>
+    </EnumValues>
   </Field>
 
   <Field meta={{
@@ -603,6 +668,24 @@ Available naming related string transforming functions:
   </Field>
 
   <Field meta={{
+    path: "components.<component-name>.env",
+  }}>
+    ***Optional string map*** of environment variables for the component.
+  </Field>
+
+  <Field meta={{
+    path: "components.<component-name>.envMergeMode",
+    since: Release.R_1_4_0
+  }}>
+    ***Optional merge mode*** for <FieldLink path="components.<component-name>.env"/>. Accepted values:
+    <EnumValues>
+      <EnumValue meta={{value: "upsert", since: Release.R_1_4_0, isDefault: true}}></EnumValue>
+      <EnumValue meta={{value: "replace", since: Release.R_1_4_0}}></EnumValue>
+      <EnumValue meta={{value: "remove", since: Release.R_1_4_0}}></EnumValue>
+    </EnumValues>
+  </Field>
+
+  <Field meta={{
     path: "components.<component-name>.generatedWit",
   }}>
     ***Required directory path*** for the generated WIT directory created by the golem tooling, which handles exported
@@ -647,6 +730,58 @@ Available naming related string transforming functions:
       { /* @formatter:on */}
     </Example>
 
+  </Field>
+
+  <Field meta={{
+    path: "components.<component-name>.dependencies",
+    since: Release.R_1_4_0
+  }}>
+    ***Optional list of component dependencies***.
+  </Field>
+
+  <Field meta={{
+    path: "components.<component-name>.dependenciesMergeMode",
+    since: Release.R_1_4_0
+  }}>
+    ***Optional merge mode*** for <FieldLink path="components.<component-name>.dependencies"/>. Accepted values:
+    <EnumValues>
+      <EnumValue meta={{value: "append", since: Release.R_1_4_0, isDefault: true}}></EnumValue>
+      <EnumValue meta={{value: "prepend", since: Release.R_1_4_0}}></EnumValue>
+      <EnumValue meta={{value: "replace", since: Release.R_1_4_0}}></EnumValue>
+    </EnumValues>
+  </Field>
+
+  <Field meta={{
+    path: "components.<component-name>.dependencies[*].type",
+    since: Release.R_1_4_0
+  }}>
+    ***Required string enum*** that defines the dependency type. Accepted values:
+    <EnumValues>
+      <EnumValue meta={{value: "wasm", since: Release.R_1_4_0}}></EnumValue>
+      <EnumValue meta={{value: "wasm-rpc", since: Release.R_1_4_0, deprecated: Release.R_1_3_0}}></EnumValue>
+      <EnumValue meta={{value: "wasm-rpc-static", since: Release.R_1_4_0, deprecated: Release.R_1_3_0}}></EnumValue>
+    </EnumValues>
+  </Field>
+
+  <Field meta={{
+    path: "components.<component-name>.dependencies[*].target",
+    since: Release.R_1_4_0
+  }}>
+    ***Required target component name*** when using a component dependency by name.
+  </Field>
+
+  <Field meta={{
+    path: "components.<component-name>.dependencies[*].path",
+    since: Release.R_1_4_0
+  }}>
+    ***Required path*** of the target component WASM when using path based dependencies.
+  </Field>
+
+  <Field meta={{
+    path: "components.<component-name>.dependencies[*].url",
+    since: Release.R_1_4_0
+  }}>
+    ***Required URL*** of the target component WASM when using URL based dependencies.
   </Field>
 
   <Field meta={{
@@ -861,257 +996,9 @@ Available naming related string transforming functions:
     }}
   ></Field>
 
-  <Field meta={{
-    path: "components.<component-name>.profiles",
-  }}>
-    ***Optional map of profiles***, which can be used to provide multiple _build profiles_ for a component,
-    typically used for _debug_ and _release_ configurations.
 
-    A _profile_ contains the same fields as a component, expect for `defaultProfile` and `profile` itself.
 
-    When `profiles` are defined for a component:
-    - <FieldLink path="components.<component-name>.defaultProfile"/> must be defined,
-    - non-profile component fields should not be used on the component, apart from `defaultProfile`.
 
-    When building, by default `golem` will use `defaultProfile`, unless a specific profile is requested _and__
-    the component has a matching profile. E.g. the following command:
-
-    ```shell copy
-    golem --preset release build
-    ```
-    - will build components that have no profiles by using the non-profile component fields
-    - will use the `release` profile for components that are using `profiles` _and_ have a profile named `release`
-    - will use the `defaultProfile` for components that using `profiles`, but do _not_ have a profile named `release`
-
-    <Example>
-      { /* @formatter:off */ }
-      ```yaml
-      components:
-        pack-ns:component-name:
-          profiles:
-            debug:
-              build:
-              - command: build-tool --debug out.wasm
-            release:
-              build:
-              - command: build-tool --release out.wasm
-          defaultProfile: release
-      ```
-      { /* @formatter:on */}
-    </Example>
-
-  </Field>
-
-  <Field meta={{
-    path: "components.<component-name>.defaultProfile",
-  }}>
-    ***Optional profile name*** that defines which _profile_ should be used.
-
-    It must be defined when using <FieldLink path="components.<component-name>.profiles"/>, and must be one of the
-    _profile names_ defined there.
-
-  </Field>
-
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.componentType",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.files",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.files[*].sourcePath",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.files[*].targetPath",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.files[*].permissions",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.sourceWit",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.generatedWit",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.componentWasm",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.linkedWasm",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.build",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.build[*].command",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.build[*].dir",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.build[*].rmdirs",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.build[*].mkdirs",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.build[*].sources",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.build[*].targets",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.customCommands",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.customCommands.<command-name>[*].dir",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.customCommands.<command-name>[*].rmdirs",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.customCommands.<command-name>[*].mkdirs",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.customCommands.<command-name>[*].mkdirs",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.customCommands.<command-name>[*].sources",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.customCommands.<command-name>[*].targets",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "components.<component-name>.profiles.<profile-name>.clean",
-    }}
-  ></Field>
-
-  <Field meta={{
-    path: "dependencies",
-  }}>
-    ***Optional map of list of component dependencies***, which can be used for defining WASM RPC connections
-    between components.
-  </Field>
-
-  <Field meta={{
-    path: "dependencies.<component-name>[*].type",
-  }}>
-    ***Required string enum***, accepted values:
-    <EnumValues>
-      <EnumValue meta={{value: "wasm-rpc", deprecated: Release.R_1_3_0 }}>
-        _Dynamic_ WASM RPC linking.
-
-        With this dependency type the linking happens on servers side, so there is no need for generating and creating
-        WASM RPC clients.
-      </EnumValue>
-      <EnumValue meta={{value: "wasm-rpc-static", since: Release.R_1_2_2, deprecated: Release.R_1_3_0 }}>
-        _Static_ WASM RPC linking.
-
-        With this dependency type the linking happens locally, so it requires _Rust tooling_.
-      </EnumValue>
-      <EnumValue meta={{value: "wasm", since: Release.R_1_2_2}}>
-        Component linking.
-      </EnumValue>
-    </EnumValues>
-
-  </Field>
-
-  <Field meta={{
-    path: "dependencies.<component-name>[*].target",
-  }}>
-    Must be a defined _component name_. Required when <FieldLink path="dependencies.<component-name>[*].type"/> is
-    set to `wasm-rpc` or `wasm-rpc-static`.
-  </Field>
-
-  <Field meta={{
-    path: "dependencies.<component-name>[*].path",
-    since: Release.R_1_2_2,
-  }}>
-    Target component WASM path to be used as dependency for linking.
-
-    When <FieldLink path="dependencies.<component-name>[*].type"/> is set to `wasm` then this or
-    <FieldLink path="dependencies.<component-name>[*].url"/> ir required.
-  </Field>
-
-  <Field meta={{
-    path: "dependencies.<component-name>[*].url",
-    since: Release.R_1_2_2,
-  }}>
-    Target component WASM path to be used as dependency for linking.
-
-    When <FieldLink path="dependencies.<component-name>[*].type"/> is set to `wasm` then this or
-    <FieldLink path="dependencies.<component-name>[*].path"/> ir required.
-  </Field>
 
   <Field meta={{
     path: "clean",
@@ -1396,189 +1283,18 @@ Available naming related string transforming functions:
 
   <Field
     meta={{
-      path: "templates.<template-name>.profiles",
+      path: "componentTemplates.<template-name>.presets",
+      since: Release.R_1_4_0,
     }}
   ></Field>
 
   <Field
     meta={{
-      path: "templates.<template-name>.profiles.<profile-name>",
+      path: "componentTemplates.<template-name>.presets.<preset-name>.default",
+      since: Release.R_1_4_0,
     }}
   ></Field>
 
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.componentType",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.files",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.files[*].sourcePath",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.files[*].targetPath",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.files[*].permissions",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.sourceWit",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.generatedWit",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.componentWasm",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.linkedWasm",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.build",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.build[*].command",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.build[*].dir",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.build[*].rmdirs",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.build[*].mkdirs",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.build[*].sources",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.build[*].targets",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.customCommands",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.customCommands.<command-name>",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.customCommands.<command-name>[*].dir",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.customCommands.<command-name>[*].rmdirs",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.customCommands.<command-name>[*].mkdirs",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.customCommands.<command-name>[*].mkdirs",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.customCommands.<command-name>[*].sources",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.customCommands.<command-name>[*].targets",
-    }}
-  ></Field>
-
-  <Field
-    meta={{
-      path: "templates.<template-name>.profiles.<profile-name>.clean",
-    }}
-  ></Field>
-
-  <Field meta={{
-    path: "templates.<template-name>.defaultProfile",
-    noSpecialization: true,
-  }}>
-    ***String*** which selects the _default profile_ for the _template_. _Required_ if _profiles_ are used. Must be one
-    of the defined _profile names_ in <FieldLink path="templates.<template-name>.profiles"/>.
-
-    <Example>
-      { /* @formatter:off */ }
-      ```yaml
-      templates:
-        rust:
-          profiles:
-            debug:
-              # ...
-            release:
-              # ...
-          defaultProfile: debug
-      ```
-      { /* @formatter:on */}
-    </Example>
-
-  </Field>
 
   ## Fields and changes by releases
 
