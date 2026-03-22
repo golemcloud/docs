@@ -6,5 +6,6 @@
   "permissions": "Permissions",
   "plugins": "Plugins",
   "shell-completion": "Shell Completion",
-  "install-from-source": "Install from Source"
+  "install-from-source": "Install from Source",
+  "http-timeouts": "HTTP Timeouts"
 }
