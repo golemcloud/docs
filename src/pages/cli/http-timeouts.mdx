@@ -10,7 +10,7 @@ Used for general service API calls, including login and deploy-related calls.
 
 | Environment variable | Controls | Fallback default |
 | --- | --- | --- |
-| `GOLEM_HTTP_TIMEOUT` | Total request timeout | `PT60S` |
+| `GOLEM_HTTP_TIMEOUT` | Total request timeout | `PT120S` |
 | `GOLEM_HTTP_CONNECT_TIMEOUT` | Connection setup timeout | `PT10S` |
 | `GOLEM_HTTP_READ_TIMEOUT` | Response read timeout | `PT60S` |
 
@@ -20,9 +20,9 @@ Used for agent invocation HTTP requests.
 
 | Environment variable | Controls | Fallback default |
 | --- | --- | --- |
-| `GOLEM_HTTP_INVOKE_TIMEOUT` | Total request timeout | `none` |
-| `GOLEM_HTTP_INVOKE_CONNECT_TIMEOUT` | Connection setup timeout | `none` |
-| `GOLEM_HTTP_INVOKE_READ_TIMEOUT` | Response read timeout | `none` |
+| `GOLEM_HTTP_INVOKE_TIMEOUT` | Total request timeout | `none (unbounded)` |
+| `GOLEM_HTTP_INVOKE_CONNECT_TIMEOUT` | Connection setup timeout | `none (unbounded)` |
+| `GOLEM_HTTP_INVOKE_READ_TIMEOUT` | Response read timeout | `none (unbounded)` |
 
 ## Health check requests
 
@@ -40,15 +40,15 @@ Used for file downloads in app/manifest-related flows.
 
 | Environment variable | Controls | Fallback default |
 | --- | --- | --- |
-| `GOLEM_HTTP_FILE_DOWNLOAD_TIMEOUT` | Total request timeout | `PT60S` |
+| `GOLEM_HTTP_FILE_DOWNLOAD_TIMEOUT` | Total request timeout | `PT120S` |
 | `GOLEM_HTTP_FILE_DOWNLOAD_CONNECT_TIMEOUT` | Connection setup timeout | `PT10S` |
 | `GOLEM_HTTP_FILE_DOWNLOAD_READ_TIMEOUT` | Response read timeout | `PT60S` |
 
 ## Example
 
 ```shell copy
-export GOLEM_HTTP_TIMEOUT=PT90S
+export GOLEM_HTTP_TIMEOUT=PT120S
 export GOLEM_HTTP_CONNECT_TIMEOUT=PT10S
-export GOLEM_HTTP_READ_TIMEOUT=PT90S
+export GOLEM_HTTP_READ_TIMEOUT=PT120S
 golem deploy
 ```
