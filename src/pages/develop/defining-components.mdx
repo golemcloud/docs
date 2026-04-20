@@ -6,7 +6,7 @@ import { Callout, Tabs } from "nextra/components"
 
 Golem's **command line interface** provides a set of predefined, Golem-specific **templates** to choose from as a starting point.
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
 To get started from scratch, first create a new application using the TypeScript template:
 
@@ -34,6 +34,15 @@ cd my-app
 ```
     </Tabs.Tab>
 
+    <Tabs.Tab>
+To get started from scratch, first create a new application using the MoonBit template:
+
+```shell copy
+golem new --template moonbit --yes my-app
+cd my-app
+```
+    </Tabs.Tab>
+
 </Tabs>
 
 An application can consist of multiple components. Add a new component by choosing from one of the available templates. To see the list of available templates, run:
@@ -44,7 +53,7 @@ golem templates
 
 Then create a new component using the chosen template:
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
 ```shell copy
 golem new . --template ts --component-name my:component --yes
@@ -62,13 +71,19 @@ golem new . --template rust --component-name my:component --yes
 golem new . --template scala --component-name my:component --yes
 ```
     </Tabs.Tab>
+
+    <Tabs.Tab>
+```shell copy
+golem new . --template moonbit --component-name my:component --yes
+```
+    </Tabs.Tab>
 </Tabs>
 
 ## Defining agents
 
 Defining Golem agents is done using the Golem SDK, which is included in all the templates provided by `golem`.
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
 An agent is a TypeScript class that extends `BaseAgent` and has the `@agent()` decorator:
 
@@ -126,6 +141,20 @@ final class MyAgentImpl() extends MyAgent {
 }
 ```
     </Tabs.Tab>
+    <Tabs.Tab>
+An agent is defined by a `struct` annotated as `#derive.agent` and a `::new` constructor:
+
+```moonbit
+#derive.agent
+struct MyAgent {
+  name : String
+}
+
+fn MyAgent::new(name : String) -> MyAgent {
+  { name }
+}
+```
+    </Tabs.Tab>
 
 </Tabs>
 
@@ -136,7 +165,7 @@ Every agent must define a **constructor** with an arbitrary number of parameters
 
 For example, an agent working on a particular user's particular request could be defined as:
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
 ```typescript
 @agent()
@@ -168,6 +197,19 @@ trait RequestHandler extends BaseAgent {
 }
 ```
     </Tabs.Tab>
+    <Tabs.Tab>
+```moonbit
+#derive.agent
+struct RequestHandler {
+  user_id : String
+  request_id : String
+}
+
+fn RequestHandler::new(user_id : String, request_id : String) -> RequestHandler {
+  { user_id, request_id }
+}
+```
+    </Tabs.Tab>
 </Tabs>
 
 An agent with a constructor like this can be identified by `request-handler("user-123", "request-456")`.
@@ -188,7 +230,7 @@ This metadata is stored in the Golem component and can be used when exposing the
 
 The following example shows the use of how to attach these metadata to simple agent methods in different languages
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
 ```typescript
 type TaskDetails = { description: string; priority: number };
@@ -259,6 +301,48 @@ trait RequestHandler extends BaseAgent {
 ```
     </Tabs.Tab>
 
+    <Tabs.Tab>
+```moonbit
+///|
+#derive.golem_schema
+pub(all) struct TaskDetails {
+  description : String
+  priority : Int
+}
+
+///|
+#derive.golem_schema
+pub(all) struct RequestHandlerStatus {
+  summary : String
+  successful : Bool
+}
+
+///|
+#derive.agent
+struct RequestHandler {
+  name : String
+}
+
+///|
+fn RequestHandler::new(name : String) -> RequestHandler {
+  { name, }
+}
+
+///|
+/// Adds some more details to the request handler about the task being performed. The result is an update of the current status.
+#derive.prompt_hint("Enter new details about the task")
+pub fn RequestHandler::add_details(
+  self : Self,
+  details : TaskDetails,
+) -> RequestHandlerStatus {
+  {
+    summary: "Updated task for " + self.name + ": " + details.description,
+    successful: true,
+  }
+}
+```
+    </Tabs.Tab>
+
 </Tabs>
 
 Agent methods can be both sync or async.
@@ -266,7 +350,7 @@ Agent methods can be both sync or async.
 ### Supported data types
 The SDK supports a large variety of data types to be used in agent constructors and agent methods, both in parameter and return type position. When a type is not supported, it will report an error at compile time.
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
     In TypeScript, most serializable user-defined types work as expected. Prefer named type aliases or interfaces for parameters and return types, and use string literal unions instead of TypeScript enums. See the [page about data type mapping](/type-mapping) for more details.
     </Tabs.Tab>
@@ -280,13 +364,17 @@ The SDK supports a large variety of data types to be used in agent constructors 
     <Tabs.Tab>
     In Scala, custom types used in constructors, method parameters, and return types need an implicit `zio.blocks.schema.Schema`. In Scala 3, this is usually done with `derives Schema` or `given Schema[T] = Schema.derived`; in Scala 2, use an `implicit val schema: Schema[T] = Schema.derived`. See the [page about data type mapping](/type-mapping) for more details.
     </Tabs.Tab>
+
+    <Tabs.Tab>
+    In MoonBit, built-in serializable types such as `String`, `Bool`, numeric types, arrays, options, tuples, and `Bytes` work as expected. For user-defined types used in constructors, method parameters, and return types, add `#derive.golem_schema`. See the [page about data type mapping](/type-mapping) for more details.
+    </Tabs.Tab>
 </Tabs>
 
 Check the [page about data type mapping](/type-mapping) to learn how each type is mapped to **Rib** (when calling the agent methods from the API gateway or the REPL) and **JSON** (when using the invocation API).
 
 ### Library support
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
     See the [JS APIs](/js-apis) page for a detailed overview of all the supported Web Platform and Node.js APIs. Most 3rd party libraries can be installed using `npm` and used in the agent code, as long as they only rely on the supported APIs and do not require native addons.
     </Tabs.Tab>
@@ -298,12 +386,16 @@ Check the [page about data type mapping](/type-mapping) to learn how each type i
     <Tabs.Tab>
     Any Scala.js-compatible library can be added as a dependency. Use the `%%%` operator in `build.sbt` so sbt resolves the Scala.js variant of the library; JVM-only libraries will not work.
     </Tabs.Tab>
+
+    <Tabs.Tab>
+    Any MoonBit package can be added as a dependency in `moon.mod.json` and imported from `moon.pkg`, as long as it supports compiling to WASI.
+    </Tabs.Tab>
 </Tabs>
 
 ### Agent mode - durable or ephemeral
 By default every agent is **durable**. To define an **ephemeral agent**, override the agent mode in the agent definition:
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
     ```typescript
     @agent({ mode: 'ephemeral' })
@@ -332,6 +424,21 @@ By default every agent is **durable**. To define an **ephemeral agent**, overrid
     }
     ```
     </Tabs.Tab>
+
+    <Tabs.Tab>
+    ```moonbit
+    ///|
+    #derive.agent("ephemeral")
+    struct EphemeralAgent {
+      value : Int
+    }
+
+    ///|
+    fn EphemeralAgent::new() -> EphemeralAgent {
+      { value: 0 }
+    }
+    ```
+    </Tabs.Tab>
 </Tabs>
 
 ## Agent configuration
@@ -346,7 +453,7 @@ In general Golem supports three different ways of doing this:
 
 ### Command line arguments and environment variables
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
 <Tabs.Tab>
 Command line arguments and environment variables are accessible through the `node:process` module:
 
@@ -372,6 +479,15 @@ import golem.wasi.Environment
 
 val env = Environment.getEnvironment()
 val agentId = env("GOLEM_AGENT_ID")
+```
+</Tabs.Tab>
+
+
+<Tabs.Tab>
+Command line arguments and environment variables are accessible through the `@environment` module:
+```moonbit
+let args = @environment.get_arguments()
+let env = @environment.get_environment()
 ```
 </Tabs.Tab>
 

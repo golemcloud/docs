@@ -61,7 +61,7 @@ const DOCS_ROOT = join(import.meta.dir, "..")
 const PAGES_DIR = join(DOCS_ROOT, "src", "pages")
 const PROGRESS_FILE = join(import.meta.dir, "progress.json")
 
-const ALLOWED_LANG_LABELS = new Set(["typescript", "rust", "scala"])
+const ALLOWED_LANG_LABELS = new Set(["typescript", "rust", "scala", "moonbit"])
 
 const EXCLUDED_DIRS = new Set(["how-to-guides", "rest-api"])
 
@@ -523,6 +523,70 @@ ${tabSummaries}
 `
 }
 
+function generateAddLangPrompt(
+  snippet: SnippetRecord,
+  golemRepoPath: string,
+  language: string
+): string {
+  const headingPathText = snippet.headingPath
+    .map(h => `${"#".repeat(h.depth)} ${h.text}`)
+    .join(" > ")
+
+  const tabSummaries = Object.entries(snippet.tabs)
+    .map(([label, tab]) => {
+      const codeInfo =
+        tab.codeBlocks.length > 0
+          ? tab.codeBlocks
+              .map(
+                cb => `~~~~${cb.fenceLang ?? ""}${cb.meta ? " " + cb.meta : ""}\n${cb.code}\n~~~~`
+              )
+              .join("\n\n")
+          : "(no fenced code blocks — tab contains prose or shell commands)"
+      return `### ${label}\n\n${codeInfo}`
+    })
+    .join("\n\n")
+
+  return `Add a **${language}** tab to the following Nextra MDX language-tabs snippet.
+
+**Target file**: \`${snippet.filePath}\`
+**Line range**: ${snippet.lineStart}–${snippet.lineEnd}
+**Section**: ${headingPathText || "(top-level)"}
+**Languages present**: ${snippet.languagesPresent.join(", ")}
+**Snippet ID**: \`${snippet.id}\`
+
+## Instructions
+
+1. **Do NOT modify existing tabs** — The existing language tabs (${snippet.languagesPresent.join(", ")}) are already correct. Do not change them.
+2. **Add a \`${language}\` tab** — Add a new \`<Tabs.Tab>\` block for ${language} with equivalent code/content.
+3. **Update the \`<Tabs items={[...]}\` attribute** to include "${language}" in the list.
+4. **Update the \`storageKey\`** attribute to include ${language} (keep the same format: language names separated by \`|\`).
+5. **Use these references** to write correct ${language} code (read them as needed):
+   - How-to guides in this repo: \`src/pages/how-to-guides/\` — look for ${language} examples
+   - The Golem repository: \`${golemRepoPath}\` — especially test components under \`test-components/\` and SDK code for ${language}
+6. **Match the abstraction level** of the existing tabs — if existing tabs show a simple example, keep the ${language} version equally simple.
+7. **Verify compilation** — For the new ${language} tab:
+   - Run \`golem new\` to create a minimal ${language} project
+   - Place the snippet in enough context that it compiles
+   - Run \`golem build\` to verify it compiles
+   - If the snippet is intentionally partial (uses \`// ...\`), verify the non-elided parts at least
+8. **After editing**, run this command to mark the snippet as completed:
+   \`\`\`shell
+   bun run snippets/manage-snippets.ts complete ${snippet.id}
+   \`\`\`
+9. **Summarize** what was added and what was verified.
+
+## Current snippet block
+
+~~~~mdx
+${snippet.rawTabsBlock}
+~~~~
+
+## Extracted per-language content
+
+${tabSummaries}
+`
+}
+
 async function cmdPrompt(idOrNext: string, golemRepoPath: string): Promise<void> {
   const progress = await loadProgress()
   if (!progress) {
@@ -617,6 +681,61 @@ async function cmdList(filter?: string): Promise<void> {
   console.log(`\n${snippets.length} snippet(s)`)
 }
 
+async function cmdPromptAddLang(
+  idOrNext: string,
+  golemRepoPath: string,
+  language: string
+): Promise<void> {
+  const progress = await loadProgress()
+  if (!progress) {
+    console.log("No progress file found. Run 'scan' first.")
+    return
+  }
+
+  let snippet: SnippetRecord | undefined
+
+  if (idOrNext === "--next") {
+    snippet = Object.values(progress.snippets).find(s => s.status === "pending" && !s.removed)
+    if (!snippet) {
+      console.log("All snippets are completed or skipped!")
+      return
+    }
+  } else {
+    snippet = progress.snippets[idOrNext]
+    if (!snippet) {
+      console.log(`Snippet not found: ${idOrNext}`)
+      return
+    }
+  }
+
+  console.log(generateAddLangPrompt(snippet, golemRepoPath, language))
+}
+
+async function cmdResetMissingLang(language: string): Promise<void> {
+  const progress = await loadProgress()
+  if (!progress) {
+    console.log("No progress file found. Run 'scan' first.")
+    return
+  }
+
+  let resetCount = 0
+  for (const snippet of Object.values(progress.snippets)) {
+    if (snippet.removed) continue
+    if (snippet.status !== "completed") continue
+    const hasLang = snippet.languagesPresent.some(l => l.toLowerCase() === language.toLowerCase())
+    if (!hasLang) {
+      snippet.status = "pending"
+      delete snippet.completedAt
+      snippet.note = `Reset for adding ${language}`
+      resetCount++
+    }
+  }
+
+  await saveProgress(progress)
+  console.log(`Reset ${resetCount} snippet(s) to pending (missing ${language})`)
+  printCounts(progress)
+}
+
 // --- Main ---
 
 async function main() {
@@ -676,6 +795,29 @@ async function main() {
       break
     }
 
+    case "prompt-add-lang": {
+      const target = args[1] ?? "--next"
+      const langIdx = args.indexOf("--language")
+      const language = langIdx !== -1 ? args[langIdx + 1] : undefined
+      if (!language) {
+        console.log("Usage: prompt-add-lang [id|--next] --language <lang>")
+        return
+      }
+      await cmdPromptAddLang(target, golemRepoPath, language)
+      break
+    }
+
+    case "reset-missing-lang": {
+      const langIdx = args.indexOf("--language")
+      const language = langIdx !== -1 ? args[langIdx + 1] : args[1]
+      if (!language) {
+        console.log("Usage: reset-missing-lang --language <lang>")
+        return
+      }
+      await cmdResetMissingLang(language)
+      break
+    }
+
     default:
       console.log(`Usage: bun run snippets/manage-snippets.ts <command>
 
@@ -685,6 +827,10 @@ Commands:
   next                        Show next pending snippet
   list [status]               List all snippets, optionally filtered by status
   prompt [id|--next]          Generate Amp prompt for a snippet
+  prompt-add-lang [id|--next] --language <lang>
+                              Generate prompt to add a specific language tab
+  reset-missing-lang --language <lang>
+                              Reset completed snippets missing a language to pending
   complete <id> [--note ...]  Mark snippet as completed
   skip <id> [--note ...]      Mark snippet as skipped
 

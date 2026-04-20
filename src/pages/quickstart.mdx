@@ -75,7 +75,7 @@ The `golem` command line interface provides a set of commands to create, build, 
 
 To get started, you create an application and a single component using one of the supported programming languages with the `golem new` command. If no additional parameters are provided, the command will interactively ask for all required information.
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
   <Tabs.Tab>
   Create a TypeScript agent using the default template:
 
@@ -103,6 +103,16 @@ To get started, you create an application and a single component using one of th
 
     Note: For Scala, you need Java 17 or newer and `sbt` installed on your system.
     </Tabs.Tab>
+
+    <Tabs.Tab>
+    Create a MoonBit agent using the default template:
+
+    ```shell copy
+    golem new --template moonbit --component-name example:counter --yes agent-examples
+    ```
+
+    Note: For MoonBit, you need the MoonBit toolchain (`moon`) and `wasm-tools` installed on your system.
+    </Tabs.Tab>
 </Tabs>
 
 This will generate a new component in a new directory named after the provided application name, and it is ready to be compiled and deployed to Golem.
@@ -117,7 +127,7 @@ This compiles the newly created application, which consists of a _single Golem c
 
 ### Write the code
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
   <Tabs.Tab>
 The default template's source code is located in the `src/counter-agent.ts` file, assuming that the `example:counter` name has been used in the `golem new` command. The directory structure allows applications to have multiple components, even implemented in multiple programming languages if needed.
 
@@ -240,6 +250,41 @@ final class CounterAgentImpl(@unused private val name: String) extends CounterAg
       count += 1
       count
     }
+}
+  ```
+
+    </Tabs.Tab>
+  <Tabs.Tab>
+  The default template's source code is located in the `counter.mbt` file, assuming that the `example:counter` name has been used in the `golem new` command.
+
+  Let's use the following code snippet for this example:
+
+  ```moonbit
+///|
+/// Counter agent in MoonBit
+#derive.agent
+struct CounterAgent {
+  name : String
+  mut value : UInt64
+}
+
+///|
+/// Creates a new counter with the given name
+fn CounterAgent::new(name : String) -> CounterAgent {
+  { name, value: 0 }
+}
+
+///|
+/// Increases the count by one and returns the new value
+#derive.prompt_hint("Increase the count by one")
+pub fn CounterAgent::increment(self : Self) -> UInt64 {
+  self.value += 1
+  self.value
+}
+
+///|
+fn main {
+
 }
   ```
 

@@ -13,7 +13,7 @@ The **automatic update** mode works as it is described in the general [Agents](/
 It is also possible to manually implement a pair of functions for saving and loading an agent's state into an arbitrary byte array. This is useful when making significant changes to the implementation of an agent, such that the automatic replay based update mechanism is no longer working. Future versions of Golem may also use the same snapshotting functions for optimizing recovery time of agents.
 
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
         In TypeScript, all agents inherit the `BaseAgent` class. There are two methods in `BaseAgent` that can
         be overridden to implement snapshot saving and loading for an agent.
@@ -88,6 +88,45 @@ It is also possible to manually implement a pair of functions for saving and loa
               count += 1
               count
             }
+        }
+        ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+        In MoonBit, custom snapshot saving and loading can be implemented by adding a `Snapshottable` implementation to the agent type.
+
+        The following example implements these methods for the simple counter example used [on the Quickstart page](/quickstart):
+        ```moonbit
+        pub impl @agents.Snapshottable for CounterAgent with save_snapshot(self) -> Bytes {
+          Bytes::from_array([
+            ((self.value >> 56) & 0xff).to_byte(),
+            ((self.value >> 48) & 0xff).to_byte(),
+            ((self.value >> 40) & 0xff).to_byte(),
+            ((self.value >> 32) & 0xff).to_byte(),
+            ((self.value >> 24) & 0xff).to_byte(),
+            ((self.value >> 16) & 0xff).to_byte(),
+            ((self.value >> 8) & 0xff).to_byte(),
+            (self.value & 0xff).to_byte(),
+          ])
+        }
+
+        pub impl @agents.Snapshottable for CounterAgent with load_snapshot(
+          self,
+          bytes,
+        ) -> Result[Unit, String] {
+          if bytes.length() != 8 {
+            return Err("Expected an 8-byte long snapshot")
+          }
+
+          self.value =
+            (bytes[0].to_int().to_uint64() << 56) |
+            (bytes[1].to_int().to_uint64() << 48) |
+            (bytes[2].to_int().to_uint64() << 40) |
+            (bytes[3].to_int().to_uint64() << 32) |
+            (bytes[4].to_int().to_uint64() << 24) |
+            (bytes[5].to_int().to_uint64() << 16) |
+            (bytes[6].to_int().to_uint64() << 8) |
+            bytes[7].to_int().to_uint64()
+          Ok(())
         }
         ```
     </Tabs.Tab>

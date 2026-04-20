@@ -8,7 +8,7 @@ The types used in the component's code are mapped to the types of Rib (WebAssemb
 
 This section describes how various types of the used programming language are mapping to types used by the Rib scripting language and the CLI invoke functions. These are WebAssembly component-model types, and their values are described using the [WAVE (WebAssembly Value Encoding)](https://github.com/bytecodealliance/wasm-tools/tree/main/crates/wasm-wave) format.
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
         The following TypeScript types are supported:
 
@@ -115,6 +115,30 @@ This section describes how various types of the used programming language are ma
         | `(T1, T2, T3)` | `tuple<...>` | `("hello", 1234, true)` | |
         | `Map[K, V]` | `list<tuple<K, V>>` | `[("key1", 100), ("key2", -2)]` | |
     </Tabs.Tab>
+    <Tabs.Tab>
+        The following MoonBit types are supported. Custom types used in agent methods need `#derive.golem_schema`.
+
+        | MoonBit type | WIT type | Example Rib value | Remarks
+        | ------------ | -------- | ----------------- | -------
+        | `String` | `string` | `"hello world"` | |
+        | `Bool` | `bool` | `true`, `false` | |
+        | `Double` | `f64` | `1234.0` | |
+        | `Float` | `f32` | `3.14` | |
+        | `Int` | `s32` | `-2147483648, 0, 2147483647` | |
+        | `UInt` | `u32` | `0, 4294967295` | |
+        | `Int64` | `s64` | `-9223372036854775808, 0, 9223372036854775807` | |
+        | `UInt64` | `u64` | `0, 18446744073709551615` | |
+        | `Byte` | `u8` | `0, 255` | |
+        | `Bytes` | `list<u8>` | `[104, 101, 108, 108, 111]` | |
+        | `Array[T]` | `list<T>` | `["one", "two", "three"]` | |
+        | `Array[(K, V)]` | `list<tuple<K, V>>` | `[("key1", 100), ("key2", -2)]` | Use an array of tuples for key-value pairs |
+        | `T?` | `option<T>` | `some(value)`, `none` | |
+        | `#derive.golem_schema struct MyStruct { field1 : T1, field2 : T2 }` | `record { ... }` | `{ field1: "value", field2: 42 }` | |
+        | `#derive.golem_schema enum MyEnum { Low, High }` | `enum { ... }` | `High` | All-unit enums map to WIT enums |
+        | `#derive.golem_schema enum MyEnum { Coordinates(x~ : Double, y~ : Double), Empty }` | `variant { ... }` | `Coordinates({ x: 12.5, y: 7.0 })` | Payload enums map to WIT variants |
+        | `Unit` | `unit` | `()` | |
+        | `(T1, T2, T3)` | `tuple<...>` | `("hello", 1234, true)` | |
+    </Tabs.Tab>
 </Tabs>
 
 There are some special, Golem agent specific types that can be used in the agent constructor and methods as well:
@@ -122,7 +146,7 @@ There are some special, Golem agent specific types that can be used in the agent
 ### Unstructured text
 Unstructured text is an arbitrary string, optionally annotated with a language code, that is either passed directly to/from the agent, or as an URL reference. The agent can optionally specify the set of supported language codes.
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
     ```typescript
     import { UnstructuredText } from '@golemcloud/golem-ts-sdk';
@@ -275,13 +299,62 @@ Unstructured text is an arbitrary string, optionally annotated with a language c
     ```
     </Tabs.Tab>
 
+    <Tabs.Tab>
+    ```moonbit
+    ///|
+    #derive.agent
+    struct TextAgent {
+      name : String
+    }
+
+    ///|
+    fn TextAgent::new(name : String) -> TextAgent {
+      { name, }
+    }
+
+    ///|
+    #derive.text_languages("unstructured_text_with_language_code", "en")
+    pub fn TextAgent::example_method(
+      self : Self,
+      unstructured_text_with_language_code : @types.UnstructuredText,
+    ) -> Unit {
+      ignore(self)
+      ignore(unstructured_text_with_language_code)
+    }
+    ```
+
+    In MoonBit, unstructured text is represented by `@types.UnstructuredText`. Unlike the Rust and Scala SDKs,
+    allowed languages are not encoded in the type itself. Instead, use `#derive.text_languages("param", ...)`
+    on the agent method to restrict the accepted language codes for that parameter.
+
+    The type itself represents either an inline string or a remote reference:
+
+    ```moonbit
+    pub(all) enum UnstructuredText {
+      Url(String)
+      Inline(text~ : String, language_code~ : String?)
+    } derive(Show, Eq)
+
+    pub fn UnstructuredText::from_url(url : String) -> UnstructuredText {
+      Url(url)
+    }
+
+    pub fn UnstructuredText::from_inline(
+      text : String,
+      language_code? : String? = None,
+    ) -> UnstructuredText {
+      Inline(text~, language_code~)
+    }
+    ```
+    </Tabs.Tab>
+
 </Tabs>
 
 ### Unstructured binary
 Unstructured binary data is similar to unstructured text, but it is annotated (and restricted by) MIME types.
 
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
     ```typescript
     import {
@@ -415,6 +488,54 @@ Unstructured binary data is similar to unstructured text, but it is annotated (a
     }
     ```
     </Tabs.Tab>
+    <Tabs.Tab>
+    ```moonbit
+    ///|
+    #derive.agent
+    struct BinaryAgent {
+      name : String
+    }
+
+    ///|
+    fn BinaryAgent::new(name : String) -> BinaryAgent {
+      { name, }
+    }
+
+    ///|
+    #derive.mime_types("unstructured_binary_with_mime_type", "application/json", "image/png")
+    pub fn BinaryAgent::example_method(
+      self : Self,
+      unstructured_binary_with_mime_type : @types.UnstructuredBinary,
+    ) -> Unit {
+      ignore(self)
+      ignore(unstructured_binary_with_mime_type)
+    }
+    ```
+
+    In MoonBit, unstructured binary is represented by `@types.UnstructuredBinary`. Unlike the Rust and Scala SDKs,
+    allowed MIME types are not encoded in the type itself. Instead, use `#derive.mime_types("param", ...)`
+    on the agent method to restrict the accepted MIME types for that parameter.
+
+    The type itself represents either an inline byte array or a remote reference:
+
+    ```moonbit
+    pub(all) enum UnstructuredBinary {
+      Url(String)
+      Inline(data~ : Bytes, mime_type~ : String)
+    } derive(Show, Eq)
+
+    pub fn UnstructuredBinary::from_url(url : String) -> UnstructuredBinary {
+      Url(url)
+    }
+
+    pub fn UnstructuredBinary::from_inline(
+      data : Bytes,
+      mime_type~ : String,
+    ) -> UnstructuredBinary {
+      Inline(data~, mime_type~)
+    }
+    ```
+    </Tabs.Tab>
 </Tabs>
 
 
@@ -429,7 +550,7 @@ There are three variants of multimodal values supported:
 * `MultimodalCustom<T>`, allowing to pass an arbitrary number of values which is either an unstructured text or binary or a user defined structured type `T`.
 * `MultimodalAdvanced<T>` , allowing to pass an arbitrary number of values of the user defined structured type `T`.
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
 
     ```typescript
@@ -626,6 +747,89 @@ There are three variants of multimodal values supported:
       type Basic = MultimodalItems[Modality.Basic]
       type WithCustom[A] = MultimodalItems[Modality[A]]
     }
+    ```
+
+    </Tabs.Tab>
+
+    <Tabs.Tab>
+
+    ```moonbit
+    ///|
+    #derive.golem_schema
+    pub(all) struct MyStructuredData {
+      field1 : String
+      field2 : Int
+    }
+
+    ///|
+    #derive.multimodal
+    pub(all) enum TextOrImage {
+      Text(String)
+      Image(Bytes)
+    }
+
+    ///|
+    #derive.agent
+    struct MultimodalAgent {
+      name : String
+    }
+
+    ///|
+    fn MultimodalAgent::new(name : String) -> MultimodalAgent {
+      { name, }
+    }
+
+    ///|
+    pub fn MultimodalAgent::example_multimodal_method(
+      self : Self,
+      input : @types.Multimodal[@types.TextOrBinary],
+    ) -> Unit {
+      ignore(self)
+      ignore(input)
+    }
+
+    ///|
+    pub fn MultimodalAgent::example_multimodal_custom_method(
+      self : Self,
+      input : @types.Multimodal[@types.CustomModality[MyStructuredData]],
+    ) -> Unit {
+      ignore(self)
+      ignore(input)
+    }
+
+    ///|
+    pub fn MultimodalAgent::example_multimodal_advanced_method(
+      self : Self,
+      input : @types.Multimodal[TextOrImage],
+    ) -> Unit {
+      ignore(self)
+      ignore(input)
+    }
+    ```
+
+    In MoonBit, all three variants use the same `@types.Multimodal[T]` container.
+    `@types.TextOrBinary` is the built-in basic modality set, `@types.CustomModality[T]`
+    is the equivalent of `MultimodalCustom<T>`, and `#derive.multimodal` lets you define
+    a fully custom modality enum such as `TextOrImage`.
+
+    Here are the relevant multimodal types in the MoonBit SDK:
+
+
+    ```moonbit
+    pub(all) struct Multimodal[T] {
+      items : Array[T]
+    } derive(Show, Eq)
+
+    pub(all) enum TextOrBinary {
+      Text(UnstructuredText)
+      Binary(UnstructuredBinary)
+    } derive(Show, Eq)
+
+    pub(all) enum CustomModality[T] {
+      Text(UnstructuredText)
+      Binary(UnstructuredBinary)
+      Structured(T)
+    } derive(Show, Eq)
     ```
 
     </Tabs.Tab>

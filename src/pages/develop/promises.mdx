@@ -10,7 +10,7 @@ When a promise is completed, an arbitrary byte array can be attached to it as a 
 
 ### Creating a promise
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
         To create a promise simply call the `createPromise` function:
 
@@ -47,11 +47,21 @@ When a promise is completed, an arbitrary byte array can be attached to it as a 
         }
         ```
     </Tabs.Tab>
+    <Tabs.Tab>
+        Assuming the `golemcloud/golem_sdk/api` package is imported as `@api`, call the `create_promise` function:
+
+        ```moonbit
+        fn create_promise_id() -> @api.PromiseId {
+          let promise_id : @api.PromiseId = @api.create_promise()
+          promise_id
+        }
+        ```
+    </Tabs.Tab>
 </Tabs>
 
 The returned value has the type `PromiseId`, and defined as the following (including the nested types):
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
         ```typescript
         export type OplogIndex = bigint
@@ -144,11 +154,40 @@ The returned value has the type `PromiseId`, and defined as the following (inclu
         }
         ```
     </Tabs.Tab>
+
+    <Tabs.Tab>
+        ```moonbit
+        pub type OplogIndex = UInt64
+
+        pub(all) struct Uuid {
+          high_bits : UInt64
+          low_bits : UInt64
+        }
+
+        // Represents a Golem component
+        pub(all) struct ComponentId {
+          uuid : Uuid
+        }
+
+        // Represents a Golem agent
+        pub(all) struct AgentId {
+          component_id : ComponentId
+          agent_id : String
+        }
+
+        // A promise ID is a value that can be passed to an external Golem API to complete that promise
+        // from an arbitrary external source, while Golem agents can await for this completion.
+        pub(all) struct PromiseId {
+          agent_id : AgentId
+          oplog_idx : OplogIndex
+        }
+        ```
+    </Tabs.Tab>
 </Tabs>
 
 ### Awaiting a promise
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
     To await a promise, use the async `awaitPromise` function, which returns the promise result as a byte array payload.
    Here's an example that awaits a promise, then decodes the payload from JSON format:
@@ -200,13 +239,41 @@ The returned value has the type `PromiseId`, and defined as the following (inclu
       HostApi.awaitPromiseJson[MyPayload](promiseId)
     ```
     </Tabs.Tab>
+    <Tabs.Tab>
+    Assuming the `golemcloud/golem_sdk/api` package is imported as `@api` and `moonbitlang/core/json` is imported as `@json`, use `await_promise` to get the raw byte payload, then decode it from JSON:
+
+    ```moonbit
+    struct MyPayload {
+      id : String
+    } derive(ToJson, @json.FromJson)
+
+    fn bytes_to_string(bytes : Bytes) -> String {
+      let chars : Array[Char] = []
+      for i in 0..<bytes.length() {
+        chars.push(Int::unsafe_to_char(bytes[i].to_int()))
+      }
+      String::from_array(chars)
+    }
+
+    fn wait_for_payload(promise_id : @api.PromiseId) -> MyPayload {
+      let payload = @api.await_promise(promise_id)
+      let json = @json.parse(bytes_to_string(payload)) catch {
+        _ => panic()
+      }
+      let decoded : MyPayload = @json.from_json(json) catch {
+        _ => panic()
+      }
+      decoded
+    }
+    ```
+    </Tabs.Tab>
 </Tabs>
 
 Note that if an agent is only **awaiting** Golem promises (one or more), the agent gets suspended and is not going to consume any resources while waiting.
 
 ### Completing a promise from within an agent
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
     To complete a promise from within an agent, use the `completePromise` function.
     The following example completes a promise with a value encoded as JSON:
@@ -259,6 +326,31 @@ Note that if an agent is only **awaiting** Golem promises (one or more), the age
     def completeFromAgent(promiseId: HostApi.PromiseId): Boolean = {
       val payload = Data(id = "value", meta = "data")
       HostApi.completePromiseJson(promiseId, payload)
+    }
+    ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+    Assuming the `golemcloud/golem_sdk/api` package is imported as `@api`, encode the payload as JSON and pass it to `complete_promise`:
+
+    ```moonbit
+    struct Data {
+      id : String
+      meta : String
+    } derive(ToJson)
+
+    fn string_to_bytes(value : String) -> Bytes {
+      Bytes::from_array(value.to_array().map(fn(char) { char.to_int().to_byte() }))
+    }
+
+    fn complete_from_agent(promise_id : @api.PromiseId) -> Bool {
+      let payload = Data::{
+        id: "value",
+        meta: "data",
+      }
+      @api.complete_promise(
+        promise_id,
+        string_to_bytes(payload.to_json().stringify()),
+      )
     }
     ```
     </Tabs.Tab>

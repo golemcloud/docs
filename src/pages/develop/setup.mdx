@@ -2,7 +2,7 @@ import { Callout, Tabs } from "nextra/components"
 
 ## Setting up the development environment
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
 <Tabs.Tab>
 Golem's TypeScript toolchain uses npm as the underlying build tool.
 Install **Node.js** and **npm** on your system by following the official [instructions](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
@@ -58,5 +58,21 @@ Install **Java 17 or newer** (JDK) using your preferred distribution.
 Install `sbt` by following the [official installation guide](https://www.scala-sbt.org/download/).
 
 Once Java and `sbt` are installed, `golem build` will drive the full Scala.js-based build pipeline for Scala components.
+</Tabs.Tab>
+
+<Tabs.Tab>
+### Setup MoonBit
+
+Developing **Golem agents** in **MoonBit** requires the MoonBit toolchain and `wasm-tools`, because Golem 1.5 compiles MoonBit agents to WebAssembly using `moon` and packages them as components with `wasm-tools`.
+
+#### Installing MoonBit
+
+Install the latest stable version of the MoonBit toolchain by following the official [instructions](https://docs.moonbitlang.com/).
+
+#### Installing `wasm-tools`
+
+Install `wasm-tools` by following the [official installation guide](https://github.com/bytecodealliance/wasm-tools?tab=readme-ov-file#installation).
+
+Once `moon` and `wasm-tools` are installed, `golem build` will install the required MoonBit dependencies and drive the full MoonBit-to-WASM build pipeline for MoonBit components.
 </Tabs.Tab>
 </Tabs>

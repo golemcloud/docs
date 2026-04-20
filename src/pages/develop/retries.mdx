@@ -19,7 +19,7 @@ This mechanism is automatic and applied to all kinds of failures. To rely on it,
 
 The retry policy which controls the maximum number of retries and the exponential backoff is a global configuration of the Golem servers, but it can be customized for each agent.
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
         The `@golemcloud/golem-ts-sdk` package exports the `withRetryPolicy` function to temporarily install a named retry policy for a block of code:
 
@@ -213,6 +213,36 @@ The retry policy which controls the maximum number of retries and the exponentia
           def predicate: JsRetryPredicate = js.native
           def policy: JsRetryPolicyTree = js.native
         }
+        ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+        Assuming the `golemcloud/golem_sdk/api` package is imported as `@api`, use the `with_retry_policy` function to temporarily install a retry policy for a block of code:
+
+        ```moonbit
+        let policy : @api.RetryPolicy = @api.RetryPolicy::{
+          max_attempts: 3U,
+          min_delay: 100_000_000UL, // 100 milliseconds
+          max_delay: 2_000_000_000UL, // 2 seconds
+          multiplier: 1.5,
+          max_jitter_factor: None,
+        }
+
+        let result : String = @api.with_retry_policy(policy, fn() {
+          // this callback runs with the custom retry policy
+          "hello"
+        })
+        ```
+
+        The policy passed to `with_retry_policy` is a `RetryPolicy`, which contains the retry limit and backoff settings:
+
+        ```moonbit
+        pub(all) struct RetryPolicy {
+          max_attempts : UInt
+          min_delay : UInt64
+          max_delay : UInt64
+          multiplier : Double
+          max_jitter_factor : Double?
+        } derive(Show, Eq)
         ```
     </Tabs.Tab>
 </Tabs>

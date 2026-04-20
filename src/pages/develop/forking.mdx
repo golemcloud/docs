@@ -8,7 +8,7 @@ Golem agents are single threaded. To achieve parallel execution, it is possible 
 
 A simpler way is to use the **fork API**. The fork API consists of a single host function, defined as the following:
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
 <Tabs.Tab>
 ```typescript
 declare module 'golem:api/host@1.5.0' {
@@ -88,6 +88,32 @@ object ForkResult {
 def fork(): ForkResult = HostApi.fork()
 ```
 </Tabs.Tab>
+
+<Tabs.Tab>
+Assuming the `golemcloud/golem_sdk/interface/golem/core/types` package is imported as `@rpcTypes`, the `fork` host function and the related types are available from `golemcloud/golem_sdk/interface/golem/api/host`:
+
+```moonbit
+/// Details about the fork result
+pub(all) struct ForkDetails {
+  forked_phantom_id : @rpcTypes.Uuid
+} derive(Show, Eq)
+
+/// Indicates which agent the code is running on after `fork`.
+/// The parameter contains details about the fork result, such as the phantom-ID of the newly
+/// created agent.
+pub(all) enum ForkResult {
+  Original(ForkDetails)
+  Forked(ForkDetails)
+} derive(Show, Eq)
+
+/// Forks the current agent at the current execution point.
+/// The new agent gets the same base agent ID but with a new unique phantom ID.
+/// The phantom ID of the forked agent is returned in `fork-result` on both sides.
+/// The newly created agent continues running from the same point,
+/// but the return value is going to be different in this agent and the forked agent.
+pub fn fork() -> ForkResult
+```
+</Tabs.Tab>
 </Tabs>
 
 ## Usage
@@ -96,7 +122,7 @@ Using this `fork` function from a component that was created from Golem's built-
 
 The following code snippet demonstrates calling `fork` and continuing on two different parallel branches based on its result value:
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
   <Tabs.Tab>
   ```typescript
   import { BaseAgent, agent, fork, type ForkResult } from '@golemcloud/golem-ts-sdk';
@@ -190,6 +216,26 @@ final class ExampleAgentImpl(@unused private val name: String) extends ExampleAg
 }
   ```
   </Tabs.Tab>
+  <Tabs.Tab>
+  ```moonbit
+#derive.agent
+struct ExampleAgent {
+  name : String
+}
+
+fn ExampleAgent::new(name : String) -> ExampleAgent {
+  { name, }
+}
+
+pub fn ExampleAgent::run(self : Self) -> Unit {
+  ignore(self.name)
+  match @api.fork() {
+    Original(_) => ()
+    Forked(_) => ()
+  }
+}
+  ```
+  </Tabs.Tab>
 </Tabs>
 
 ## Join
@@ -206,7 +252,7 @@ The high level idea is the following:
 The following code snippet demonstrates this pattern:
 
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
   <Tabs.Tab>
   ```typescript
   import {
@@ -376,6 +422,73 @@ final class ExampleAgentImpl(@unused private val name: String) extends ExampleAg
 
         HostApi.completePromiseJson(promiseId, result)
         Future.successful(())
+    }
+  }
+}
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```moonbit
+#derive.agent
+struct ExampleAgent {
+  name : String
+}
+
+struct RunResult {
+  message : String
+} derive(ToJson, @json.FromJson)
+
+let logger : @logging.Logger = @logging.with_name("example-agent")
+
+fn ExampleAgent::new(name : String) -> ExampleAgent {
+  { name, }
+}
+
+fn string_to_bytes(value : String) -> Bytes {
+  Bytes::from_array(value.to_array().map(fn(char) { char.to_int().to_byte() }))
+}
+
+fn bytes_to_string(bytes : Bytes) -> String {
+  let chars : Array[Char] = []
+  for i in 0..<bytes.length() {
+    chars.push(Int::unsafe_to_char(bytes[i].to_int()))
+  }
+  String::from_array(chars)
+}
+
+pub fn ExampleAgent::run(self : Self) -> Unit {
+  let promise_id = @api.create_promise()
+
+  match @api.fork() {
+    Original(_) => {
+      let local_result = RunResult::{
+        message: "Hello from original agent with name: " + self.name,
+      }
+
+      let raw_fork_result = @api.await_promise(promise_id)
+      let json = @json.parse(bytes_to_string(raw_fork_result)) catch {
+        _ => panic()
+      }
+      let forked_result : RunResult = @json.from_json(json) catch {
+        _ => panic()
+      }
+
+      logger.info("local result : " + local_result.message)
+      logger.info("forked result: " + forked_result.message)
+    }
+    Forked(_) => {
+      let result = RunResult::{
+        message: "Hello from forked agent with name: " + self.name,
+      }
+
+      logger.info("forked result : " + result.message)
+
+      ignore(
+        @api.complete_promise(
+          promise_id,
+          string_to_bytes(result.to_json().stringify()),
+        ),
+      )
     }
   }
 }

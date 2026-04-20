@@ -72,7 +72,7 @@ For both `file` and `stdout` logging, a set of boolean flags control the format 
 
 ## Golem agent logs
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
     In TypeScript agents, use the standard `console` API to log messages. `console.log` writes to the agent's standard output,
     `console.error` writes to standard error, while `console.debug`, `console.info`, `console.warn`, etc. write log entries with the corresponding log level.
@@ -101,6 +101,13 @@ For both `file` and `stdout` logging, a set of boolean flags control the format 
     import scala.scalajs.js
 
     js.Dynamic.global.console.info("my_message")
+    ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+    In MoonBit agents, use the Golem MoonBit SDK logging helpers to write log entries with specific log levels. Assuming `golemcloud/golem_sdk/logging` is imported as `@logging`:
+
+    ```moonbit
+    @logging.info("my_message")
     ```
     </Tabs.Tab>
 </Tabs>

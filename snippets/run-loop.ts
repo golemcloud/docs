@@ -14,6 +14,7 @@
  *   --dry-run             Print the prompt but don't run Amp
  *   --mode <mode>         Amp agent mode (default: smart)
  *   --continue-on-error   Continue to next snippet if one fails
+ *   --add-language <lang> Only add a missing language tab (resets completed snippets missing it)
  */
 
 import { readFile, writeFile, appendFile } from "fs/promises"
@@ -57,6 +58,7 @@ function parseArgs() {
     dryRun: false,
     mode: "smart",
     continueOnError: false,
+    addLanguage: undefined as string | undefined,
   }
 
   for (let i = 0; i < args.length; i++) {
@@ -90,6 +92,13 @@ function parseArgs() {
       case "--continue-on-error":
         opts.continueOnError = true
         break
+      case "--add-language":
+        if (!args[i + 1] || args[i + 1].startsWith("--")) {
+          console.error("Error: --add-language requires a language name")
+          process.exit(1)
+        }
+        opts.addLanguage = args[++i]
+        break
       case "--help":
       case "-h":
         printHelp()
@@ -116,6 +125,7 @@ Options:
   --dry-run               Print prompts without running Amp or changing progress
   --mode <mode>           Amp agent mode: smart, deep, large, rush (default: smart)
   --continue-on-error     Skip failed snippets instead of stopping the loop
+  --add-language <lang>   Only add a missing language tab (e.g. MoonBit)
   -h, --help              Show this help message
 
 Examples:
@@ -125,6 +135,7 @@ Examples:
   bun run snippets:loop -- --max 3 --dry-run            # preview prompts
   bun run snippets:loop -- --mode deep                  # use deep mode
   bun run snippets:loop -- --golem-repo /path/to/golem  # custom repo path
+  bun run snippets:loop -- --add-language MoonBit --mode deep  # add MoonBit to all snippets
 `)
 }
 
@@ -140,11 +151,17 @@ async function getNextPending(): Promise<SnippetRecord | null> {
   return Object.values(progress.snippets).find(s => s.status === "pending" && !s.removed) ?? null
 }
 
-async function generatePrompt(snippetId: string, golemRepo: string): Promise<string> {
-  const proc = Bun.spawn(
-    ["bun", "run", MANAGE_SCRIPT, "prompt", snippetId, "--golem-repo", golemRepo],
-    { stdout: "pipe", stderr: "pipe" }
-  )
+async function generatePrompt(
+  snippetId: string,
+  golemRepo: string,
+  addLanguage?: string
+): Promise<string> {
+  const cmd = addLanguage ? "prompt-add-lang" : "prompt"
+  const args = ["bun", "run", MANAGE_SCRIPT, cmd, snippetId, "--golem-repo", golemRepo]
+  if (addLanguage) {
+    args.push("--language", addLanguage)
+  }
+  const proc = Bun.spawn(args, { stdout: "pipe", stderr: "pipe" })
   const output = await new Response(proc.stdout).text()
   await proc.exited
   return output
@@ -228,13 +245,22 @@ async function main() {
   const opts = parseArgs()
   await log(`=== Snippet update loop started ===`)
   await log(
-    `Options: max=${opts.max === Infinity ? "unlimited" : opts.max}, mode=${opts.mode}, dryRun=${opts.dryRun}, golemRepo=${opts.golemRepo}`
+    `Options: max=${opts.max === Infinity ? "unlimited" : opts.max}, mode=${opts.mode}, dryRun=${opts.dryRun}, golemRepo=${opts.golemRepo}${opts.addLanguage ? `, addLanguage=${opts.addLanguage}` : ""}`
   )
 
   // Ensure progress file exists
   if (!existsSync(PROGRESS_FILE)) {
     await log("No progress.json found. Running scan first...")
     await runManageCmd("scan")
+  }
+
+  // If --add-language, first rescan to pick up current state, then reset completed snippets missing the language
+  if (opts.addLanguage) {
+    await log(`Rescanning snippets to pick up current state...`)
+    await runManageCmd("scan")
+    await log(`Resetting completed snippets missing ${opts.addLanguage}...`)
+    const resetOutput = await runManageCmd("reset-missing-lang", "--language", opts.addLanguage)
+    await log(resetOutput.trim())
   }
 
   let processed = 0
@@ -259,7 +285,7 @@ async function main() {
 
     try {
       // Generate prompt
-      const prompt = await generatePrompt(snippet.id, opts.golemRepo)
+      const prompt = await generatePrompt(snippet.id, opts.golemRepo, opts.addLanguage)
 
       if (opts.dryRun) {
         await log("DRY RUN — prompt would be:")

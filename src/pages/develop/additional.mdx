@@ -10,7 +10,7 @@ It is guaranteed that this idempotency key will always be the same (per occurren
 
 To generate an idempotency key:
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
 ```typescript
 import { generateIdempotencyKey } from "@golemcloud/golem-ts-sdk";
@@ -32,13 +32,18 @@ import golem.HostApi
 val key = HostApi.generateIdempotencyKey()
 ```
     </Tabs.Tab>
+    <Tabs.Tab>
+```moonbit
+let key = @api.generate_idempotency_key()
+```
+    </Tabs.Tab>
 </Tabs>
 
 ### Get agent metadata
 
 It is possible to query **metadata** for Golem agents. This metadata is defined by the `AgentMetadata` interface:
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
     ```typescript
     /**
@@ -125,6 +130,29 @@ It is possible to query **metadata** for Golem agents. This metadata is defined 
     - `HostApi.getAgentMetadata(agentId: HostApi.AgentIdLiteral)` returns `Some(HostApi.AgentMetadata)` for a specific agent given by its `AgentId`, or `None` if it does not exist
 
     </Tabs.Tab>
+    <Tabs.Tab>
+    Assuming the `golemcloud/golem_sdk/api` package is imported as `@api` and `golemcloud/golem_sdk/interface/golem/core/types` is imported as `@rpcTypes`:
+
+    ```moonbit
+    /// Metadata about an agent
+    pub(all) struct AgentMetadata {
+      agent_id : @rpcTypes.AgentId
+      args : Array[String]
+      env : Array[(String, String)]
+      config_vars : Array[(String, String)]
+      status : @api.AgentStatus
+      component_revision : UInt64
+      retry_count : UInt64
+      environment_id : @api.EnvironmentId
+    } derive(Show, Eq)
+    ```
+
+    There are two exported functions to query agent metadata:
+
+    - `@api.get_self_metadata()` returns the metadata for the current agent
+    - `@api.get_agent_metadata(agent_id : @rpcTypes.AgentId)` returns `Some(@api.AgentMetadata)` for a specific agent given by its `AgentId`, or `None` if it does not exist
+
+    </Tabs.Tab>
 
 </Tabs>
 
@@ -138,7 +166,7 @@ Agent enumeration is a feature of Golem available both through the public HTTP A
 
 The following example demonstrates how to use the agent enumeration API:
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
 ```typescript
 import {
@@ -234,13 +262,44 @@ while (batch.isDefined) {
 }
 ```
     </Tabs.Tab>
+
+    <Tabs.Tab>
+    Assuming the `golemcloud/golem_sdk/api` package is imported as `@api` and `golemcloud/golem_sdk/interface/golem/core/types` is imported as `@rpcTypes`:
+
+```moonbit
+let filter : @api.AgentAnyFilter = @api.AgentAnyFilter::{
+  filters: [
+    @api.AgentAllFilter::{
+      filters: [
+        @api.AgentPropertyFilter::Status(@api.AgentStatusFilter::{
+          comparator: @api.FilterComparator::EQUAL,
+          value: @api.AgentStatus::IDLE,
+        }),
+      ],
+    },
+  ],
+}
+
+let component_id : @rpcTypes.ComponentId = abort("provide a component ID")
+let agents : Array[@api.AgentMetadata] = []
+let pager = @api.get_agents(component_id, Some(filter), true)
+defer pager.drop()
+
+while true {
+  match pager.next_page() {
+    Some(batch) => agents.append(batch)
+    None => break
+  }
+}
+```
+    </Tabs.Tab>
 </Tabs>
 
 The third parameter enables `precise` mode. In this mode, Golem will calculate the latest metadata for each returned agent; otherwise, it uses only the last cached values.
 
 ### Update an agent
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
 To trigger an update for a given agent from one component version to another, use the `updateAgent` function:
 
@@ -285,6 +344,17 @@ val targetRevision = BigInt(1)
 HostApi.updateAgent(agentId, targetRevision, HostApi.UpdateMode.Automatic)
 ```
     </Tabs.Tab>
+
+    <Tabs.Tab>
+To trigger an update for a given agent from one component version to another, use the `update_agent` function. Assuming the `golemcloud/golem_sdk/api` package is imported as `@api`:
+
+```moonbit
+let agent_id = @api.get_self_metadata().agent_id
+let target_revision : UInt64 = 1
+
+@api.update_agent(agent_id, target_revision, @api.UpdateMode::AUTOMATIC)
+```
+    </Tabs.Tab>
 </Tabs>
 
 To learn more about updating agents, see the Agent Update section of the [agents page](/concepts/agents).
@@ -304,7 +374,7 @@ The `golem:durability` package contains an API that libraries can leverage to pr
 
 #### Types
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
     The durability API can be imported from the `golem:durability/durability@1.5.0` module.
 
@@ -544,6 +614,67 @@ final case class PersistedDurableFunctionInvocation(
 ```
 
 </Tabs.Tab>
+
+    <Tabs.Tab>
+    The durability API can be imported from the `golemcloud/golem_sdk/interface/golem/durability/durability` package. Assuming the `golemcloud/golem_sdk/interface/golem/api/oplog` package is imported as `@oplog`, the `golemcloud/golem_sdk/interface/golem/api/host` package is imported as `@host`, the `golemcloud/golem_sdk/interface/golem/core/types` package is imported as `@rpcTypes`, and the `golemcloud/golem_sdk/interface/wasi/clocks/wallClock` package is imported as `@wallClock`:
+
+The durable function type is represented by `@oplog.WrappedFunctionType`:
+
+```moonbit
+pub(all) enum WrappedFunctionType {
+  ReadLocal
+  WriteLocal
+  ReadRemote
+  WriteRemote
+  WriteRemoteBatched(UInt64?)
+  WriteRemoteTransaction(UInt64?)
+} derive(Eq, Show)
+```
+
+- `ReadLocal` indicates that the side effect reads from the agent's local state (for example local file system, random generator, etc.)
+- `WriteLocal` indicates that the side effect writes to the agent's local state (for example local file system)
+- `ReadRemote` indicates that the side effect reads from external state (for example a key-value store)
+- `WriteRemote` indicates that the side effect manipulates external state (for example an RPC call)
+- `WriteRemoteBatched` indicates that the side effect manipulates external state through multiple invoked functions (for example an HTTP request where reading the response involves multiple host function calls)
+- `WriteRemoteTransaction` indicates that the side effect manipulates external state through multiple invoked functions, and all of them are part of a single transaction (for example a database transaction)
+
+The `DurableExecutionState` type provides information about the current execution state, and can be queried using the `current_durable_execution_state` function:
+
+```moonbit
+pub fn current_durable_execution_state() -> DurableExecutionState
+
+pub(all) struct DurableExecutionState {
+  is_live : Bool
+  persistence_level : @host.PersistenceLevel
+} derive(Eq, Show)
+
+pub(all) enum PersistenceLevel {
+  PersistNothing
+  PersistRemoteSideEffects
+  Smart
+} derive(Eq, Show)
+```
+
+Here the `is_live` field indicates whether the executor is currently _replaying_ an agent's previously persisted state or side effects should be executed. The `persistence_level` is a user-configurable setting that can turn off persistence for certain sections of the code.
+
+The `PersistedDurableFunctionInvocation` is a record holding all the information about one persisted durable function. This should be used during _replay_ to simulate the side effect instead of actually running it.
+
+```moonbit
+pub(all) struct PersistedDurableFunctionInvocation {
+  timestamp : @wallClock.Datetime
+  function_name : String
+  response : @rpcTypes.ValueAndType
+  function_type : @oplog.WrappedFunctionType
+  entry_version : OplogEntryVersion
+} derive(Eq, Show)
+
+pub(all) enum OplogEntryVersion {
+  V1
+  V2
+} derive(Eq, Show)
+```
+
+</Tabs.Tab>
 </Tabs>
 
 #### Functions
@@ -554,7 +685,7 @@ The logic to be implemented is the following, in pseudocode:
 
 
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
 
 ```typescript
@@ -636,6 +767,31 @@ if (state.isLive) {
 ```
 
   </Tabs.Tab>
+
+  <Tabs.Tab>
+
+```moonbit
+let input = "foo"
+
+@durability.observe_function_call("interface", "function")
+let state = @durability.current_durable_execution_state()
+let result : String =
+  if state.is_live {
+    let result = perform_side_effect(input)
+    @durability.persist_durable_function_invocation(
+      "interface::function",
+      encode(input),
+      encode(result),
+      @oplog.WrappedFunctionType::ReadRemote,
+    )
+    result
+  } else {
+    let persisted = @durability.read_persisted_durable_function_invocation()
+    decode(persisted.response)
+  }
+```
+
+  </Tabs.Tab>
 </Tabs>
 
 
@@ -650,7 +806,7 @@ Golem associates an **invocation context** with each invocation, which contains 
 
 The spans are not automatically sent to any tracing system but they can be reconstructed from the oplog, for example using **oplog processor plugins**, to provide real-time tracing information.
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
 To get the current invocation context, use the `currentContext` host function, imported from `golem:api/context@1.5.0`:
 
@@ -791,6 +947,50 @@ If `finish` is not explicitly called on the span, it is going to be finished whe
 
 </Tabs.Tab>
 
+    <Tabs.Tab>
+To get the current invocation context, use the `current_context` host function, imported from `golemcloud/golem_sdk/interface/golem/api/context`:
+
+```moonbit
+/// Gets the current invocation context
+///
+/// The function call captures the current context; if new spans are started, the returned `invocation-context` instance will not
+/// reflect that.
+pub fn current_context() -> InvocationContext
+```
+
+The `InvocationContext` resource exposes various methods for querying attributes of the invocation context:
+
+| method | description |
+| ------ | ----------- |
+| `trace_id` | Returns the trace ID associated with the context, coming from either an external trace header or generated at the edge of Golem |
+| `span_id` | Returns the span ID associated with the context |
+| `parent` | Returns the parent invocation context, if any |
+| `get_attribute` | Gets an attribute from the current span by key, or searches the full parent chain when `inherited` is `true` |
+| `get_attributes` | Gets all attributes from the current span, or the merged attribute set from the full parent chain when `inherited` is `true` |
+| `get_attribute_chain` | Gets all values of a given attribute from the current and parent contexts |
+| `get_attribute_chains` | Get all attributes and their previous values |
+| `trace_context_headers` | Gets the W3C Trace Context headers associated with the current invocation context |
+
+Custom attributes can only be set on **custom spans**. First start a new span using `start_span`
+
+```moonbit
+/// Starts a new `span` with the given name, as a child of the current invocation context
+pub fn start_span(name : String) -> Span
+```
+
+and then use the `Span` resource's methods:
+
+| method | description |
+| ------ | ----------- |
+| `started_at` | Returns the timestamp when the span was started |
+| `set_attribute` | Sets an attribute on the span |
+| `set_attributes` | Sets multiple attributes on the span |
+| `finish` | Ends the current span |
+
+If `finish` is not explicitly called on the span, it is going to be finished when the resource is dropped.
+
+</Tabs.Tab>
+
 </Tabs>
 
 The custom spans are pushed onto the invocation context stack, so whenever an RPC call or HTTP call is made, their parent span(s) will include the user-defined custom spans as well as the rest of the invocation context.
@@ -801,7 +1001,7 @@ Although Golem agents can store their state completely in their own memory, it i
 
 This can be useful if state needs to be shared between different agents or if the size of this state is too large to be stored in memory. The keys are accessible for every agent of an _application_ - no matter which component they are defined in, or which agent type they belong to.
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
         There are two primary modules for using the key-value store:
         - `wasi:keyvalue/eventual@0.1.0` defines an API for an eventually consistent key-value store
@@ -1062,13 +1262,89 @@ This can be useful if state needs to be shared between different agents or if th
 
         For most use cases, the synchronous `Array[Byte]` helpers are the most convenient way to work with key-value data from Scala.
     </Tabs.Tab>
+
+    <Tabs.Tab>
+        The generated `wasi:keyvalue` bindings are exposed through the `golemcloud/golem_sdk/interface/wasi/keyvalue/eventual`, `golemcloud/golem_sdk/interface/wasi/keyvalue/eventualBatch`, and `golemcloud/golem_sdk/interface/wasi/keyvalue/types` packages. Assuming they are imported as `@eventual`, `@eventualBatch`, `@types`, `@streams`, and `@wasiKeyvalueError`:
+
+        The primary interface to work with the key-value pairs consists of the four basic operations:
+
+        ```moonbit
+        /// Get the value associated with the key in the bucket.
+        /// The value is returned as an option. If the key-value pair exists in the
+        /// bucket, it returns `Ok(value)`. If the key does not exist in the
+        /// bucket, it returns `Ok(none)`.
+        /// If any other error occurs, it returns an `Err(error)`.
+        pub fn get(
+          bucket : @types.Bucket,
+          key : String,
+        ) -> Result[@types.IncomingValue?, @wasiKeyvalueError.Error_]
+
+        /// Set the value associated with the key in the bucket. If the key already
+        /// exists in the bucket, it overwrites the value.
+        /// If the key does not exist in the bucket, it creates a new key-value pair.
+        /// If any other error occurs, it returns an `Err(error)`.
+        pub fn set(
+          bucket : @types.Bucket,
+          key : String,
+          outgoing_value : @types.OutgoingValue,
+        ) -> Result[Unit, @wasiKeyvalueError.Error_]
+
+        /// Delete the key-value pair associated with the key in the bucket.
+        /// If the key does not exist in the bucket, it does nothing.
+        /// If any other error occurs, it returns an `Err(error)`.
+        pub fn delete(
+          bucket : @types.Bucket,
+          key : String,
+        ) -> Result[Unit, @wasiKeyvalueError.Error_]
+
+        /// Check if the key exists in the bucket.
+        /// If the key exists in the bucket, it returns `Ok(true)`. If the key does
+        /// not exist in the bucket, it returns `Ok(false)`.
+        /// If any other error occurs, it returns an `Err(error)`.
+        pub fn exists(
+          bucket : @types.Bucket,
+          key : String,
+        ) -> Result[Bool, @wasiKeyvalueError.Error_]
+        ```
+
+        The batch API defines similar functions such as `get_many` and `set_many`, but working on multiple keys at once.
+
+        The low-level resource types are defined in the `golemcloud/golem_sdk/interface/wasi/keyvalue/types` package:
+
+        ```moonbit
+        pub fn Bucket::open_bucket(String) -> Result[Self, @wasiKeyvalueError.Error_]
+
+        pub(all) struct OutgoingValue(Int) derive(Eq, Show)
+        pub fn OutgoingValue::new_outgoing_value() -> Self
+        pub fn OutgoingValue::outgoing_value_write_body_async(
+          Self,
+        ) -> Result[@streams.OutputStream, @wasiKeyvalueError.Error_]
+        pub fn OutgoingValue::outgoing_value_write_body_sync(
+          Self,
+          FixedArray[Byte],
+        ) -> Result[Unit, @wasiKeyvalueError.Error_]
+
+        pub(all) struct IncomingValue(Int) derive(Eq, Show)
+        pub fn IncomingValue::incoming_value_consume_sync(
+          Self,
+        ) -> Result[FixedArray[Byte], @wasiKeyvalueError.Error_]
+        pub fn IncomingValue::incoming_value_consume_async(
+          Self,
+        ) -> Result[@streams.InputStream, @wasiKeyvalueError.Error_]
+        pub fn IncomingValue::incoming_value_size(
+          Self,
+        ) -> Result[UInt64, @wasiKeyvalueError.Error_]
+        ```
+
+        For most use cases, the synchronous `FixedArray[Byte]` helpers are the most convenient way to work with key-value data from MoonBit.
+    </Tabs.Tab>
 </Tabs>
 
 ### The WASI Blob Store interface
 
 The `wasi:blobstore` interface provides a way to store and retrieve large binary data. This can be useful for storing large files or other binary data that is too large to be stored in the agent's memory. The blobs are accessible for every agent of an _application_ - no matter which component they are defined in, or which agent type they belong to.
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
         The Blob Store API organizes blobs identified by _object names_ into **containers**. The `wasi:blobstore/blobstore` module exports functions to create, get and delete these containers by name:
 
@@ -1305,5 +1581,100 @@ The `wasi:blobstore` interface provides a way to store and retrieve large binary
         ```
 
         The Scala wrapper uses synchronous `Array[Byte]` helpers for reading and writing blob data. If you need direct access to the underlying WASI modules, the SDK also exposes `blobstoreRaw`, `containerRaw`, and `typesRaw`.
+    </Tabs.Tab>
+
+    <Tabs.Tab>
+        The generated `wasi:blobstore` bindings are exposed through the `golemcloud/golem_sdk/interface/wasi/blobstore/blobstore`, `golemcloud/golem_sdk/interface/wasi/blobstore/container`, and `golemcloud/golem_sdk/interface/wasi/blobstore/types` packages. Assuming they are imported as `@blobstore`, `@container`, `@types`, and `@streams`:
+
+        The Blob Store API organizes blobs identified by _object names_ into **containers**. The `@blobstore` package exports functions to create, get and delete these containers by name:
+
+        ```moonbit
+        /// creates a new empty container
+        pub fn create_container(name : String) -> Result[@container.Container, String]
+
+        /// retrieves a container by name
+        pub fn get_container(name : String) -> Result[@container.Container, String]
+
+        /// deletes a container and all objects within it
+        pub fn delete_container(name : String) -> Result[Unit, String]
+
+        /// returns true if the container exists
+        pub fn container_exists(name : String) -> Result[Bool, String]
+
+        /// copies (duplicates) an object, to the same or a different container.
+        /// returns an error if the target container does not exist.
+        /// overwrites destination object if it already existed.
+        pub fn copy_object(
+          src : @types.ObjectId,
+          dest : @types.ObjectId,
+        ) -> Result[Unit, String]
+
+        /// moves or renames an object, to the same or a different container
+        /// returns an error if the destination container does not exist.
+        /// overwrites destination object if it already existed.
+        pub fn move_object(
+          src : @types.ObjectId,
+          dest : @types.ObjectId,
+        ) -> Result[Unit, String]
+
+        // ...
+        ```
+
+        A `Container` resource in the `@container` package provides read-write access for the blobs in it:
+
+        ```moonbit
+        pub(all) struct Container(Int) derive(Show, Eq)
+
+        /// returns container name
+        pub fn Container::name(self : Container) -> Result[String, String]
+
+        /// returns container metadata
+        pub fn Container::info(self : Container) -> Result[@types.ContainerMetadata, String]
+
+        /// retrieves an object or portion of an object, as a resource.
+        /// Start and end offsets are inclusive.
+        /// Once a data-blob resource has been created, the underlying bytes are held by the blobstore service for the lifetime
+        /// of the data-blob resource, even if the object they came from is later deleted.
+        pub fn Container::get_data(
+          self : Container,
+          name : String,
+          start : UInt64,
+          end : UInt64,
+        ) -> Result[@types.IncomingValue, String]
+
+        /// creates or replaces an object with the data blob.
+        pub fn Container::write_data(
+          self : Container,
+          name : String,
+          data : @types.OutgoingValue,
+        ) -> Result[Unit, String]
+
+        /// returns list of objects in the container. Order is undefined.
+        pub fn Container::list_objects(self : Container) -> Result[@container.StreamObjectNames, String]
+
+        /// deletes object.
+        /// does not return error if object did not exist.
+        pub fn Container::delete_object(self : Container, name : String) -> Result[Unit, String]
+
+        /// deletes multiple objects in the container
+        pub fn Container::delete_objects(
+          self : Container,
+          names : Array[String],
+        ) -> Result[Unit, String]
+
+        /// returns true if the object exists in this container
+        pub fn Container::has_object(self : Container, name : String) -> Result[Bool, String]
+
+        /// returns metadata for the object
+        pub fn Container::object_info(
+          self : Container,
+          name : String,
+        ) -> Result[@types.ObjectMetadata, String]
+
+        /// removes all objects within the container, leaving the container empty.
+        pub fn Container::clear(self : Container) -> Result[Unit, String]
+        ```
+
+        `IncomingValue` can be consumed either synchronously as a `FixedArray[Byte]` or asynchronously as an `@streams.InputStream`. To write blob data, create an `OutgoingValue` with `@types.OutgoingValue::new_outgoing_value()` and obtain its `@streams.OutputStream` via `outgoing_value_write_body()`.
     </Tabs.Tab>
 </Tabs>

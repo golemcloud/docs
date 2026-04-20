@@ -10,7 +10,7 @@ The library allows controlling four main aspects of the durable execution engine
 
 All these features are regional - they can be changed for a section of the code within a single exported function.
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
         In TypeScript, the SDK provides scoped helpers such as `withPersistenceLevel`, `withIdempotenceMode`, and
         `withRetryPolicy`. They run a sync or async callback with the requested setting, then restore the previous
@@ -26,6 +26,11 @@ All these features are regional - they can be changed for a section of the code 
         `withRetryPolicy`. They execute a `Future`-returning block with the requested setting, then restore the
         previous settings afterwards.
     </Tabs.Tab>
+    <Tabs.Tab>
+        In MoonBit, the SDK provides scoped helpers such as `with_persistence_level`, `with_idempotence_mode`, and
+        `with_retry_policy`. They execute a callback with the requested setting, then restore the previous settings
+        afterwards.
+    </Tabs.Tab>
 </Tabs>
 
 ### Persistence level
@@ -38,7 +43,7 @@ The persistence level can be one of the following:
 | PersistRemoteSideEffects | Persists all the side-effects that are affecting the outside world. In case of recovery the side-effects won't be reexecuted and the persisted results will be used. |
 | Smart                    | The default setting; Let Golem decide what to persist to optimize performance                                                                                        |
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
         To change the persistence level for a section of the code, use the `withPersistenceLevel` function:
 
@@ -78,13 +83,26 @@ The persistence level can be one of the following:
           }
         ```
     </Tabs.Tab>
+    <Tabs.Tab>
+        Assuming the `golemcloud/golem_sdk/api` package is imported as `@api`, use the `with_persistence_level` function:
+
+        ```moonbit
+        let result : String = @api.with_persistence_level(
+          @api.PersistenceLevel::PersistNothing,
+          fn() {
+            // this callback runs in PersistNothing mode
+            "hello"
+          },
+        )
+        ```
+    </Tabs.Tab>
 </Tabs>
 
 ### Idempotence mode
 
 Golem assumes that HTTP requests are idempotent by default. This means that in case of a failure, if the system cannot determine whether the request successfully reached the target or not, it will be retried.
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
         This behavior can be changed using the `withIdempotenceMode` function:
 
@@ -124,6 +142,16 @@ Golem assumes that HTTP requests are idempotent by default. This means that in c
           }
         ```
     </Tabs.Tab>
+    <Tabs.Tab>
+        Assuming the `golemcloud/golem_sdk/api` package is imported as `@api`, use the `with_idempotence_mode` function:
+
+        ```moonbit
+        let result : String = @api.with_idempotence_mode(false, fn() {
+          // this callback runs with idempotence mode disabled
+          "hello"
+        })
+        ```
+    </Tabs.Tab>
 </Tabs>
 
 With disabled idempotence mode, in case Golem cannot determine if the request was sent or not, it won't retry it, but the agent will fail.
@@ -132,7 +160,7 @@ With disabled idempotence mode, in case Golem cannot determine if the request wa
 
 By default, side effects are persisted and retried one by one. It is possible to group them together into atomic regions, in which case the execution is retried for some reason (the agent failed or interrupted within the region), all the side effects will be reexecuted.
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
         The `golem-ts-sdk` library exports the `atomically` function for using atomic regions:
 
@@ -175,12 +203,23 @@ By default, side effects are persisted and retried one by one. It is possible to
           }
         ```
     </Tabs.Tab>
+    <Tabs.Tab>
+        Assuming the `golemcloud/golem_sdk/api` package is imported as `@api`, use the `with_atomic_operation` function:
+
+        ```moonbit
+        let result : (String, String) = @api.with_atomic_operation(fn() {
+          let first_result : String = first_side_effect()
+          let second_result : String = second_side_effect(first_result)
+          (first_result, second_result)
+        })
+        ```
+    </Tabs.Tab>
 
 </Tabs>
 
 ### Commit oplog
 
-<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
     <Tabs.Tab>
         Wait until the oplog is replicated to a specified number of replicas before continuing:
 
@@ -209,6 +248,14 @@ By default, side effects are persisted and retried one by one. It is possible to
 
         // Ensure oplog is replicated to 3 replicas before proceeding
         HostApi.oplogCommit(3)
+        ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+        Assuming the `golemcloud/golem_sdk/api` package is imported as `@api`, wait until the oplog is replicated to a specified number of replicas before continuing:
+
+        ```moonbit
+        // Ensure oplog is replicated to 3 replicas before proceeding
+        @api.oplog_commit(3)
         ```
     </Tabs.Tab>
 </Tabs>
