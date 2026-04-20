@@ -10,18 +10,26 @@ It is guaranteed that this idempotency key will always be the same (per occurren
 
 To generate an idempotency key:
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
     <Tabs.Tab>
 ```typescript
-import { generateIdempotencyKey, Uuid } from "golem:api/host@1.1.7";
+import { generateIdempotencyKey } from "@golemcloud/golem-ts-sdk";
 
-const key: Uuid = generateIdempotencyKey();
+const key = generateIdempotencyKey();
 ```
     </Tabs.Tab>
     <Tabs.Tab>
 ```rust
-use golem_rust::{Uuid, generate_idempotency_key};
-let key: Uuid = generate_idempotency_key();
+use golem_rust::generate_idempotency_key;
+
+let key = generate_idempotency_key();
+```
+    </Tabs.Tab>
+    <Tabs.Tab>
+```scala
+import golem.HostApi
+
+val key = HostApi.generateIdempotencyKey()
 ```
     </Tabs.Tab>
 </Tabs>
@@ -30,7 +38,7 @@ let key: Uuid = generate_idempotency_key();
 
 It is possible to query **metadata** for Golem agents. This metadata is defined by the `AgentMetadata` interface:
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
     <Tabs.Tab>
     ```typescript
     /**
@@ -47,46 +55,74 @@ It is possible to query **metadata** for Golem agents. This metadata is defined 
       configVars: [string, string][];
       /** The current agent status */
       status: AgentStatus;
-      /** The component version the agent is running with */
-      componentVersion: bigint;
+      /** The component revision the agent is running with */
+      componentRevision: bigint;
       /** The agent's current retry count */
       retryCount: bigint;
+      /** The environment the agent belongs to */
+      environmentId: EnvironmentId;
     };
     ```
 
     There are two exported functions to query agent metadata:
 
     - `getSelfMetadata()` returns the metadata for the current agent
-    - `getAgentMetadata(agentId: AgentId)` returns the metadata for a specific agent given by its `AgentId`
+    - `getAgentMetadata(agentId: AgentId)` returns the metadata for a specific agent given by its `AgentId`, or `undefined` if it does not exist
 
     </Tabs.Tab>
     <Tabs.Tab>
     ```rust
-    /**
-     * Metadata about an agent
-     */
-     pub struct AgentMetadata {
-       // The agent ID, consists of the component ID, agent type and agent parameters
-       pub agent_id: AgentId,
-       // Command line arguments seen by the agent
-       pub args: Vec<String>,
-       // Environment variables seen by the agent
-       pub env: Vec::<(String, String,)>,
-       // Configuration variables seen by the agent
-       pub config_vars: Vec::<(String, String,)>,
-       // The current agent status
-       pub status: AgentStatus,
-       // The component version the agent is running with
-       pub component_version: u64,
-       // The agent\'s current retry count
-       pub retry_count: u64,
-     }
+    /// Metadata about an agent
+    pub struct AgentMetadata {
+      /// The agent ID, consists of the component ID, agent type and agent parameters
+      pub agent_id: AgentId,
+      /// Command line arguments seen by the agent
+      pub args: Vec<String>,
+      /// Environment variables seen by the agent
+      pub env: Vec<(String, String)>,
+      /// Configuration variables seen by the agent
+      pub config_vars: Vec<(String, String)>,
+      /// The current agent status
+      pub status: AgentStatus,
+      /// The component revision the agent is running with
+      pub component_revision: u64,
+      /// The agent's current retry count
+      pub retry_count: u64,
+      /// The environment the agent belongs to
+      pub environment_id: EnvironmentId,
+    }
     ```
 
     There are two exported functions to query agent metadata:
 
     - `get_self_metadata()` returns the metadata for the current agent
-    - `get_agent_metadata(agent_id: &AgentId)` returns the metadata for a specific agent given by its `AgentId`
+    - `get_agent_metadata(agent_id: &AgentId)` returns `Some(AgentMetadata)` for a specific agent given by its `AgentId`, or `None` if it does not exist
+
+    </Tabs.Tab>
+    <Tabs.Tab>
+    ```scala
+    import golem.HostApi
+    import golem.host.js.JsEnvironmentId
+
+    final case class AgentMetadata(
+      agentId: HostApi.AgentIdLiteral,
+      args: List[String],
+      env: Map[String, String],
+      configVars: Map[String, String],
+      status: HostApi.AgentStatus,
+      componentRevision: BigInt,
+      retryCount: BigInt,
+      agentType: String,
+      agentName: String,
+      componentId: HostApi.ComponentIdLiteral,
+      environmentId: JsEnvironmentId
+    )
+    ```
+
+    There are two exported functions to query agent metadata:
+
+    - `HostApi.getSelfMetadata()` returns the metadata for the current agent
+    - `HostApi.getAgentMetadata(agentId: HostApi.AgentIdLiteral)` returns `Some(HostApi.AgentMetadata)` for a specific agent given by its `AgentId`, or `None` if it does not exist
 
     </Tabs.Tab>
 
@@ -102,7 +138,7 @@ Agent enumeration is a feature of Golem available both through the public HTTP A
 
 The following example demonstrates how to use the agent enumeration API:
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
     <Tabs.Tab>
 ```typescript
 import {
@@ -111,7 +147,7 @@ import {
   AgentAnyFilter,
   AgentMetadata,
   AgentStatusFilter,
-} from "golem:api/host@1.1.0"
+} from "golem:api/host@1.5.0"
 
 const filter: AgentAnyFilter = {
   filters: [
@@ -142,58 +178,85 @@ while ((batch = getter.getNext()) !== undefined) {
 ```
     </Tabs.Tab>
 
-   <Tabs.Tab>
+    <Tabs.Tab>
 ```rust
-use golem_rust::{
-    bindings::golem::api::host::{AgentAnyFilter, GetAgents},
-    wasm_rpc::{ComponentId, Uuid},
-    Uuid
+use golem_rust::bindings::golem::api::host::{
+    AgentAllFilter, AgentAnyFilter, AgentMetadata, AgentPropertyFilter, AgentStatus,
+    AgentStatusFilter, ComponentId, FilterComparator, GetAgents,
 };
 
-let component_id: ComponentId = /** */
+let component_id: ComponentId = /* ... */;
 
 let filter = AgentAnyFilter {
-   filters: vec![AgentAllFilter {
-     filters: vec![AgentPropertyFilter::Status(AgentStatusFilter {
-       comparator: FilterComparator::Equal,
-       value: AgentStatus::Idle,
-     })],
-   }],
+    filters: vec![AgentAllFilter {
+        filters: vec![AgentPropertyFilter::Status(AgentStatusFilter {
+            comparator: FilterComparator::Equal,
+            value: AgentStatus::Idle,
+        })],
+    }],
 };
 
 let getter = GetAgents::new(component_id, Some(&filter), true);
 
-let mut batch = getter.get_next();
-
 let mut agents: Vec<AgentMetadata> = vec![];
 
-while batch.is_some() {
-  agents.extend(batch.unwrap());
-  batch = getter.get_next();
+while let Some(batch) = getter.get_next() {
+    agents.extend(batch);
 }
+```
+    </Tabs.Tab>
 
+    <Tabs.Tab>
+```scala
+import golem.HostApi
+
+val filter: HostApi.AgentAnyFilter = HostApi.AgentAnyFilter(
+  List(
+    HostApi.AgentAllFilter(
+      List(
+        HostApi.AgentPropertyFilter.status(
+          HostApi.AgentStatusFilter(HostApi.FilterComparator.Equal, HostApi.AgentStatus.Idle)
+        )
+      )
+    )
+  )
+)
+
+val componentId: HostApi.ComponentIdLiteral = ???
+val handle = HostApi.getAgents(componentId, Some(filter), precise = true)
+
+var agents: List[HostApi.AgentMetadata] = Nil
+var batch = HostApi.nextAgentBatch(handle)
+
+while (batch.isDefined) {
+  agents = agents ++ batch.get
+  batch = HostApi.nextAgentBatch(handle)
+}
 ```
     </Tabs.Tab>
 </Tabs>
 
-The third parameter of the `GetAgents` constructor enables `precise` mode. In this mode, Golem will calculate the latest metadata for each returned agent; otherwise, it uses only the last cached values.
+The third parameter enables `precise` mode. In this mode, Golem will calculate the latest metadata for each returned agent; otherwise, it uses only the last cached values.
 
 ### Update an agent
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
     <Tabs.Tab>
 To trigger an update for a given agent from one component version to another, use the `updateAgent` function:
 
 ```typescript
-import { updateAgent, AgentId, ComponentVersion } from "golem:api/host@0.2.0"
+import {
+  getSelfMetadata,
+  updateAgent,
+  type AgentId,
+  type ComponentRevision,
+} from "golem:api/host@1.5.0"
 
-const agentId: AgentId = {
-  /* ... */
-}
+const agentId: AgentId = getSelfMetadata().agentId
 
-const targetVersion: ComponentVersion = 1n
+const targetRevision: ComponentRevision = 1n
 
-updateAgent(agentId, targetVersion, "automatic")
+updateAgent(agentId, targetRevision, "automatic")
 ```
     </Tabs.Tab>
 
@@ -201,13 +264,25 @@ updateAgent(agentId, targetVersion, "automatic")
 To trigger an update for a given agent from one component version to another, use the `update_agent` function:
 
 ```rust
-use golem_rust::bindings::golem::api::host::{update_agent, AgentId, ComponentVersion, UpdateMode};
+use golem_rust::bindings::golem::api::host::{get_self_metadata, update_agent, UpdateMode};
 
-let target_component_version: ComponentVersion = 1;
+let agent_id = get_self_metadata().agent_id;
+let target_component_revision = 1u64;
 
-let agent_id: AgentId = todo!("...");
+update_agent(&agent_id, target_component_revision, UpdateMode::Automatic);
+```
+    </Tabs.Tab>
 
-update_agent(&agent_id, target_component_version, UpdateMode::Automatic);
+    <Tabs.Tab>
+To trigger an update for a given agent from one component version to another, use the `updateAgent` function:
+
+```scala
+import golem.HostApi
+
+val agentId = HostApi.getSelfMetadata().agentId
+val targetRevision = BigInt(1)
+
+HostApi.updateAgent(agentId, targetRevision, HostApi.UpdateMode.Automatic)
 ```
     </Tabs.Tab>
 </Tabs>
@@ -229,9 +304,9 @@ The `golem:durability` package contains an API that libraries can leverage to pr
 
 #### Types
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
     <Tabs.Tab>
-    The durability API can be imported from the `golem:durability/durability@1.2.1` module.
+    The durability API can be imported from the `golem:durability/durability@1.5.0` module.
 
 The `DurableFunctionType` type categorizes a durable function in the following way:
 
@@ -376,6 +451,99 @@ pub struct PersistedDurableFunctionInvocation {
 ```
 
 </Tabs.Tab>
+
+    <Tabs.Tab>
+    The durability API can be imported from `golem.host.DurabilityApi`.
+
+The `DurableFunctionType` type categorizes a durable function in the following way:
+
+```scala
+sealed trait DurableFunctionType extends Product with Serializable {
+  def tag: String
+}
+
+object DurableFunctionType {
+  case object ReadLocal extends DurableFunctionType {
+    val tag = "read-local"
+  }
+
+  case object WriteLocal extends DurableFunctionType {
+    val tag = "write-local"
+  }
+
+  case object ReadRemote extends DurableFunctionType {
+    val tag = "read-remote"
+  }
+
+  case object WriteRemote extends DurableFunctionType {
+    val tag = "write-remote"
+  }
+
+  final case class WriteRemoteBatched(begin: Option[OplogIndex]) extends DurableFunctionType {
+    val tag = "write-remote-batched"
+  }
+
+  final case class WriteRemoteTransaction(begin: Option[OplogIndex]) extends DurableFunctionType {
+    val tag = "write-remote-transaction"
+  }
+}
+```
+
+- `ReadLocal` indicates that the side effect reads from the agent's local state (for example local file system, random generator, etc.)
+- `WriteLocal` indicates that the side effect writes to the agent's local state (for example local file system)
+- `ReadRemote` indicates that the side effect reads from external state (for example a key-value store)
+- `WriteRemote` indicates that the side effect manipulates external state (for example an RPC call)
+- `WriteRemoteBatched` indicates that the side effect manipulates external state through multiple invoked functions (for example an HTTP request where reading the response involves multiple host function calls)
+- `WriteRemoteTransaction` indicates that the side effect manipulates external state through multiple invoked functions, and all of them are part of a single transaction (for example a database transaction)
+
+The `DurableExecutionState` type provides information about the current execution state, and can be queried using the `currentDurableExecutionState` function:
+
+```scala
+import golem.HostApi
+
+def currentDurableExecutionState(): DurableExecutionState
+
+final case class DurableExecutionState(
+  isLive: Boolean,
+  persistenceLevel: HostApi.PersistenceLevel
+)
+
+sealed trait PersistenceLevel extends Product with Serializable {
+  def tag: String
+}
+
+object PersistenceLevel {
+  case object PersistNothing extends PersistenceLevel {
+    override val tag: String = "persist-nothing"
+  }
+
+  case object PersistRemoteSideEffects extends PersistenceLevel {
+    override val tag: String = "persist-remote-side-effects"
+  }
+
+  case object Smart extends PersistenceLevel {
+    override val tag: String = "smart"
+  }
+
+  final case class Unknown(tag: String) extends PersistenceLevel
+}
+```
+
+Here the `isLive` field indicates whether the executor is currently _replaying_ an agent's previously persisted state or side effects should be executed. The `persistenceLevel` is a user-configurable setting that can turn off persistence for certain sections of the code.
+
+The `PersistedDurableFunctionInvocation` is a record holding all the information about one persisted durable function. This should be used during _replay_ to simulate the side effect instead of actually running it.
+
+```scala
+final case class PersistedDurableFunctionInvocation(
+  timestamp: Datetime,
+  functionName: String,
+  response: WitValueTypes.ValueAndType,
+  functionType: DurableFunctionType,
+  entryVersion: OplogEntryVersion
+)
+```
+
+</Tabs.Tab>
 </Tabs>
 
 #### Functions
@@ -386,7 +554,7 @@ The logic to be implemented is the following, in pseudocode:
 
 
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
     <Tabs.Tab>
 
 ```typescript
@@ -394,9 +562,8 @@ observeFunctionCall("interface", "function")
 state = currentDurableExecutionState()
 if (state.isLive) {
   result = performSideEffect(input)
-  persistTypedDurableFunctionInvocation("function", encode(input), encode(result), durableFunctionType)
+  persistDurableFunctionInvocation("interface::function", encode(input), encode(result), { tag: 'read-remote' })
 } else {
-  // Execute the side effect
   persisted = readPersistedDurableFunctionInvocation()
   result = decode(persisted.response)
 }
@@ -406,32 +573,67 @@ if (state.isLive) {
 
 <Tabs.Tab>
     ```rust
-  use golem_rust::Schema
+use golem_rust::bindings::golem::durability::durability::{
+    current_durable_execution_state, observe_function_call,
+    persist_durable_function_invocation, read_persisted_durable_function_invocation,
+    DurableFunctionType,
+};
+use golem_rust::value_and_type::{FromValueAndType, IntoValueAndType};
+use golem_rust::Schema;
 
-  #[derive(Schema)]
-  pub struct FunctionResult {
-    value: String
-  }
+#[derive(Clone, Schema)]
+pub struct FunctionResult {
+    value: String,
+}
 
-  observe_function_call("iface", "function");
+observe_function_call("interface", "function");
 
-  let state = current_durable_execution_state();
+let state = current_durable_execution_state();
 
-  if (state.is_live) {
-      let input = "foo".to_string();
-      let result: FunctionResult = perform_side_effect("foo".to_string());
+if (state.is_live) {
+    let input = "foo".to_string();
+    let result: FunctionResult = perform_side_effect(input.clone());
 
-      // the input and output must be encoded to ValueAndType
-      // `into_value_and_type` will be automatically available for all types deriving Schema
-      persist_durable_function_invocation("function",  &input.into_value_and_type() , &result.into_value_and_type(), DurableFunctionType::ReadRemote);
-  } else {
-     let persisted =  read_persisted_durable_function_invocation();
+    // the input and output must be encoded to ValueAndType
+    // `into_value_and_type` will be automatically available for all types deriving Schema
+    persist_durable_function_invocation(
+        "interface::function",
+        &input.into_value_and_type(),
+        &result.clone().into_value_and_type(),
+        DurableFunctionType::ReadRemote,
+    );
+} else {
+    let persisted = read_persisted_durable_function_invocation();
 
-     // the result must be can be decoded from ValueAndType, as long as the type derives Schema
-     let result: FunctionResult =  FunctionResult::from_value_and_type(persisted.response).expect("failed to decode");
-  }
+    // the result can be decoded from ValueAndType, as long as the type derives Schema
+    let result: FunctionResult =
+        FunctionResult::from_value_and_type(persisted.response).expect("failed to decode");
+}
 
-    ```
+```
+
+  </Tabs.Tab>
+
+    <Tabs.Tab>
+
+```scala
+import golem.host.DurabilityApi
+
+DurabilityApi.observeFunctionCall("interface", "function")
+val state = DurabilityApi.currentDurableExecutionState()
+if (state.isLive) {
+  val result = performSideEffect(input)
+  DurabilityApi.persistDurableFunctionInvocation(
+    "interface::function",
+    encode(input),
+    encode(result),
+    DurabilityApi.DurableFunctionType.ReadRemote
+  )
+} else {
+  val persisted = DurabilityApi.readPersistedDurableFunctionInvocation()
+  val result = decode(persisted.response)
+}
+```
 
   </Tabs.Tab>
 </Tabs>
@@ -448,15 +650,15 @@ Golem associates an **invocation context** with each invocation, which contains 
 
 The spans are not automatically sent to any tracing system but they can be reconstructed from the oplog, for example using **oplog processor plugins**, to provide real-time tracing information.
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
     <Tabs.Tab>
-To get the current invocation context, use the `currentContext` host function, imported from `golem:api/context@1.1.7`:
+To get the current invocation context, use the `currentContext` host function, imported from `golem:api/context@1.5.0`:
 
 ```typescript
 /**
  * Invocation context support
  */
-declare module 'golem:api/context@1.1.7' {
+declare module 'golem:api/context@1.5.0' {
   /**
    * Gets the current invocation context
    * The function call captures the current context; if new spans are started, the returned `invocation-context` instance will not
@@ -473,8 +675,8 @@ The `InvocationContext` itself is a **class** with various methods for querying 
 | `traceId` | Returns the trace ID associated with the context, coming from either an external trace header or generated at the edge of Golem |
 | `spanId` | Returns the span ID associated with the context |
 | `parent` | Returns the parent invocation context, if any |
-| `getAttribute` | Gets an attribute from the context by key |
-| `getAttributes` | Gets all attributes from the context |
+| `getAttribute` | Gets an attribute from the current span by key, or searches the full parent chain when `inherited` is `true` |
+| `getAttributes` | Gets all attributes from the current span, or the merged attribute set from the full parent chain when `inherited` is `true` |
 | `getAttributeChain` | Gets all values of a given attribute from the current and parent contexts |
 | `getAttributeChains` | Get all attributes and their previous values |
 | `traceContextHeaders` | Gets the W3C Trace Context headers associated with the current invocation context |
@@ -497,7 +699,7 @@ and then use the `Span` class's methods:
 | `setAttributes` | Sets multiple attributes on the span |
 | `finish` | Ends the current span |
 
-If `finish` is not explicitly called on the span, it is going to be finished when the garbage collector deletes the span object.
+If `finish` is not explicitly called on the span, it is going to be finished when the runtime drops the span object.
 
 </Tabs.Tab>
 
@@ -511,15 +713,15 @@ To get the current invocation context, use the `current_context` host function, 
 fn current_context(): InvocationContext;
 ```
 
-The `InvocationContext` itself is a **class** with various methods for querying attributes of the invocation context:
+The `InvocationContext` resource exposes various methods for querying attributes of the invocation context:
 
 | method | description |
 | ------ | ----------- |
 | `trace_id` | Returns the trace ID associated with the context, coming from either an external trace header or generated at the edge of Golem |
 | `span_id` | Returns the span ID associated with the context |
 | `parent` | Returns the parent invocation context, if any |
-| `get_attribute` | Gets an attribute from the context by key |
-| `get_attributes` | Gets all attributes from the context |
+| `get_attribute` | Gets an attribute from the current span by key, or searches the full parent chain when `inherited` is `true` |
+| `get_attributes` | Gets all attributes from the current span, or the merged attribute set from the full parent chain when `inherited` is `true` |
 | `get_attribute_chain` | Gets all values of a given attribute from the current and parent contexts |
 | `get_attribute_chains` | Get all attributes and their previous values |
 | `trace_context_headers` | Gets the W3C Trace Context headers associated with the current invocation context |
@@ -542,7 +744,50 @@ and then use the `Span` class's methods:
 | `set_attributes` | Sets multiple attributes on the span |
 | `finish` | Ends the current span |
 
-If `finish` is not explicitly called on the span, it is going to be finished when the garbage collector deletes the span object.
+If `finish` is not explicitly called on the span, it is going to be finished when the `Span` value is dropped.
+
+</Tabs.Tab>
+
+    <Tabs.Tab>
+To get the current invocation context, use the `currentContext` host function, imported from `golem.host.ContextApi`:
+
+```scala
+import golem.host.ContextApi
+
+def currentContext(): ContextApi.InvocationContext
+```
+
+The `InvocationContext` itself is a **class** with various methods for querying attributes of the invocation context:
+
+| method | description |
+| ------ | ----------- |
+| `traceId` | Returns the trace ID associated with the context, coming from either an external trace header or generated at the edge of Golem |
+| `spanId` | Returns the span ID associated with the context |
+| `parent` | Returns the parent invocation context, if any |
+| `getAttribute` | Gets an attribute from the current span by key, or searches the full parent chain when `inherited` is `true` |
+| `getAttributes` | Gets all attributes from the current span, or the merged attribute set from the full parent chain when `inherited` is `true` |
+| `getAttributeChain` | Gets all values of a given attribute from the current and parent contexts |
+| `getAttributeChains` | Get all attributes and their previous values |
+| `traceContextHeaders` | Gets the W3C Trace Context headers associated with the current invocation context |
+
+Custom attributes can only be set on **custom spans**. First start a new span using `startSpan`
+
+```scala
+import golem.host.ContextApi
+
+def startSpan(name: String): ContextApi.Span
+```
+
+and then use the `Span` class's methods:
+
+| method | description |
+| ------ | ----------- |
+| `startedAt` | Returns the timestamp when the span was started |
+| `setAttribute` | Sets an attribute on the span |
+| `setAttributes` | Sets multiple attributes on the span |
+| `finish` | Ends the current span |
+
+If `finish` is not explicitly called on the span, it is going to be finished when the runtime drops the span object.
 
 </Tabs.Tab>
 
@@ -556,7 +801,7 @@ Although Golem agents can store their state completely in their own memory, it i
 
 This can be useful if state needs to be shared between different agents or if the size of this state is too large to be stored in memory. The keys are accessible for every agent of an _application_ - no matter which component they are defined in, or which agent type they belong to.
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
     <Tabs.Tab>
         There are two primary modules for using the key-value store:
         - `wasi:keyvalue/eventual@0.1.0` defines an API for an eventually consistent key-value store
@@ -652,7 +897,7 @@ This can be useful if state needs to be shared between different agents or if th
         a `Uint8Array`.
     </Tabs.Tab>
 
-       <Tabs.Tab>
+    <Tabs.Tab>
             There are two primary modules for using the key-value store:
             - `golem_rust::bindings::wasi::keyvalue::eventual` defines an API for an eventually consistent key-value store
             - `golem_rust::bindings::wasi::keyvalue::eventual_batch` defines an API with batch operations working on multiple keys
@@ -668,7 +913,7 @@ This can be useful if state needs to be shared between different agents or if th
             * If any other error occurs, it returns an `Err(error)`.
             * @throws Error
             */
-            pub fn get(bucket: &Bucket, key: &str) -> Result<Option<IncomingValue>, Error>
+            pub fn get(bucket: &Bucket, key: &str) -> Result<Option<IncomingValue>, Error>;
             /**
             * Set the value associated with the key in the bucket. If the key already
             * exists in the bucket, it overwrites the value.
@@ -676,14 +921,14 @@ This can be useful if state needs to be shared between different agents or if th
             * If any other error occurs, it returns an `Err(error)`.
             * @throws Error
             */
-            pub fn set(bucket: &Bucket, key: &str, outgoing_value: &OutgoingValue) -> Result<(), Error>
+            pub fn set(bucket: &Bucket, key: &str, outgoing_value: &OutgoingValue) -> Result<(), Error>;
             /**
             * Delete the key-value pair associated with the key in the bucket.
             * If the key does not exist in the bucket, it does nothing.
             * If any other error occurs, it returns an `Err(error)`.
             * @throws Error
             */
-            pub fn delete(bucket: &Bucket, key: &str) -> Result<(), Error>
+            pub fn delete(bucket: &Bucket, key: &str) -> Result<(), Error>;
             /**
             * Check if the key exists in the bucket.
             * If the key exists in the bucket, it returns `Ok(true)`. If the key does
@@ -691,12 +936,12 @@ This can be useful if state needs to be shared between different agents or if th
             * If any other error occurs, it returns an `Err(error)`.
             * @throws Error
             */
-            pub fn exists(bucket: &Bucket, key: &str) -> Result<bool, Error>
+            pub fn exists(bucket: &Bucket, key: &str) -> Result<bool, Error>;
             ```
 
             The batch API defines similar functions such as `get_many` and `set_many`, but working on multiple keys at once.
 
-            The `IncomingValue` is  basically a handle to a WASI resource that contains the value.
+            The `IncomingValue` is basically a handle to a WASI resource that contains the value.
             To actually extract the bytes, it defines two consume methods.
 
             The `OutgoingValue` is a handle to a WASI resource that can be used to write the value.
@@ -706,19 +951,19 @@ This can be useful if state needs to be shared between different agents or if th
 
             ```rust
             impl OutgoingValue {
-                pub fn new_outgoing_value() -> OutgoingValue {
+                pub fn new_outgoing_value() -> OutgoingValue;
                 /**
                  * Writes the value to the output-stream asynchronously.
                  * If any other error occurs, it returns an `Err(error)`.
                  * @throws Error
                  */
-                pub fn outgoing_value_write_body_async(&self) -> Result<OutgoingValueBodyAsync, Error>
+                pub fn outgoing_value_write_body_async(&self) -> Result<OutgoingValueBodyAsync, Error>;
                 /**
                  * Writes the value to the output-stream synchronously.
                  * If any other error occurs, it returns an `Err(error)`.
                  * @throws Error
                  */
-                pub fn outgoing_value_write_body_sync(&self, value: &[u8]) -> Result<(), Error>
+                pub fn outgoing_value_write_body_sync(&self, value: &[u8]) -> Result<(), Error>;
             }
 
 
@@ -728,19 +973,19 @@ This can be useful if state needs to be shared between different agents or if th
                  * If any other error occurs, it returns an `Err(error)`.
                  * @throws Error
                  */
-                pub fn incoming_value_consume_sync(&self) -> Result<IncomingValueSyncBody, Error>
+                pub fn incoming_value_consume_sync(&self) -> Result<IncomingValueSyncBody, Error>;
                 /**
                  * Consumes the value asynchronously and returns the value as an `input-stream`.
                  * If any other error occurs, it returns an `Err(error)`.
                  * @throws Error
                  */
-                pub fn incoming_value_consume_async(&self) -> Result<IncomingValueAsyncBody, Error>
+                pub fn incoming_value_consume_async(&self) -> Result<IncomingValueAsyncBody, Error>;
                 /**
                  * The size of the value in bytes.
                  * If the size is unknown or unavailable, this function returns an `Err(error)`.
                  * @throws Error
                  */
-                pub fn size(&self) -> u64
+                pub fn incoming_value_size(&self) -> Result<u64, Error>;
             }
 
             pub type OutgoingValueBodyAsync = OutputStream;
@@ -752,14 +997,78 @@ This can be useful if state needs to be shared between different agents or if th
             The streaming variants of setting and consuming the values may be used by the underlying implementation to directly
             stream the data to the key-value store. For small values, the sync variants are more convenient, directly taking and returning
             a `Vec<u8>`.
-        </Tabs.Tab>
+    </Tabs.Tab>
+
+    <Tabs.Tab>
+        The Scala SDK exposes the underlying `wasi:keyvalue/eventual@0.1.0`, `wasi:keyvalue/eventual-batch@0.1.0`, and `wasi:keyvalue/types@0.1.0` modules through the `golem.wasi.KeyValue` wrapper.
+
+        The primary interface to work with key-value pairs is the `Bucket` class:
+
+        ```scala
+        import golem.wasi.KeyValue
+
+        object KeyValue {
+          object Bucket {
+            def open(name: String): Bucket
+          }
+
+          final class Bucket {
+            def get(key: String): Option[Array[Byte]]
+            def set(key: String, value: Array[Byte]): Unit
+            def delete(key: String): Unit
+            def exists(key: String): Boolean
+          }
+        }
+        ```
+
+        The batch API is exposed on the same `Bucket` type through methods such as `keys`, `getMany`, and `deleteMany`:
+
+        ```scala
+        import golem.wasi.KeyValue
+
+        object KeyValue {
+          final class Bucket {
+            def keys(): List[String]
+            def getMany(keys: List[String]): List[Option[Array[Byte]]]
+            def deleteMany(keys: List[String]): Unit
+          }
+        }
+        ```
+
+        The Scala SDK also exposes low-level value wrappers when working closer to the raw WASI API:
+
+        ```scala
+        import golem.wasi.KeyValue
+
+        object KeyValue {
+          final class OutgoingValue {
+            def writeSync(data: Array[Byte]): Unit
+          }
+
+          object OutgoingValue {
+            def create(): OutgoingValue
+          }
+
+          final class IncomingValue {
+            def consumeSync(): Array[Byte]
+            def size(): Long
+          }
+
+          def eventualRaw: Any
+          def eventualBatchRaw: Any
+          def typesRaw: Any
+        }
+        ```
+
+        For most use cases, the synchronous `Array[Byte]` helpers are the most convenient way to work with key-value data from Scala.
+    </Tabs.Tab>
 </Tabs>
 
 ### The WASI Blob Store interface
 
 The `wasi:blobstore` interface provides a way to store and retrieve large binary data. This can be useful for storing large files or other binary data that is too large to be stored in the agent's memory. The blobs are accessible for every agent of an _application_ - no matter which component they are defined in, or which agent type they belong to.
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
     <Tabs.Tab>
         The Blob Store API organizes blobs identified by _object names_ into **containers**. The `wasi:blobstore/blobstore` module exports functions to create, get and delete these containers by name:
 
@@ -865,7 +1174,7 @@ The `wasi:blobstore` interface provides a way to store and retrieve large binary
         }
         ```
 
-        The `IncomingValue` and `OutgoingValue` classes are, similar to the **key-value store interface**, providing two ways to work with the blobs: synchronously using `UInt8Array`s or using the `InputStream` and `OutputStream` interfaces for saving/loading the data by chunks.
+        `IncomingValue` can consume blob data either synchronously as a `Uint8Array` or asynchronously as an `InputStream`. To write blob data, create an `OutgoingValue` and obtain its `OutputStream` via `outgoingValueWriteBody()`.
     </Tabs.Tab>
 
     <Tabs.Tab>
@@ -902,7 +1211,7 @@ The `wasi:blobstore` interface provides a way to store and retrieve large binary
            pub fn move_object(src: &ObjectId, dest: &ObjectId) -> Result<(), Error>
         ```
 
-        A `Container` in  is a class providing read-write access for the blobs in it:
+        A `Container` in the Rust bindings provides read-write access for the blobs in it:
 
         ```rust
         impl Container {
@@ -953,6 +1262,48 @@ The `wasi:blobstore` interface provides a way to store and retrieve large binary
         }
         ```
 
-        The `IncomingValue` and `OutgoingValue` classes are, similar to the **key-value store interface**, providing two ways to work with the blobs: synchronously using `UInt8Array`s or using the `InputStream` and `OutputStream` interfaces for saving/loading the data by chunks.
+        `IncomingValue` can be consumed either synchronously as a `Vec<u8>` or asynchronously as an `InputStream`. To write blob data, create an `OutgoingValue` and obtain its `OutputStream` via `outgoing_value_write_body()`.
+    </Tabs.Tab>
+
+    <Tabs.Tab>
+        The Scala SDK exposes the underlying `wasi:blobstore` modules through the `golem.wasi.Blobstore` wrapper:
+
+        ```scala
+        import golem.wasi.Blobstore
+
+        object Blobstore {
+          final case class ObjectId(container: String, name: String)
+
+          def createContainer(name: String): Container
+          def getContainer(name: String): Container
+          def deleteContainer(name: String): Unit
+          def containerExists(name: String): Boolean
+          def copyObject(src: ObjectId, dest: ObjectId): Unit
+          def moveObject(src: ObjectId, dest: ObjectId): Unit
+        }
+        ```
+
+        A `Container` provides read-write access for the blobs in it:
+
+        ```scala
+        import golem.wasi.Blobstore
+
+        object Blobstore {
+          final class Container {
+            def name(): String
+            def info(): ContainerMetadata
+            def getData(objectName: String, start: Long, end: Long): Array[Byte]
+            def writeData(objectName: String, data: Array[Byte]): Unit
+            def listObjects(): List[String]
+            def deleteObject(name: String): Unit
+            def deleteObjects(names: List[String]): Unit
+            def hasObject(name: String): Boolean
+            def objectInfo(name: String): ObjectMetadata
+            def clear(): Unit
+          }
+        }
+        ```
+
+        The Scala wrapper uses synchronous `Array[Byte]` helpers for reading and writing blob data. If you need direct access to the underlying WASI modules, the SDK also exposes `blobstoreRaw`, `containerRaw`, and `typesRaw`.
     </Tabs.Tab>
 </Tabs>

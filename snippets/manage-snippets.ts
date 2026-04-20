@@ -406,7 +406,9 @@ async function cmdStatus(): Promise<void> {
   }
 
   console.log("\nBy file:")
-  for (const [file, counts] of [...byFile.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
+  for (const [file, counts] of Array.from(byFile.entries()).sort((a, b) =>
+    a[0].localeCompare(b[0])
+  )) {
     const parts = []
     if (counts.pending > 0) parts.push(`${counts.pending} pending`)
     if (counts.completed > 0) parts.push(`${counts.completed} done`)

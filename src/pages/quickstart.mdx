@@ -75,18 +75,12 @@ The `golem` command line interface provides a set of commands to create, build, 
 
 To get started, you create an application and a single component using one of the supported programming languages with the `golem new` command. If no additional parameters are provided, the command will interactively ask for all required information.
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
   <Tabs.Tab>
   Create a TypeScript agent using the default template:
 
   ```shell copy
-  golem new
-
-  > Application name: agent-examples
-  > Select language for the new component TypeScript
-  > Select a template for the new component: default: The default agent template for TypeScript
-  > Component Package Name: example:counter
-  > Create application or Add another component? Create application
+  golem new --template ts --component-name example:counter --yes agent-examples
   ```
 
   Note: For TypeScript, you need to have `npm` installed on your system.
@@ -96,14 +90,18 @@ To get started, you create an application and a single component using one of th
     Create a Rust agent using the default template:
 
     ```shell copy
-    golem new
-
-    > Application name: agent-examples
-    > Select language for the new component Rust
-    > Select a template for the new component: default: The default agent template for Rust
-    > Component Package Name: example:counter
-    > Create application or Add another component? Create application
+    golem new --template rust --component-name example:counter --yes agent-examples
     ```
+    </Tabs.Tab>
+
+    <Tabs.Tab>
+    Create a Scala agent using the default template:
+
+    ```shell copy
+    golem new --template scala --component-name example:counter --yes agent-examples
+    ```
+
+    Note: For Scala, you need Java 17 or newer and `sbt` installed on your system.
     </Tabs.Tab>
 </Tabs>
 
@@ -119,9 +117,9 @@ This compiles the newly created application, which consists of a _single Golem c
 
 ### Write the code
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
   <Tabs.Tab>
-The default template's source code is located in the `components-ts/example-counter/src/main.ts` file, assuming that the `example:counter` name has been used in the `app new` command. The directory structure allows applications to have multiple components, even implemented in multiple programming languages if needed.
+The default template's source code is located in the `src/counter-agent.ts` file, assuming that the `example:counter` name has been used in the `golem new` command. The directory structure allows applications to have multiple components, even implemented in multiple programming languages if needed.
 
 Let's use the following code snippet for this example:
 
@@ -139,7 +137,7 @@ class CounterAgent extends BaseAgent {
     private value: number = 0;
 
     constructor(name: string) {
-        super()
+        super();
         this.name = name;
     }
 
@@ -155,15 +153,17 @@ class CounterAgent extends BaseAgent {
   </Tabs.Tab>
 
  <Tabs.Tab>
-  The default template's source code is located in the `components-rust/example-counter/src/lib.rs` file, assuming that the `example:counter` name has been used in the `app new` command.
+  The default template's source code is located in the `src/counter_agent.rs` file, assuming that the `example:counter` name has been used in the `golem new` command.
 
   Let's use the following code snippet for this example:
 
   ```rust
-use golem_rust::{agent_definition, agent_implementation, prompt, description};
+use golem_rust::{
+    agent_definition, agent_implementation, description, prompt, agentic::BaseAgent,
+};
 
 #[agent_definition]
-pub trait CounterAgent {
+pub trait CounterAgent: BaseAgent {
     fn new(name: String) -> Self;
 
     #[prompt("Increase the count by one")]
@@ -179,8 +179,12 @@ struct CounterImpl {
 #[agent_implementation]
 impl CounterAgent for CounterImpl {
     fn new(name: String) -> Self {
-        CounterImpl {_name: name, count: 0 }
+        Self {
+            _name: name,
+            count: 0,
+        }
     }
+
     fn increment(&mut self) -> u32 {
         self.count += 1;
         self.count
@@ -188,6 +192,56 @@ impl CounterAgent for CounterImpl {
 }
 
  ```
+
+    </Tabs.Tab>
+
+  <Tabs.Tab>
+  The default template's source code is located in the `src/main/scala/example_counter/CounterAgent.scala` and `src/main/scala/example_counter/CounterAgentImpl.scala` files, assuming that the `example:counter` name has been used in the `golem new` command.
+
+  Let's use the following code snippets for this example:
+
+  `CounterAgent.scala`
+
+  ```scala
+package example_counter
+
+import golem.runtime.annotations.{agentDefinition, description, prompt}
+import golem.BaseAgent
+
+import scala.concurrent.Future
+
+@agentDefinition()
+trait CounterAgent extends BaseAgent {
+
+  class Id(val name: String)
+
+  @prompt("Increase the count by one")
+  @description("Increases the count by one and returns the new value")
+  def increment(): Future[Int]
+}
+  ```
+
+  `CounterAgentImpl.scala`
+
+  ```scala
+package example_counter
+
+import golem.runtime.annotations.agentImplementation
+
+import scala.annotation.unused
+import scala.concurrent.Future
+
+@agentImplementation()
+final class CounterAgentImpl(@unused private val name: String) extends CounterAgent {
+  private var count: Int = 0
+
+  override def increment(): Future[Int] =
+    Future.successful {
+      count += 1
+      count
+    }
+}
+  ```
 
     </Tabs.Tab>
 </Tabs>

@@ -13,9 +13,9 @@ The **automatic update** mode works as it is described in the general [Agents](/
 It is also possible to manually implement a pair of functions for saving and loading an agent's state into an arbitrary byte array. This is useful when making significant changes to the implementation of an agent, such that the automatic replay based update mechanism is no longer working. Future versions of Golem may also use the same snapshotting functions for optimizing recovery time of agents.
 
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
     <Tabs.Tab>
-        In TypeScript, all agents are inheriting the `BaseAgent` class. There are two methods in `BaseAgent` that can
+        In TypeScript, all agents inherit the `BaseAgent` class. There are two methods in `BaseAgent` that can
         be overridden to implement snapshot saving and loading for an agent.
 
         The following example implements these methods for the simple counter example used [on the Quickstart page](/quickstart):
@@ -33,15 +33,15 @@ It is also possible to manually implement a pair of functions for saving and loa
             }
         ```
     </Tabs.Tab>
-   <Tabs.Tab>
-        In Rust, all agent traits (i.e, annotated with `#[agent_definition]` macros) will be generated with two extra methods along with the methods defined in the trait. These methods are `save_snapshot` and `load_snapshot`.
+    <Tabs.Tab>
+        In Rust, all agent traits (i.e., annotated with the `#[agent_definition]` macro) are generated with two extra methods along with the methods defined in the trait. These methods are `save_snapshot` and `load_snapshot`.
         These methods can be overridden to implement snapshot saving and loading for an agent.
 
         The following example implements these methods for the simple counter example used [on the Quickstart page](/quickstart):
         ```rust
         impl CounterAgent for CounterImpl {
             // ...
-        
+
             async fn load_snapshot(&mut self, bytes: Vec<u8>) -> Result<(), String> {
                 let arr: [u8; 4] = bytes
                     .try_into()
@@ -49,9 +49,44 @@ It is also possible to manually implement a pair of functions for saving and loa
                 self.count = u32::from_be_bytes(arr);
                 Ok(())
             }
-        
+
             async fn save_snapshot(&self) -> Result<Vec<u8>, String> {
                 Ok(self.count.to_be_bytes().to_vec())
+            }
+        }
+        ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+        In Scala, custom snapshot saving and loading can be implemented on the agent implementation class by defining `saveSnapshot` and `loadSnapshot` methods.
+
+        The following example implements these methods for the simple counter example used [on the Quickstart page](/quickstart):
+        ```scala
+        @agentImplementation()
+        final class CounterAgentImpl(@unused private val name: String) extends CounterAgent {
+          private var count: Int = 0
+
+          def saveSnapshot(): Future[Array[Byte]] =
+            Future.successful {
+              Array(
+                ((count >>> 24) & 0xff).toByte,
+                ((count >>> 16) & 0xff).toByte,
+                ((count >>> 8) & 0xff).toByte,
+                (count & 0xff).toByte
+              )
+            }
+
+          def loadSnapshot(bytes: Array[Byte]): Future[Unit] =
+            Future.successful {
+              count = ((bytes(0) & 0xff) << 24) |
+                ((bytes(1) & 0xff) << 16) |
+                ((bytes(2) & 0xff) << 8) |
+                (bytes(3) & 0xff)
+            }
+
+          override def increment(): Future[Int] =
+            Future.successful {
+              count += 1
+              count
             }
         }
         ```

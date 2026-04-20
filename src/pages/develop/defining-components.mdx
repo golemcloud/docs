@@ -6,21 +6,30 @@ import { Callout, Tabs } from "nextra/components"
 
 Golem's **command line interface** provides a set of predefined, Golem-specific **templates** to choose from as a starting point.
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
     <Tabs.Tab>
-To get started from scratch, first create a new application using the `TS` template:
+To get started from scratch, first create a new application using the TypeScript template:
 
 ```shell copy
-golem new my-app ts
+golem new --template ts --yes my-app
 cd my-app
 ```
     </Tabs.Tab>
 
     <Tabs.Tab>
-To get started from scratch, first create a new application using the `TS` template:
+To get started from scratch, first create a new application using the Rust template:
 
 ```shell copy
-golem new my-app rust
+golem new --template rust --yes my-app
+cd my-app
+```
+    </Tabs.Tab>
+
+    <Tabs.Tab>
+To get started from scratch, first create a new application using the Scala template:
+
+```shell copy
+golem new --template scala --yes my-app
 cd my-app
 ```
     </Tabs.Tab>
@@ -30,21 +39,27 @@ cd my-app
 An application can consist of multiple components. Add a new component by choosing from one of the available templates. To see the list of available templates, run:
 
 ```shell copy
-golem component new
+golem templates
 ```
 
 Then create a new component using the chosen template:
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
     <Tabs.Tab>
 ```shell copy
-golem component new ts my:component
+golem new . --template ts --component-name my:component --yes
 ```
     </Tabs.Tab>
 
     <Tabs.Tab>
 ```shell copy
-golem component new rust my:component
+golem new . --template rust --component-name my:component --yes
+```
+    </Tabs.Tab>
+
+    <Tabs.Tab>
+```shell copy
+golem new . --template scala --component-name my:component --yes
 ```
     </Tabs.Tab>
 </Tabs>
@@ -53,19 +68,14 @@ golem component new rust my:component
 
 Defining Golem agents is done using the Golem SDK, which is included in all the templates provided by `golem`.
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
     <Tabs.Tab>
-An agent is a TypeScript class that extends `BaseAgent` and has the `@agent` decorator:
+An agent is a TypeScript class that extends `BaseAgent` and has the `@agent()` decorator:
 
 ```typescript
-import {
-    BaseAgent,
-    agent,
-    description,
-    prompt
-} from '@golemcloud/golem-ts-sdk';
+import { BaseAgent, agent } from '@golemcloud/golem-ts-sdk';
 
-@agent
+@agent()
 class MyAgent extends BaseAgent {
     // ...
 }
@@ -78,21 +88,43 @@ An agent is defined by a **trait** annotated as `#[agent_definition]` and a `str
 use golem_rust::{agent_definition, agent_implementation};
 
 #[agent_definition]
-pub trait CounterAgent {
-  // ...
-}
-
-struct CounterAgentImpl {
+pub trait MyAgent {
+    fn new() -> Self;
     // ...
 }
 
+struct MyAgentImpl;
+
 #[agent_implementation]
-impl CounterAgent for CounterAgentImpl {
+impl MyAgent for MyAgentImpl {
+    fn new() -> Self {
+        Self
+    }
+
     // ...
 }
 
 ```
 
+    </Tabs.Tab>
+    <Tabs.Tab>
+An agent is defined by a **trait** extending `BaseAgent`, annotated as `@agentDefinition()`, and an implementation class annotated as `@agentImplementation()`:
+
+```scala
+import golem.runtime.annotations.{agentDefinition, agentImplementation}
+import golem.BaseAgent
+
+@agentDefinition()
+trait MyAgent extends BaseAgent {
+  class Id()
+  // ...
+}
+
+@agentImplementation()
+final class MyAgentImpl() extends MyAgent {
+  // ...
+}
+```
     </Tabs.Tab>
 
 </Tabs>
@@ -104,7 +136,7 @@ Every agent must define a **constructor** with an arbitrary number of parameters
 
 For example, an agent working on a particular user's particular request could be defined as:
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
     <Tabs.Tab>
 ```typescript
 @agent()
@@ -123,8 +155,16 @@ class RequestHandler extends BaseAgent {
     <Tabs.Tab>
 ```rust
 #[agent_definition]
-trait RequestHandler {
-    pub fn new(userId: String, requestId: String) -> Self;
+pub trait RequestHandler {
+    fn new(user_id: String, request_id: String) -> Self;
+}
+```
+    </Tabs.Tab>
+    <Tabs.Tab>
+```scala
+@agentDefinition()
+trait RequestHandler extends BaseAgent {
+  class Id(val userId: String, val requestId: String)
 }
 ```
     </Tabs.Tab>
@@ -148,11 +188,14 @@ This metadata is stored in the Golem component and can be used when exposing the
 
 The following example shows the use of how to attach these metadata to simple agent methods in different languages
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
     <Tabs.Tab>
 ```typescript
-type TaskDetails = // ...;
-type RequestHandlerStatus = // ...;
+type TaskDetails = { description: string; priority: number };
+type RequestHandlerStatus = {
+    status: 'success' | 'failure';
+    summary: string;
+};
 
 @agent()
 class RequestHandler extends BaseAgent {
@@ -160,9 +203,9 @@ class RequestHandler extends BaseAgent {
 
     @prompt("Enter new details about the task")
     @description("Adds some more details to the request handler about the task being performed. The result is an update of the current status.")
-   async addDetails(details: TaskDetails): Promise<RequestHandlerStatus> {
-       // ...
-   }
+    async addDetails(details: TaskDetails): Promise<RequestHandlerStatus> {
+        // ...
+    }
 }
 ```
     </Tabs.Tab>
@@ -194,6 +237,28 @@ pub trait RequestHandler {
 ```
     </Tabs.Tab>
 
+    <Tabs.Tab>
+```scala
+import golem.runtime.annotations.{agentDefinition, description, prompt}
+import golem.BaseAgent
+import zio.blocks.schema.Schema
+
+import scala.concurrent.Future
+
+final case class TaskDetails(description: String, priority: Int) derives Schema
+final case class RequestHandlerStatus(summary: String, successful: Boolean) derives Schema
+
+@agentDefinition()
+trait RequestHandler extends BaseAgent {
+  class Id(val name: String)
+
+  @prompt("Enter new details about the task")
+  @description("Adds some more details to the request handler about the task being performed. The result is an update of the current status.")
+  def addDetails(details: TaskDetails): Future[RequestHandlerStatus]
+}
+```
+    </Tabs.Tab>
+
 </Tabs>
 
 Agent methods can be both sync or async.
@@ -201,15 +266,19 @@ Agent methods can be both sync or async.
 ### Supported data types
 The SDK supports a large variety of data types to be used in agent constructors and agent methods, both in parameter and return type position. When a type is not supported, it will report an error at compile time.
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
     <Tabs.Tab>
-    In TypeScript most user-defined data type will work as expected. See the [page about data type mapping](/type-mapping) for more details.
+    In TypeScript, most serializable user-defined types work as expected. Prefer named type aliases or interfaces for parameters and return types, and use string literal unions instead of TypeScript enums. See the [page about data type mapping](/type-mapping) for more details.
     </Tabs.Tab>
 
     <Tabs.Tab>
-    In Rust any data type that implements the `golem_rust::Schema` trait can be used as parameters and return types of agent metods and constructors. For user-defined types, use `#[derive(Schema)]` to derive the implementation automatically. See the [page about data type mapping](/type-mapping) for more details about the supported built-in types.
+    In Rust, any data type that implements the `golem_rust::Schema` trait can be used as a constructor parameter or as a parameter or return type of an agent method. For user-defined types, `#[derive(Schema)]` is usually enough to derive the implementation automatically. See the [page about data type mapping](/type-mapping) for more details about the supported built-in types.
 
     Note that parameters must be passed by value to agent methods, not as references (`Schema` is not implemented for `&T`).
+    </Tabs.Tab>
+
+    <Tabs.Tab>
+    In Scala, custom types used in constructors, method parameters, and return types need an implicit `zio.blocks.schema.Schema`. In Scala 3, this is usually done with `derives Schema` or `given Schema[T] = Schema.derived`; in Scala 2, use an `implicit val schema: Schema[T] = Schema.derived`. See the [page about data type mapping](/type-mapping) for more details.
     </Tabs.Tab>
 </Tabs>
 
@@ -217,20 +286,24 @@ Check the [page about data type mapping](/type-mapping) to learn how each type i
 
 ### Library support
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
     <Tabs.Tab>
-    See the [JS APIs](/js-apis) page for a detailed overview of all the supported Browser and Node.js APIs. Any 3rd party library can be installed using `npm` and used in the agent code, if it only uses the supported APIs.
+    See the [JS APIs](/js-apis) page for a detailed overview of all the supported Web Platform and Node.js APIs. Most 3rd party libraries can be installed using `npm` and used in the agent code, as long as they only rely on the supported APIs and do not require native addons.
     </Tabs.Tab>
 
     <Tabs.Tab>
-    Any Rust crate can be added as a dependency if it supports to be compiled to the `wasm32-wasip1` target.
+    Any Rust crate can be added as a dependency if it supports compiling to the `wasm32-wasip2` target.
+    </Tabs.Tab>
+
+    <Tabs.Tab>
+    Any Scala.js-compatible library can be added as a dependency. Use the `%%%` operator in `build.sbt` so sbt resolves the Scala.js variant of the library; JVM-only libraries will not work.
     </Tabs.Tab>
 </Tabs>
 
 ### Agent mode - durable or ephemeral
 By default every agent is **durable**. To define an **ephemeral agent**, override the agent mode in the agent definition:
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
     <Tabs.Tab>
     ```typescript
     @agent({ mode: 'ephemeral' })
@@ -244,8 +317,19 @@ By default every agent is **durable**. To define an **ephemeral agent**, overrid
     ```rust
     #[agent_definition(ephemeral)]
     trait EphemeralAgent {
+      fn new() -> Self;
       // ...
     }  
+    ```
+    </Tabs.Tab>
+
+    <Tabs.Tab>
+    ```scala
+    @agentDefinition(mode = DurabilityMode.Ephemeral)
+    trait EphemeralAgent extends BaseAgent {
+      class Id()
+      // ...
+    }
     ```
     </Tabs.Tab>
 </Tabs>
@@ -262,7 +346,7 @@ In general Golem supports three different ways of doing this:
 
 ### Command line arguments and environment variables
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
 <Tabs.Tab>
 Command line arguments and environment variables are accessible through the `node:process` module:
 
@@ -277,6 +361,17 @@ Command line arguments and environment variables are accessible through the `std
 ```rust
 use std::env;
 let agent_id = env::var("GOLEM_AGENT_ID").unwrap();
+```
+</Tabs.Tab>
+
+
+<Tabs.Tab>
+Environment variables are accessible through `golem.wasi.Environment` in Scala:
+```scala
+import golem.wasi.Environment
+
+val env = Environment.getEnvironment()
+val agentId = env("GOLEM_AGENT_ID")
 ```
 </Tabs.Tab>
 

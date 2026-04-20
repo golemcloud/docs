@@ -10,53 +10,71 @@ When a promise is completed, an arbitrary byte array can be attached to it as a 
 
 ### Creating a promise
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
     <Tabs.Tab>
         To create a promise simply call the `createPromise` function:
 
         ```typescript
         import {createPromise, PromiseId} from "@golemcloud/golem-ts-sdk"
 
-        const promiseId: PromiseId = createPromise()
+        function createPromiseId(): PromiseId {
+            const promiseId: PromiseId = createPromise()
+            return promiseId
+        }
         ```
     </Tabs.Tab>
    <Tabs.Tab>
         To create a promise simply call the `create_promise` function:
 
         ```rust
-        use golem_rust::bindings::golem::api::host::create_promise;
+        use golem_rust::{create_promise, PromiseId};
 
-        let promise_id: PromiseId = create_promise()
+        fn create_promise_id() -> PromiseId {
+            let promise_id: PromiseId = create_promise();
+            promise_id
+        }
+        ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+        To create a promise simply call `HostApi.createPromise`:
+
+        ```scala
+        import golem.HostApi
+
+        def createPromiseId(): HostApi.PromiseId = {
+          val promiseId: HostApi.PromiseId = HostApi.createPromise()
+          promiseId
+        }
         ```
     </Tabs.Tab>
 </Tabs>
 
 The returned value has the type `PromiseId`, and defined as the following (including the nested types):
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
     <Tabs.Tab>
         ```typescript
         export type OplogIndex = bigint
 
-        export interface Uuid {
+        export type Uuid = {
             highBits: bigint
             lowBits: bigint
         }
 
-        // Represents a Component
-        export interface ComponentId {
+        // Represents a Golem component
+        export type ComponentId = {
             uuid: Uuid
         }
 
-        // Represents an agent
-        export interface AgentId {
+        // Represents a Golem agent
+        export type AgentId = {
             componentId: ComponentId
             agentId: string
         }
 
         // A promise ID is a value that can be passed to an external Golem API to complete that promise
         // from an arbitrary external source, while Golem agents can await for this completion.
-        export interface PromiseId {
+        export type PromiseId = {
             agentId: AgentId
             oplogIdx: OplogIndex
         }
@@ -68,26 +86,61 @@ The returned value has the type `PromiseId`, and defined as the following (inclu
         pub type OplogIndex = u64;
 
         pub struct Uuid {
-            high_bits: u64
-            low_bits: u64
+            pub high_bits: u64,
+            pub low_bits: u64,
         }
 
-        // Represents a Component
+        // Represents a Golem component
         pub struct ComponentId {
-            uuid: Uuid
+            pub uuid: Uuid,
         }
 
-        // Represents an agent
+        // Represents a Golem agent
         pub struct AgentId {
-            component_id: ComponentId
-            agent_id: string
+            pub component_id: ComponentId,
+            pub agent_id: String,
         }
 
         // A promise ID is a value that can be passed to an external Golem API to complete that promise
         // from an arbitrary external source, while Golem agents can await for this completion.
         pub struct PromiseId {
-          pub agent_id: AgentId,
-          pub oplog_idx: OplogIndex,
+            pub agent_id: AgentId,
+            pub oplog_idx: OplogIndex,
+        }
+        ```
+    </Tabs.Tab>
+
+    <Tabs.Tab>
+        ```scala
+        import scala.scalajs.js
+
+        type OplogIndex = js.BigInt
+
+        @js.native
+        sealed trait Uuid extends js.Object {
+          def highBits: js.BigInt = js.native
+          def lowBits: js.BigInt = js.native
+        }
+
+        // Represents a Golem component
+        @js.native
+        sealed trait ComponentId extends js.Object {
+          def uuid: Uuid = js.native
+        }
+
+        // Represents a Golem agent
+        @js.native
+        sealed trait AgentId extends js.Object {
+          def componentId: ComponentId = js.native
+          def agentId: String = js.native
+        }
+
+        // A promise ID is a value that can be passed to an external Golem API to complete that promise
+        // from an arbitrary external source, while Golem agents can await for this completion.
+        @js.native
+        sealed trait PromiseId extends js.Object {
+          def agentId: AgentId = js.native
+          def oplogIdx: OplogIndex = js.native
         }
         ```
     </Tabs.Tab>
@@ -95,7 +148,7 @@ The returned value has the type `PromiseId`, and defined as the following (inclu
 
 ### Awaiting a promise
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
     <Tabs.Tab>
     To await a promise, use the async `awaitPromise` function, which returns the promise result as a byte array payload.
    Here's an example that awaits a promise, then decodes the payload from JSON format:
@@ -103,8 +156,14 @@ The returned value has the type `PromiseId`, and defined as the following (inclu
     ```typescript
     import { awaitPromise, PromiseId } from "@golemcloud/golem-ts-sdk"
 
-    const byteArrayPayload: Uint8Array = await awaitPromise(promiseId)
-    const payload = JSON.parse(new TextDecoder().decode(byteArrayPayload))
+    type MyPayload = {
+      id: string
+    }
+
+    async function waitForPayload(promiseId: PromiseId): Promise<MyPayload> {
+      const byteArrayPayload: Uint8Array = await awaitPromise(promiseId)
+      return JSON.parse(new TextDecoder().decode(byteArrayPayload)) as MyPayload
+    }
     ```
     </Tabs.Tab>
     <Tabs.Tab>
@@ -113,27 +172,41 @@ The returned value has the type `PromiseId`, and defined as the following (inclu
     format, while the non-JSON variants are returning the raw byte array.
 
     ```rust
-     use golem_rust::await_promise_json;
-     use serde::{Serialize, Deserialize}
+     use golem_rust::{await_promise_json, PromiseId};
+     use serde::Deserialize;
 
-     #[derive(Serialize, Deserialize)]
+     #[derive(Deserialize)]
      struct MyPayload {
        id: String,
      }
 
-     async fn wait_for_payload() -> Result<MyPayload, String> { 
-       let payload: MyPayload = await_promise_json(&promise_id).await?;
-       Ok(payload)
+     async fn wait_for_payload(promise_id: PromiseId) -> Result<MyPayload, serde_json::Error> {
+       await_promise_json(&promise_id).await
      }
      ```
      </Tabs.Tab>
+    <Tabs.Tab>
+    To await a promise, use `HostApi.awaitPromise` to get the raw byte payload, or `HostApi.awaitPromiseJson` to decode a JSON payload directly.
+
+    ```scala
+    import golem.HostApi
+    import zio.blocks.schema.Schema
+
+    import scala.concurrent.Future
+
+    final case class MyPayload(id: String) derives Schema
+
+    def waitForPayload(promiseId: HostApi.PromiseId): Future[MyPayload] =
+      HostApi.awaitPromiseJson[MyPayload](promiseId)
+    ```
+    </Tabs.Tab>
 </Tabs>
 
 Note that if an agent is only **awaiting** Golem promises (one or more), the agent gets suspended and is not going to consume any resources while waiting.
 
 ### Completing a promise from within an agent
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
     <Tabs.Tab>
     To complete a promise from within an agent, use the `completePromise` function.
     The following example completes a promise with a value encoded as JSON:
@@ -141,35 +214,54 @@ Note that if an agent is only **awaiting** Golem promises (one or more), the age
     ```typescript
     import { completePromise, PromiseId } from "@golemcloud/golem-ts-sdk"
 
-    const payload = {
-      id: "value",
-      meta: "data",
+    function completeFromAgent(promiseId: PromiseId): boolean {
+      const payload = {
+        id: "value",
+        meta: "data",
+      }
+      const byteArrayPayload: Uint8Array = new TextEncoder().encode(JSON.stringify(payload))
+      return completePromise(promiseId, byteArrayPayload)
     }
-    const byteArrayPayload: Uint8Array = new TextEncoder().encode(JSON.stringify(payload))
-    const success: boolean = completePromise(promiseId, byteArrayPayload)
     ```
     </Tabs.Tab>
-        <Tabs.Tab>
-        To complete a promise from within an agent, use the `complete_promise` (payload is a byte array) or the `complete_promise_json` function.
+    <Tabs.Tab>
+    To complete a promise from within an agent, use the `complete_promise` (payload is a byte array) or the `complete_promise_json` function.
 
-        ```rust
-        use golem_rust::{PromiseId, complete_promise_json};
-        use serde::Serialize;
+    ```rust
+    use golem_rust::{complete_promise_json, PromiseId};
+    use serde::Serialize;
 
-        #[derive(Serialize)]
-        struct Data {
-            id: String,
-            meta: String,
-        }
+    #[derive(Serialize)]
+    struct Data {
+        id: String,
+        meta: String,
+    }
 
+    fn complete_from_agent(promise_id: PromiseId) -> Result<bool, serde_json::Error> {
         let data = Data {
-          id: "value".to_string(),
-          meta: "data".to_string(),
+            id: "value".to_string(),
+            meta: "data".to_string(),
         };
 
-        let result: Result<bool, serde_json::error::Error> = complete_promise_json(&promise_id, data);
-        ```
-        </Tabs.Tab>
+        complete_promise_json(&promise_id, data)
+    }
+    ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+    To complete a promise from within an agent, use `HostApi.completePromise` for a raw byte payload, or `HostApi.completePromiseJson` for JSON.
+
+    ```scala
+    import golem.HostApi
+    import zio.blocks.schema.Schema
+
+    final case class Data(id: String, meta: String) derives Schema
+
+    def completeFromAgent(promiseId: HostApi.PromiseId): Boolean = {
+      val payload = Data(id = "value", meta = "data")
+      HostApi.completePromiseJson(promiseId, payload)
+    }
+    ```
+    </Tabs.Tab>
 </Tabs>
 
 ### Completing a promise from an external source

@@ -72,27 +72,35 @@ For both `file` and `stdout` logging, a set of boolean flags control the format 
 
 ## Golem agent logs
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
     <Tabs.Tab>
-    In TypeScript agents, use the standard functions of `console` to log messages. `console.log` writes to the agent's standard output,
-    while `console.debug`, `console.info`, etc. are writing log entries with the specific log level.
+    In TypeScript agents, use the standard `console` API to log messages. `console.log` writes to the agent's standard output,
+    `console.error` writes to standard error, while `console.debug`, `console.info`, `console.warn`, etc. write log entries with the corresponding log level.
     </Tabs.Tab>
     <Tabs.Tab>
-    In Rust agents, anything written to the agent's standard output and error channels for example with `println!` or `eprintln!` are logged.
+    In Rust agents, anything written to the agent's standard output and error channels, for example with `println!` or `eprintln!`, is logged.
     
-    In addition to that it is possible to use `log` method in  `golem_rust::bindings::wasi::logging::logging` module directly to write log entries with specific log levels:
+    In addition to that it is possible to use the `log` function in the `golem_rust::bindings::wasi::logging::logging` module directly to write log entries with specific log levels:
     ```rust
     use golem_rust::bindings::wasi::logging::logging;
 
     logging::log(logging::Level::Info, "my_context", "my_message");
     ```
     
-    The recommended way is to just use the `log` package, already initialized in the Rust agent templates:
+    The recommended way is to use the `log` crate, which is initialized automatically by the Rust agent runtime:
     
     ```rust
-    use log;
-
     log::info!("my_message");
+    ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+    In Scala agents, use the JavaScript `console` API through Scala.js to log messages. `js.Dynamic.global.console.log(...)` writes to the agent's standard output,
+    `js.Dynamic.global.console.error(...)` writes to standard error, while `js.Dynamic.global.console.debug(...)`, `js.Dynamic.global.console.info(...)`, etc. write log entries with the corresponding log level.
+
+    ```scala
+    import scala.scalajs.js
+
+    js.Dynamic.global.console.info("my_message")
     ```
     </Tabs.Tab>
 </Tabs>

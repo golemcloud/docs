@@ -2,7 +2,7 @@ import { Tabs } from "nextra/components"
 
 # HTTP requests
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
 <Tabs.Tab>
     HTTP requests can be made with the standard `fetch` function.
 
@@ -10,90 +10,142 @@ import { Tabs } from "nextra/components"
 
     ```typescript
     const response = await fetch(`http://localhost:${port}/todos`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            title: "foo",
-            body: "bar",
-            userId: 1
-        })
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title: "foo",
+        body: "bar",
+        userId: 1,
+      }),
+    });
+
     const data = await response.json();
-    console.log("Body: ", data);
-});
+    console.log("Body:", data);
     ```
 </Tabs.Tab>
 
 <Tabs.Tab>
-    HTTP requests can be made using `wstd` crate. Make sure to have the crate added to your `Cargo.toml`:
+    HTTP requests can be made using the `wstd` crate. Make sure to have the crate added to your `Cargo.toml`:
 
     ```toml
     [dependencies]
-    # note the version as of now has to be 0.5.4 since Golem SDK depends on this specific version
-    wstd = {version = "0.5.4", features = ["default", "json"] }
+    wstd = { version = "=0.6.5", features = ["default", "json"] }
     ```
 
     ```rust
-   use serde::Deserialize;
-   use serde::Serialize;
-   use wstd::http::{Body, Client, HeaderValue, IntoBody, Request};
-   use wstd::http::request::JsonRequest;
+    use serde::Serialize;
+    use wstd::http::{Body, Client, Request};
 
-   #[derive(Serialize, Deserialize)]
+    #[derive(Serialize)]
     struct ExampleRequest {
         title: String,
         body: String,
-        user_id: u16
+        user_id: u16,
     }
 
-    #[derive(Debug, Serialize, Deserialize)]
-    struct ExampleResponse {
-        message: Option<String>,
-    }
+    let request_body = ExampleRequest {
+        title: "foo".to_string(),
+        body: "bar".to_string(),
+        user_id: 1,
+    };
 
-    let port = std::env::var("PORT").unwrap_or("9999".to_string());
+    let request = Request::post(&format!("http://localhost:{port}/todos"))
+        .header("Content-Type", "application/json")
+        .body(Body::from_json(&request_body).expect("Failed to serialize request"))
+        .expect("Failed to build request");
 
-     let request = Request::post("https://postman-echo.com/post")
-        .header("X-Test", HeaderValue::from_str("Golem").unwrap())
-        .json(&my_payload).map_err(|err| err.to_string())?;
+    let mut response = Client::new()
+        .send(request)
+        .await
+        .expect("Request failed");
 
-    let port = std::env::var("PORT").unwrap_or("9999".to_string());
+    let data: serde_json::Value = response
+        .body_mut()
+        .json()
+        .await
+        .expect("Failed to parse response");
 
-    let mut response =
-       Client::new().send(request).await.map_err(|err| err.to_string())?.into_body();
-
-    let result: ExampleResponse =  response.json().unwrap();
-
-    println!("Received {:?}", result);
+    println!("Body: {:?}", data);
     ```
 
-    It's recommended to use `wstd`, however you can also `golem-wasi-http` to write http client.
+    It's recommended to use `wstd`, but you can also use `golem-wasi-http` for a more reqwest-like client.
     Make sure to have the crate added to your `Cargo.toml`:
 
     ```toml
     [dependencies]
-    golem-wasi-http = {version = "0.1", features = ["json"] }
+    golem-wasi-http = { version = "0.2.0", features = ["async", "json"] }
     ```
 
 
     ```rust
-    use golem_wasi_http::Client;
+    use golem_wasi_http::{Client, Response};
+    use serde::Serialize;
 
-    let response = Client::new()
+    #[derive(Serialize)]
+    struct ExampleRequest {
+        title: String,
+        body: String,
+        user_id: u16,
+    }
+
+    let request_body = ExampleRequest {
+        title: "foo".to_string(),
+        body: "bar".to_string(),
+        user_id: 1,
+    };
+
+    let client = Client::builder().build().expect("Failed to build client");
+
+    let response: Response = client
       .post(&format!("http://localhost:{port}/todos"))
       .header("X-Test", "Golem")
       .json(&request_body)
       .basic_auth("some", Some("body"))
       .send()
-      .unwrap();
+      .await
+      .expect("Request failed");
 
-    let result: ExampleResponse =  response.json().unwrap();
+    let data: serde_json::Value = response.json().await.expect("Failed to parse response");
 
-    println!("Received {:?}", result);
+    println!("Body: {:?}", data);
     ```
+</Tabs.Tab>
 
-    If you need the async client, add `async` into the list of features for `golem-wasi-http` in your `Cargo.toml`:
+<Tabs.Tab>
+    HTTP requests can be made with the standard `fetch` function through Scala.js interop.
+
+    For example:
+
+    ```scala
+    import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
+    import scala.scalajs.js
+    import scala.scalajs.js.Thenable.Implicits._
+
+    for {
+      response <- js.Dynamic.global
+        .fetch(
+          s"http://localhost:$port/todos",
+          js.Dynamic.literal(
+            method = "POST",
+            headers = js.Dynamic.literal(
+              "Content-Type" -> "application/json"
+            ),
+            body = js.JSON.stringify(
+              js.Dynamic.literal(
+                title = "foo",
+                body = "bar",
+                userId = 1
+              )
+            )
+          )
+        )
+        .asInstanceOf[js.Promise[js.Dynamic]]
+        .toFuture
+      data <- response.json().asInstanceOf[js.Promise[js.Dynamic]].toFuture
+    } yield println(s"Body: ${js.JSON.stringify(data)}")
+    ```
 
 </Tabs.Tab>
 </Tabs>

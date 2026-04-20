@@ -9,19 +9,21 @@ There is no way for an agent to access files outside its own filesystem.
 
 ## Accessing the filesystem
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
     <Tabs.Tab>
-    For TypeScript agents, a limited subset of the `node:fs` package is available to work with files.
+    For TypeScript agents, use [`node:fs`](https://nodejs.org/api/fs.html) or [`node:fs/promises`](https://nodejs.org/api/fs.html#promises-api) to work with files.
 
-    The available functions are:
-
-    - [`readFile`](https://nodejs.org/api/fs.html#fsreadfilepath-options-callback)
-    - [`readFileSync`](https://nodejs.org/api/fs.html#fsreadfilesyncpath-options)
-    - [`writeFile`](https://nodejs.org/api/fs.html#fswritefilefile-data-options-callback)
-    - [`writeFileSync`](https://nodejs.org/api/fs.html#fswritefilesyncfile-data-options)
+    In Golem 1.5, the QuickJS runtime provides a comprehensive filesystem API, so standard operations such as reading, writing, checking existence, creating directories, and listing directories are available.
     </Tabs.Tab>
     <Tabs.Tab>
-    For Rust agents, `std::fs` module can  be used to work with files
+    For Rust agents, use the standard [`std::fs`](https://doc.rust-lang.org/std/fs/index.html) module to work with files.
+
+    Golem Rust agents compile to WASI, so standard filesystem operations such as `read_to_string`, `read`, `write`, and `read_dir` work out of the box.
+    </Tabs.Tab>
+    <Tabs.Tab>
+    For Scala agents, use [`node:fs`](https://nodejs.org/api/fs.html) via Scala.js JavaScript interop.
+
+    Standard JVM file I/O APIs such as `java.io.File` and `java.nio.file.*` are not available in Scala.js. Define a small `@JSImport("node:fs", JSImport.Namespace)` facade and access it lazily at runtime.
     </Tabs.Tab>
 </Tabs>
 
@@ -75,37 +77,42 @@ and map that to a HTTP route in the API mapping.
 
 For example, we can define a `get-content` method like in the following example agent:
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript">
+<Tabs items={["TypeScript", "Rust", "Scala"]} storageKey="nextra-tabs-Rust|TypeScript">
     <Tabs.Tab>
     ```typescript
     import * as fs from 'node:fs';
     import { BaseAgent, agent } from '@golemcloud/golem-ts-sdk';
 
+    type Content = {
+      contentType: string;
+      data: Uint8Array;
+    };
+
     @agent()
     class FileServerAgent extends BaseAgent {
-      constructor(requestId: string) {
+      constructor(private readonly requestId: string) {
         super();
       }
 
-      getContent(filepath: string): { contentType: string, data: Uint8Array } {
+      getContent(filepath: string): Content {
         try {
-          const buffer = fs.readFileSync("/web/" + filepath);
+          const buffer = fs.readFileSync(`/web/${filepath}`);
 
-          let contentType = "application/octet-stream";
-          if (filepath.endsWith(".html")) {
-            contentType = "text/html";
-          } else if (filepath.endsWith(".js")) {
-            contentType = "application/javascript";
+          let contentType = 'application/octet-stream';
+          if (filepath.endsWith('.html')) {
+            contentType = 'text/html';
+          } else if (filepath.endsWith('.js')) {
+            contentType = 'application/javascript';
           }
 
           return {
-            contentType: contentType,
-            data: buffer
+            contentType,
+            data: buffer,
           };
         } catch (err) {
           return {
-            contentType: "text/plain",
-            data: new TextEncoder().encode(`Not found! (${ err })`)
+            contentType: 'text/plain',
+            data: new TextEncoder().encode(`Not found! (${err})`),
           };
         }
       }
@@ -115,58 +122,121 @@ For example, we can define a `get-content` method like in the following example 
 
     <Tabs.Tab>
     ```rust
-   use std::fs;
+    use std::fs;
 
-   use golem_rust::{agent_definition, agent_implementation, Schema};
+    use golem_rust::{agent_definition, agent_implementation, Schema};
 
-   #[derive(Schema)]
-   struct Content {
-       content_type: String,
-       data: Vec<u8>,
-   }
+    #[derive(Schema)]
+    pub struct Content {
+        content_type: String,
+        data: Vec<u8>,
+    }
 
-   struct FileServerAgentImpl {
-       request_id: String,
-   }
+    struct FileServerAgentImpl {
+        _request_id: String,
+    }
 
-   #[agent_definition]
-   pub trait FileServerAgent {
-       fn new(request_id: String) -> Self;
-       async fn get_content(&self, file_path: String) -> Content;
-   }
+    #[agent_definition]
+    pub trait FileServerAgent {
+        fn new(request_id: String) -> Self;
+        fn get_content(&self, file_path: String) -> Content;
+    }
 
-   #[agent_implementation]
-   impl FileServerAgent for FileServerAgentImpl {
-       fn new(request_id: String) -> Self {
-           FileServerAgentImpl { request_id }
-       }
+    #[agent_implementation]
+    impl FileServerAgent for FileServerAgentImpl {
+        fn new(request_id: String) -> Self {
+            Self {
+                _request_id: request_id,
+            }
+        }
 
-       async fn get_content(&self, file_path: String) -> Content {
-           let content_result = fs::read("/web/".to_string() + &file_path);
+        fn get_content(&self, file_path: String) -> Content {
+            match fs::read(format!("/web/{file_path}")) {
+                Ok(contents) if file_path.ends_with(".html") => Content {
+                    content_type: "text/html".to_string(),
+                    data: contents,
+                },
 
-           match content_result {
-               Ok(contents) if file_path.ends_with(".html") => Content {
-                   content_type: "text/html".to_string(),
-                   data: contents,
-               },
+                Ok(contents) if file_path.ends_with(".js") => Content {
+                    content_type: "application/javascript".to_string(),
+                    data: contents,
+                },
 
-               Ok(contents) if file_path.ends_with(".json") => Content {
-                   content_type: "application/json".to_string(),
-                   data: contents,
-               },
+                Ok(contents) => Content {
+                    content_type: "application/octet-stream".to_string(),
+                    data: contents,
+                },
 
-               Ok(contents) => Content {
-                   content_type: "text/plain".to_string(),
-                   data: contents,
-               },
+                Err(_) => Content {
+                    content_type: "text/plain".to_string(),
+                    data: b"Not found!".to_vec(),
+                },
+            }
+        }
+    }
 
-               Err(_) => Content {
-                   content_type: "text/plain".to_string(),
-                   data: b"Not found!".to_vec(),
-               },
-           }
-       }
-   }
+    ```
+    </Tabs.Tab>
+
+    <Tabs.Tab>
+    ```scala
+    import golem.runtime.annotations.{agentDefinition, agentImplementation}
+    import golem.BaseAgent
+    import zio.blocks.schema.Schema
+
+    import scala.annotation.unused
+    import scala.concurrent.Future
+    import scala.scalajs.js
+    import scala.scalajs.js.annotation.JSImport
+    import scala.scalajs.js.typedarray.Uint8Array
+
+    @js.native
+    @JSImport("node:fs", JSImport.Namespace)
+    private object Fs extends js.Object {
+      def readFileSync(path: String): Uint8Array = js.native
+    }
+
+    final case class Content(contentType: String, data: List[Byte]) derives Schema
+
+    @agentDefinition()
+    trait FileServerAgent extends BaseAgent {
+      class Id(val requestId: String)
+
+      def getContent(filePath: String): Future[Content]
+    }
+
+    @agentImplementation()
+    final class FileServerAgentImpl(@unused private val requestId: String) extends FileServerAgent {
+      override def getContent(filePath: String): Future[Content] =
+        Future.successful {
+          try {
+            val bytes = Fs.readFileSync(s"/web/$filePath")
+
+            val contentType =
+              if filePath.endsWith(".html") then "text/html"
+              else if filePath.endsWith(".js") then "application/javascript"
+              else "application/octet-stream"
+
+            Content(contentType = contentType, data = toByteList(bytes))
+          } catch {
+            case _: Throwable =>
+              Content(
+                contentType = "text/plain",
+                data = "Not found!".getBytes("UTF-8").iterator.map(_.toByte).toList
+              )
+          }
+        }
+
+      private def toByteList(bytes: Uint8Array): List[Byte] = {
+        val result = List.newBuilder[Byte]
+        var i      = 0
+        while i < bytes.length do {
+          result += bytes(i).toByte
+          i += 1
+        }
+        result.result()
+      }
+    }
 
     ```
     </Tabs.Tab>
