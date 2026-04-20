@@ -1,9 +1,9 @@
-# Api Deployment API
+# Mcp Deployment API
 
-## List http api deployment by domain in the environment
+## List MCP deployments in the environment
 Path|Method|Protected
 ---|---|---
-`/v1/envs/{environment_id}/http-api-deployments`|GET|Yes
+`/v1/envs/{environment_id}/mcp-deployments`|GET|Yes
 
 
 
@@ -24,29 +24,22 @@ Path|Method|Protected
       "hash": "string",
       "agents": {
         "property1": {
-          "security": {
-            "type": "TestSessionHeader",
-            "headerName": "string"
-          }
+          "securityScheme": "string"
         },
         "property2": {
-          "security": {
-            "type": "TestSessionHeader",
-            "headerName": "string"
-          }
+          "securityScheme": "string"
         }
       },
-      "webhooksUrl": "string",
       "createdAt": "2019-08-24T14:15:22Z"
     }
   ]
 }
 ```
 
-## Create a new api-deployment in the environment
+## Create a new MCP deployment in the environment
 Path|Method|Protected
 ---|---|---
-`/v1/envs/{environment_id}/http-api-deployments`|POST|Yes
+`/v1/envs/{environment_id}/mcp-deployments`|POST|Yes
 
 
 
@@ -56,19 +49,12 @@ Path|Method|Protected
 ```json copy
 {
   "domain": "string",
-  "webhooksUrl": "string",
   "agents": {
     "property1": {
-      "security": {
-        "type": "TestSessionHeader",
-        "headerName": "string"
-      }
+      "securityScheme": "string"
     },
     "property2": {
-      "security": {
-        "type": "TestSessionHeader",
-        "headerName": "string"
-      }
+      "securityScheme": "string"
     }
   }
 }
@@ -85,27 +71,20 @@ Path|Method|Protected
   "hash": "string",
   "agents": {
     "property1": {
-      "security": {
-        "type": "TestSessionHeader",
-        "headerName": "string"
-      }
+      "securityScheme": "string"
     },
     "property2": {
-      "security": {
-        "type": "TestSessionHeader",
-        "headerName": "string"
-      }
+      "securityScheme": "string"
     }
   },
-  "webhooksUrl": "string",
   "createdAt": "2019-08-24T14:15:22Z"
 }
 ```
 
-## Get an api-deployment by id
+## Get MCP deployment by domain in the environment
 Path|Method|Protected
 ---|---|---
-`/v1/http-api-deployments/{http_api_deployment_id}`|GET|Yes
+`/v1/envs/{environment_id}/mcp-deployments/{domain}`|GET|Yes
 
 
 
@@ -124,27 +103,52 @@ Path|Method|Protected
   "hash": "string",
   "agents": {
     "property1": {
-      "security": {
-        "type": "TestSessionHeader",
-        "headerName": "string"
-      }
+      "securityScheme": "string"
     },
     "property2": {
-      "security": {
-        "type": "TestSessionHeader",
-        "headerName": "string"
-      }
+      "securityScheme": "string"
     }
   },
-  "webhooksUrl": "string",
   "createdAt": "2019-08-24T14:15:22Z"
 }
 ```
 
-## Delete an api-deployment
+## Get MCP deployment by ID
 Path|Method|Protected
 ---|---|---
-`/v1/http-api-deployments/{http_api_deployment_id}`|DELETE|Yes
+`/v1/mcp-deployments/{mcp_deployment_id}`|GET|Yes
+
+
+
+
+
+
+
+**Example Response JSON**
+
+```json copy
+{
+  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+  "revision": 0,
+  "environmentId": "19f5cc2e-7657-437a-9268-83cd3d563563",
+  "domain": "string",
+  "hash": "string",
+  "agents": {
+    "property1": {
+      "securityScheme": "string"
+    },
+    "property2": {
+      "securityScheme": "string"
+    }
+  },
+  "createdAt": "2019-08-24T14:15:22Z"
+}
+```
+
+## Delete MCP deployment
+Path|Method|Protected
+---|---|---
+`/v1/mcp-deployments/{mcp_deployment_id}`|DELETE|Yes
 
 
 
@@ -158,10 +162,10 @@ current_revision|integer|Yes|-
 
 
 
-## Update an api-deployment
+## Update MCP deployment
 Path|Method|Protected
 ---|---|---
-`/v1/http-api-deployments/{http_api_deployment_id}`|PATCH|Yes
+`/v1/mcp-deployments/{mcp_deployment_id}`|PATCH|Yes
 
 
 
@@ -171,19 +175,12 @@ Path|Method|Protected
 ```json copy
 {
   "currentRevision": 0,
-  "webhookUrl": "string",
   "agents": {
     "property1": {
-      "security": {
-        "type": "TestSessionHeader",
-        "headerName": "string"
-      }
+      "securityScheme": "string"
     },
     "property2": {
-      "security": {
-        "type": "TestSessionHeader",
-        "headerName": "string"
-      }
+      "securityScheme": "string"
     }
   }
 }
@@ -200,27 +197,20 @@ Path|Method|Protected
   "hash": "string",
   "agents": {
     "property1": {
-      "security": {
-        "type": "TestSessionHeader",
-        "headerName": "string"
-      }
+      "securityScheme": "string"
     },
     "property2": {
-      "security": {
-        "type": "TestSessionHeader",
-        "headerName": "string"
-      }
+      "securityScheme": "string"
     }
   },
-  "webhooksUrl": "string",
   "createdAt": "2019-08-24T14:15:22Z"
 }
 ```
 
-## Get a specific http api deployment revision
+## Get a specific MCP deployment revision
 Path|Method|Protected
 ---|---|---
-`/v1/http-api-deployment/{http_api_deployment_id}/revisions/{revision}`|GET|Yes
+`/v1/mcp-deployment/{mcp_deployment_id}/revisions/{revision}`|GET|Yes
 
 
 
@@ -239,27 +229,20 @@ Path|Method|Protected
   "hash": "string",
   "agents": {
     "property1": {
-      "security": {
-        "type": "TestSessionHeader",
-        "headerName": "string"
-      }
+      "securityScheme": "string"
     },
     "property2": {
-      "security": {
-        "type": "TestSessionHeader",
-        "headerName": "string"
-      }
+      "securityScheme": "string"
     }
   },
-  "webhooksUrl": "string",
   "createdAt": "2019-08-24T14:15:22Z"
 }
 ```
 
-## Get http api deployment by domain in the environment
+## Get MCP deployment by domain in the deployment
 Path|Method|Protected
 ---|---|---
-`/v1/envs/{environment_id}/http-api-deployments/{domain}`|GET|Yes
+`/v1/envs/{environment_id}/deployments/{deployment_revision}/mcp-deployments/{domain}`|GET|Yes
 
 
 
@@ -278,66 +261,20 @@ Path|Method|Protected
   "hash": "string",
   "agents": {
     "property1": {
-      "security": {
-        "type": "TestSessionHeader",
-        "headerName": "string"
-      }
+      "securityScheme": "string"
     },
     "property2": {
-      "security": {
-        "type": "TestSessionHeader",
-        "headerName": "string"
-      }
+      "securityScheme": "string"
     }
   },
-  "webhooksUrl": "string",
   "createdAt": "2019-08-24T14:15:22Z"
 }
 ```
 
-## Get http api deployment by domain in the deployment
+## List MCP deployments by domain in the deployment
 Path|Method|Protected
 ---|---|---
-`/v1/envs/{environment_id}/deployments/{deployment_revision}/http-api-deployments/{domain}`|GET|Yes
-
-
-
-
-
-
-
-**Example Response JSON**
-
-```json copy
-{
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "revision": 0,
-  "environmentId": "19f5cc2e-7657-437a-9268-83cd3d563563",
-  "domain": "string",
-  "hash": "string",
-  "agents": {
-    "property1": {
-      "security": {
-        "type": "TestSessionHeader",
-        "headerName": "string"
-      }
-    },
-    "property2": {
-      "security": {
-        "type": "TestSessionHeader",
-        "headerName": "string"
-      }
-    }
-  },
-  "webhooksUrl": "string",
-  "createdAt": "2019-08-24T14:15:22Z"
-}
-```
-
-## Get http api deployment by domain in the deployment
-Path|Method|Protected
----|---|---
-`/v1/envs/{environment_id}/deployments/{deployment_revision}/http-api-deployments`|GET|Yes
+`/v1/envs/{environment_id}/deployments/{deployment_revision}/mcp-deployments`|GET|Yes
 
 
 
@@ -358,25 +295,18 @@ Path|Method|Protected
       "hash": "string",
       "agents": {
         "property1": {
-          "security": {
-            "type": "TestSessionHeader",
-            "headerName": "string"
-          }
+          "securityScheme": "string"
         },
         "property2": {
-          "security": {
-            "type": "TestSessionHeader",
-            "headerName": "string"
-          }
+          "securityScheme": "string"
         }
       },
-      "webhooksUrl": "string",
       "createdAt": "2019-08-24T14:15:22Z"
     }
   ]
 }
 ```
-## Api Deployment API Errors
+## Mcp Deployment API Errors
 Status Code|Description|Body
 ---|---|---
 400|Invalid request, returning with a list of issues detected in the request|`{"code":"string","errors":["string"]}`

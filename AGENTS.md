@@ -60,11 +60,12 @@ theme.config.tsx # Nextra docs theme configuration
 
 ### REST API docs
 
-REST API reference pages are auto-generated. Do not edit them manually. Instead:
+REST API reference pages are auto-generated. Do not edit them manually.
 
-1. Update the OpenAPI spec in `openapi/golem-service.yaml`
-2. Run `bun run generate-prod` (or `generate-dev` / `generate-local`)
-3. The generated MDX files under `src/pages/rest-api/` will be updated and auto-formatted.
+- To update from a **local copy** of the spec: copy the YAML from the golem repo (`../golem/openapi/golem-service.yaml`) into `openapi/golem-service.yaml`, then run `bun run generate-local`.
+- `bun run generate-prod` and `bun run generate-dev` fetch the OpenAPI spec from the respective deployed environments — they do **not** use the local YAML file.
+
+The generated MDX files under `src/pages/rest-api/` will be updated and auto-formatted.
 
 ## Pre-commit Checks
 

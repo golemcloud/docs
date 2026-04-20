@@ -42,9 +42,9 @@ precise|boolean|No|Precision in relation to worker status, if true, calculate th
 {
   "workers": [
     {
-      "workerId": {
+      "agentId": {
         "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
-        "workerName": "string"
+        "agentId": "string"
       },
       "environmentId": "19f5cc2e-7657-437a-9268-83cd3d563563",
       "createdBy": "25a02396-1048-48f9-bf93-102d2fb7895e",
@@ -52,21 +52,40 @@ precise|boolean|No|Precision in relation to worker status, if true, calculate th
         "property1": "string",
         "property2": "string"
       },
-      "wasiConfigVars": [
+      "wasiConfig": {
+        "property1": "string",
+        "property2": "string"
+      },
+      "config": [
         {
-          "key": "string",
-          "value": "string"
+          "path": [
+            "string"
+          ],
+          "value": {
+            "typ": {
+              "type": "Variant",
+              "name": "string",
+              "owner": "string",
+              "cases": [
+                {
+                  "name": "string",
+                  "typ": {}
+                }
+              ]
+            },
+            "value": null
+          }
         }
       ],
       "status": "Running",
-      "componentVersion": 0,
+      "componentRevision": 0,
       "retryCount": 0,
       "pendingInvocationCount": 0,
       "updates": [
         {
           "type": "PendingUpdate",
           "timestamp": "2019-08-24T14:15:22Z",
-          "targetVersion": 0
+          "targetRevision": 0
         }
       ],
       "createdAt": "2019-08-24T14:15:22Z",
@@ -84,7 +103,7 @@ precise|boolean|No|Precision in relation to worker status, if true, calculate th
         }
       ],
       "activePlugins": [
-        0
+        "497f6eca-6276-4993-bfeb-53cbbbba6f08"
       ],
       "skippedRegions": [
         {
@@ -129,7 +148,8 @@ The parameters in the request are the following:
     "property1": "string",
     "property2": "string"
   },
-  "configVars": []
+  "wasiConfig": {},
+  "config": []
 }
 ```
 
@@ -137,9 +157,9 @@ The parameters in the request are the following:
 
 ```json copy
 {
-  "workerId": {
+  "agentId": {
     "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
-    "workerName": "string"
+    "agentId": "string"
   },
   "componentRevision": 0
 }
@@ -148,7 +168,7 @@ The parameters in the request are the following:
 ## Get metadata of a worker
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}`|GET|Yes
+`/v1/components/{component_id}/workers/{agent_name}`|GET|Yes
 
 Returns metadata about an existing worker:
 - `workerId` is a combination of the used component and the worker's user specified name
@@ -174,9 +194,9 @@ Returns metadata about an existing worker:
 
 ```json copy
 {
-  "workerId": {
+  "agentId": {
     "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
-    "workerName": "string"
+    "agentId": "string"
   },
   "environmentId": "19f5cc2e-7657-437a-9268-83cd3d563563",
   "createdBy": "25a02396-1048-48f9-bf93-102d2fb7895e",
@@ -184,21 +204,40 @@ Returns metadata about an existing worker:
     "property1": "string",
     "property2": "string"
   },
-  "wasiConfigVars": [
+  "wasiConfig": {
+    "property1": "string",
+    "property2": "string"
+  },
+  "config": [
     {
-      "key": "string",
-      "value": "string"
+      "path": [
+        "string"
+      ],
+      "value": {
+        "typ": {
+          "type": "Variant",
+          "name": "string",
+          "owner": "string",
+          "cases": [
+            {
+              "name": "string",
+              "typ": {}
+            }
+          ]
+        },
+        "value": null
+      }
     }
   ],
   "status": "Running",
-  "componentVersion": 0,
+  "componentRevision": 0,
   "retryCount": 0,
   "pendingInvocationCount": 0,
   "updates": [
     {
       "type": "PendingUpdate",
       "timestamp": "2019-08-24T14:15:22Z",
-      "targetVersion": 0
+      "targetRevision": 0
     }
   ],
   "createdAt": "2019-08-24T14:15:22Z",
@@ -216,7 +255,7 @@ Returns metadata about an existing worker:
     }
   ],
   "activePlugins": [
-    0
+    "497f6eca-6276-4993-bfeb-53cbbbba6f08"
   ],
   "skippedRegions": [
     {
@@ -236,7 +275,7 @@ Returns metadata about an existing worker:
 ## Delete a worker
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}`|DELETE|Yes
+`/v1/components/{component_id}/workers/{agent_name}`|DELETE|Yes
 
 Interrupts and deletes an existing worker.
 
@@ -250,107 +289,10 @@ Interrupts and deletes an existing worker.
 {}
 ```
 
-## Invoke a function and await its resolution
-Path|Method|Protected
----|---|---
-`/v1/components/{component_id}/workers/{worker_name}/invoke-and-await`|POST|Yes
-
-Supply the parameters in the request body as JSON.
-
-**Query Parameters**
-
-Name|Type|Required|Description
----|---|---|---
-function|string|Yes|-
-
-**Example Request JSON**
-```json copy
-{
-  "params": [
-    {
-      "typ": {
-        "type": "Variant",
-        "name": "string",
-        "owner": "string",
-        "cases": [
-          {
-            "name": "string",
-            "typ": {}
-          }
-        ]
-      },
-      "value": null
-    }
-  ]
-}
-```
-
-**Example Response JSON**
-
-```json copy
-{
-  "result": {
-    "typ": {
-      "type": "Variant",
-      "name": "string",
-      "owner": "string",
-      "cases": [
-        {
-          "name": "string",
-          "typ": {}
-        }
-      ]
-    },
-    "value": null
-  }
-}
-```
-
-## Invoke a function
-Path|Method|Protected
----|---|---
-`/v1/components/{component_id}/workers/{worker_name}/invoke`|POST|Yes
-
-A simpler version of the previously defined invoke and await endpoint just triggers the execution of a function and immediately returns.
-
-**Query Parameters**
-
-Name|Type|Required|Description
----|---|---|---
-function|string|Yes|name of the exported function to be invoked
-
-**Example Request JSON**
-```json copy
-{
-  "params": [
-    {
-      "typ": {
-        "type": "Variant",
-        "name": "string",
-        "owner": "string",
-        "cases": [
-          {
-            "name": "string",
-            "typ": {}
-          }
-        ]
-      },
-      "value": null
-    }
-  ]
-}
-```
-
-**Example Response JSON**
-
-```json copy
-{}
-```
-
 ## Complete a promise
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}/complete`|POST|Yes
+`/v1/components/{component_id}/workers/{agent_name}/complete`|POST|Yes
 
 Completes a promise with a given custom array of bytes.
 The promise must be previously created from within the worker, and it's identifier (a combination of a worker identifier and an oplogIdx ) must be sent out to an external caller so it can use this endpoint to mark the promise completed.
@@ -377,7 +319,7 @@ true
 ## Interrupt a worker
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}/interrupt`|POST|Yes
+`/v1/components/{component_id}/workers/{agent_name}/interrupt`|POST|Yes
 
 Interrupts the execution of a worker.
 The worker's status will be Interrupted unless the recover-immediately parameter was used, in which case it remains as it was.
@@ -448,9 +390,9 @@ Returns metadata about an existing component workers:
 {
   "workers": [
     {
-      "workerId": {
+      "agentId": {
         "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
-        "workerName": "string"
+        "agentId": "string"
       },
       "environmentId": "19f5cc2e-7657-437a-9268-83cd3d563563",
       "createdBy": "25a02396-1048-48f9-bf93-102d2fb7895e",
@@ -458,21 +400,40 @@ Returns metadata about an existing component workers:
         "property1": "string",
         "property2": "string"
       },
-      "wasiConfigVars": [
+      "wasiConfig": {
+        "property1": "string",
+        "property2": "string"
+      },
+      "config": [
         {
-          "key": "string",
-          "value": "string"
+          "path": [
+            "string"
+          ],
+          "value": {
+            "typ": {
+              "type": "Variant",
+              "name": "string",
+              "owner": "string",
+              "cases": [
+                {
+                  "name": "string",
+                  "typ": {}
+                }
+              ]
+            },
+            "value": null
+          }
         }
       ],
       "status": "Running",
-      "componentVersion": 0,
+      "componentRevision": 0,
       "retryCount": 0,
       "pendingInvocationCount": 0,
       "updates": [
         {
           "type": "PendingUpdate",
           "timestamp": "2019-08-24T14:15:22Z",
-          "targetVersion": 0
+          "targetRevision": 0
         }
       ],
       "createdAt": "2019-08-24T14:15:22Z",
@@ -490,7 +451,7 @@ Returns metadata about an existing component workers:
         }
       ],
       "activePlugins": [
-        0
+        "497f6eca-6276-4993-bfeb-53cbbbba6f08"
       ],
       "skippedRegions": [
         {
@@ -516,7 +477,7 @@ Returns metadata about an existing component workers:
 ## Resume a worker
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}/resume`|POST|Yes
+`/v1/components/{component_id}/workers/{agent_name}/resume`|POST|Yes
 
 
 
@@ -533,7 +494,7 @@ Path|Method|Protected
 ## Update a worker
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}/update`|POST|Yes
+`/v1/components/{component_id}/workers/{agent_name}/update`|POST|Yes
 
 
 
@@ -543,7 +504,8 @@ Path|Method|Protected
 ```json copy
 {
   "mode": "automatic",
-  "targetRevision": 0
+  "targetRevision": 0,
+  "disableWakeup": false
 }
 ```
 
@@ -556,7 +518,7 @@ Path|Method|Protected
 ## Get the oplog of a worker
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}/oplog`|GET|Yes
+`/v1/components/{component_id}/workers/{agent_name}/oplog`|GET|Yes
 
 
 
@@ -581,9 +543,9 @@ query|string|No|-
       "entry": {
         "type": "Create",
         "timestamp": "2019-08-24T14:15:22Z",
-        "workerId": {
+        "agentId": {
           "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
-          "workerName": "string"
+          "agentId": "string"
         },
         "componentRevision": 0,
         "env": {
@@ -594,12 +556,13 @@ query|string|No|-
         "environmentId": "19f5cc2e-7657-437a-9268-83cd3d563563",
         "parent": {
           "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
-          "workerName": "string"
+          "agentId": "string"
         },
         "componentSize": 0,
         "initialTotalLinearMemorySize": 0,
         "initialActivePlugins": [
           {
+            "environmentPluginGrantId": "5db98835-58e8-4101-8179-99ca47494b8d",
             "pluginPriority": 0,
             "pluginName": "string",
             "pluginVersion": "string",
@@ -609,10 +572,29 @@ query|string|No|-
             }
           }
         ],
-        "wasiConfigVars": [
+        "configVars": {
+          "property1": "string",
+          "property2": "string"
+        },
+        "localAgentConfig": [
           {
-            "key": "string",
-            "value": "string"
+            "path": [
+              "string"
+            ],
+            "value": {
+              "typ": {
+                "type": "Variant",
+                "name": "string",
+                "owner": "string",
+                "cases": [
+                  {
+                    "name": "string",
+                    "typ": {}
+                  }
+                ]
+              },
+              "value": null
+            }
           }
         ],
         "originalPhantomId": "b4cbf8ea-df0a-4ef4-9b5d-93ad7b29cf4b"
@@ -621,7 +603,7 @@ query|string|No|-
   ],
   "next": {
     "nextOplogIndex": 0,
-    "currentComponentVersion": 0
+    "currentComponentRevision": 0
   },
   "firstIndexInChunk": 0,
   "lastIndex": 0
@@ -631,7 +613,7 @@ query|string|No|-
 ## List files in a worker
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}/files/{file_name}`|GET|Yes
+`/v1/components/{component_id}/workers/{agent_name}/files/{file_name}`|GET|Yes
 
 
 
@@ -658,7 +640,7 @@ Path|Method|Protected
 ## Get contents of a file in a worker
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}/file-contents/{file_name}`|GET|Yes
+`/v1/components/{component_id}/workers/{agent_name}/file-contents/{file_name}`|GET|Yes
 
 
 
@@ -671,7 +653,7 @@ Path|Method|Protected
 ## Activate a plugin
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}/activate-plugin`|POST|Yes
+`/v1/components/{component_id}/workers/{agent_name}/activate-plugin`|POST|Yes
 
 The plugin must be one of the installed plugins for the worker's current component version.
 
@@ -692,7 +674,7 @@ plugin-priority|integer|Yes|-
 ## Deactivate a plugin
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}/deactivate-plugin`|POST|Yes
+`/v1/components/{component_id}/workers/{agent_name}/deactivate-plugin`|POST|Yes
 
 The plugin must be one of the installed plugins for the worker's current component version.
 
@@ -713,7 +695,7 @@ plugin-priority|integer|Yes|-
 ## Revert a worker
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}/revert`|POST|Yes
+`/v1/components/{component_id}/workers/{agent_name}/revert`|POST|Yes
 
 Reverts a worker by undoing either the last few invocations or the last few recorded oplog entries.
 
@@ -736,7 +718,7 @@ Reverts a worker by undoing either the last few invocations or the last few reco
 ## Fork a worker
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}/fork`|POST|Yes
+`/v1/components/{component_id}/workers/{agent_name}/fork`|POST|Yes
 
 Fork a worker by creating a new worker with the oplog up to the provided index
 
@@ -745,9 +727,9 @@ Fork a worker by creating a new worker with the oplog up to the provided index
 **Example Request JSON**
 ```json copy
 {
-  "targetWorkerId": {
+  "targetAgentId": {
     "componentId": "616ccd92-d666-4180-8349-8d125b269fac",
-    "workerName": "string"
+    "agentId": "string"
   },
   "oplogIndexCutoff": 0
 }
@@ -762,7 +744,7 @@ Fork a worker by creating a new worker with the oplog up to the provided index
 ## Cancels a pending invocation if it has not started yet
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}/invocations/{idempotency_key}`|DELETE|Yes
+`/v1/components/{component_id}/workers/{agent_name}/invocations/{idempotency_key}`|DELETE|Yes
 
 The invocation to be cancelled is identified by the idempotency key passed to the invoke API.
 
@@ -781,7 +763,7 @@ The invocation to be cancelled is identified by the idempotency key passed to th
 ## Connect to a worker using a websocket and stream events
 Path|Method|Protected
 ---|---|---
-`/v1/components/{component_id}/workers/{worker_name}/connect`|GET|No
+`/v1/components/{component_id}/workers/{agent_name}/connect`|GET|No
 
 
 
@@ -793,9 +775,10 @@ Path|Method|Protected
 ## Worker API Errors
 Status Code|Description|Body
 ---|---|---
-400||`{"errors":["string"]}`
-401||`{"error":"string"}`
-403||`{"error":"string"}`
-404||`{"error":"string"}`
-409||`{"error":"string"}`
-500||`{"error":"string","workerError":{"cause":"string","stderr":"string"}}`
+400||`{"code":"string","errors":["string"]}`
+401||`{"code":"string","error":"string"}`
+403||`{"code":"string","error":"string"}`
+404||`{"code":"string","error":"string"}`
+409||`{"code":"string","error":"string"}`
+422||`{"code":"string","error":"string"}`
+500||`{"code":"string","error":"string","workerError":{"cause":"string","stderr":"string"}}`
