@@ -11,6 +11,7 @@ This is the source for **Golem's official documentation** at [learn.golem.cloud]
 - **Linting/Formatting**: ESLint + Prettier (with Tailwind plugin), enforced via [Lefthook](https://github.com/evilmartians/lefthook) pre-commit hooks
 - **Syntax highlighting**: Shiki, with custom grammars for `wit` and `rib` languages (see `wit-grammar.json`, `rib-grammar.json`)
 - **API docs**: Auto-generated from OpenAPI spec (`openapi/golem-service.yaml`) via `openapi/gen-openapi.ts`
+- **How-To Guides**: Auto-generated from the [Golem skill catalog](https://github.com/golemcloud/golem/tree/main/golem-skills/skills) via `skills/sync-skills.ts`
 
 ## Project Structure
 
@@ -22,6 +23,7 @@ src/
   styles/        # Global CSS (Tailwind)
   context/       # React context providers
 openapi/         # OpenAPI spec and code generation script
+skills/          # How-To Guides sync script
 check-links/     # Link-checking tool for MDX files
 public/          # Static assets (images, favicon)
 theme.config.tsx # Nextra docs theme configuration
@@ -37,6 +39,8 @@ theme.config.tsx # Nextra docs theme configuration
 - `bun run fix` — Lint + format together
 - `bun run check-links` — Validate links in MDX files
 - `bun run generate-prod` — Regenerate REST API docs from OpenAPI spec
+- `bun run update-skills` — Sync How-To Guides from the Golem skill catalog (fetches from GitHub)
+- `bun run update-skills-local -- --local <path>` — Sync How-To Guides from a local golem repo checkout
 
 ## Writing Documentation
 
@@ -66,6 +70,15 @@ REST API reference pages are auto-generated. Do not edit them manually.
 - `bun run generate-prod` and `bun run generate-dev` fetch the OpenAPI spec from the respective deployed environments — they do **not** use the local YAML file.
 
 The generated MDX files under `src/pages/rest-api/` will be updated and auto-formatted.
+
+### How-To Guides
+
+How-To Guide pages are auto-generated from the [Golem skill catalog](https://github.com/golemcloud/golem/tree/main/golem-skills/skills). Do not edit files under `src/pages/how-to-guides/` manually.
+
+- `bun run update-skills` fetches the latest skills from GitHub.
+- `bun run update-skills-local -- --local <path>` reads from a local checkout of the golem repo.
+
+The sync script (`skills/sync-skills.ts`) strips AI-agent frontmatter, converts cross-references between skills into doc links, and generates MDX pages organized by category (General, Rust, TypeScript, Scala). Set `GITHUB_TOKEN` env var to avoid GitHub API rate limits when fetching remotely.
 
 ## Pre-commit Checks
 

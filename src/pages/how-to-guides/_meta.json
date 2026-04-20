@@ -1,0 +1,14 @@
+{
+  "common": {
+    "title": "General"
+  },
+  "rust": {
+    "title": "Rust"
+  },
+  "ts": {
+    "title": "TypeScript"
+  },
+  "scala": {
+    "title": "Scala"
+  }
+}

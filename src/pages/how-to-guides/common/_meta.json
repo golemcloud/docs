@@ -1,0 +1,13 @@
+{
+  "golem-add-initial-files": "Adding Initial Files to Golem Agent Filesystems",
+  "golem-build": "Building a Golem Application with `golem build`",
+  "golem-configure-api-domain": "Configuring HTTP API Domain Deployments",
+  "golem-new-project": "Creating a New Golem Project with `golem new`",
+  "golem-debug-agent-history": "Debugging Agent History",
+  "golem-add-env-vars": "Defining Environment Variables for Golem Agents",
+  "golem-deploy": "Deploying a Golem Application with `golem deploy`",
+  "golem-get-agent-metadata": "Getting Agent Metadata",
+  "golem-js-runtime": "Golem JavaScript Runtime (QuickJS)",
+  "golem-undo-agent-state": "Undoing Agent State",
+  "golem-view-agent-logs": "Viewing Agent Logs"
+}
