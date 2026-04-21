@@ -1,45 +1,26 @@
-## Watch out for errors during deployment
+# Troubleshooting
 
-### Route conflict errors during deployment
+## Route conflict errors during deployment
 
-Please note the following: If you already deployed an API definition before with the same path `/{user-id}/get-cart-contents`,
-then you will receive a conflict error as given below.
+If you already deployed an API with the same path pattern, you will receive a conflict error. This can happen when you change agent code but keep the same endpoint paths with a conflicting deployment already active.
 
 ```bash filename="Terminal" copy
-API deployment definitions conflict error: /{user-id}/get-cart-contents
+API deployment definitions conflict error: /task-agents/{name}/tasks
 ```
 
-This implies, when you update the version, you have to update the path as well, such as `/v5/{user-id}/get-cart-contents`
-under the `path` field in `route`.
+Make sure to remove or update conflicting deployments before redeploying.
 
-### BadRequest errors when invoking the API with inputs
+## Type mismatch errors
 
-If your API's implementation (Rib script which internally calls agents) gets a wrong input (Example: wrong types in http request),
-it produces a `BadRequest`. This makes Golem Gateway much more type safe than a typical Gateway
-where it always routes to the backend regardless of wrong inputs.
+When an endpoint receives input that doesn't match the expected parameter types, Golem returns a `400 Bad Request` with details about the type mismatch. This makes Golem's API gateway much more type-safe than a typical gateway where requests are always routed to the backend regardless of input validity.
 
-Here is an example:
+For example, if an endpoint expects a `u64` parameter but receives a string, the error response will indicate the expected and actual types.
 
-```rib copy
-let user: u64 = request.path.user-id;
-let agent = user-agent(user);
-agent.add-cart(request.body.product);
-```
+## Endpoints not showing up
 
-Here we expect the request body to have a product field, with all the fields of the record type that `add-cart` function expects.
-If the request body is wrong, we get a bad request error as shown below.
+If your endpoints are not accessible after deployment, verify that:
 
-```bash copy
->
-* Request completely sent off
-< HTTP/1.1 400 Bad Request
-< access-control-allow-origin: *
-< content-length: 392
-< date: Tue, 10 Dec 2024 03:42:54 GMT
-<
-* Connection #1 to host localhost left intact
-Input request details don't match the requirements for rib expression to execute: Invalid value for the key path.
-Error: Invalid value for the key product. Error: Expected function parameter type is u64. But found string.
-Requirements. Record(TypeRecord { fields: [NameTypePair { name: "product-id", typ: U64)%
-
-```
+1. The agent has a `mount` defined in the agent decorator/macro
+2. The `httpApi.deployments` section in `golem.yaml` lists the agent
+3. The deployment domain matches the URL you are trying to access
+4. The component was redeployed after code changes (`golem app deploy`)

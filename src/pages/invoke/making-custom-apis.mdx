@@ -1,261 +1,390 @@
+import { Tabs, Callout } from "nextra/components"
+
 # Make Custom HTTP APIs for your Golem App
 
 Golem's [Gateway](/concepts/worker-gateway) service not only exposes the [low-level REST API for invocations](/invoke/http)
-but also provides a way to expose the agent methods as HTTP APIs.
+but also provides a way to expose agent methods as HTTP APIs.
 
-Future versions will support other protocols such as MCP, gRPC, or GraphQL.
+In Golem 1.5, HTTP endpoints are defined **directly in agent code** using language-native decorators and macros — no YAML route definitions or scripting languages needed.
 
-## HTTP API definition
+## Mount Points
 
-The HTTP APIs are defined in the [application manifest](/app-manifest) (`golem.yaml`) `httpApi` section. Every template provided by Golem contains a sample API definition that can be used as a starting point.
+Every agent that wants to expose HTTP endpoints must first define a **mount point** — the base URL prefix under which all its endpoints are available. The mount path can contain placeholders like `{name}` that map to the agent's constructor parameters.
 
-The `httpApi` section consists of two main parts:
-
-- **definitions** contains the versioned API definitions describing routes and their handlers
-- **deployments** specifies which sets of these definitions are exposed on which hosts
-
-### Definitions
-
-Each API definition has a name and a version; multiple versions of the same API can be deployed simultaneously if needed, for example for backward compatibility.
-
-The primary part of an API definition is the list of **routes**. Each route matches an incoming HTTP request and performs a specific action, most commonly invoking an agent method.
-
-The following example defines an API called `counter-api` with version `0.0.1`:
-
-```yaml
-httpApi:
-    definitions:
-        counter-api:
-            version: '0.0.1'
-            routes:
-            # - method: GET
-            #   ...
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
+<Tabs.Tab>
+```typescript
+@agent({
+  mount: '/task-agents/{name}',
+})
+export class Tasks extends BaseAgent {
+  constructor(readonly name: string) { super(); }
+  // ...
+}
 ```
-
-#### Routes calling agents
-
-The most common type of route is one that invokes an agent method. A route consists of an HTTP method and path, with optional variables in it, and a **Rib script**. The script's job is invoking an agent's method by taking information from the request to assemble the agent ID and the method's parameters, and constructing an HTTP response from the method's response. This allows a lot of flexibility in mapping the agent to an HTTP API.
-
-The `routes` field is a list of routes, each consisting of:
-
-- `method`: one of GET, POST, DELETE, PUT, PATCH, HEAD, CONNECT, OPTIONS, TRACE
-- `path`: the path part of the URL, which may contain variables in `{}` braces
-- `bindings`: describes how to handle the request, for example by invoking an agent method
-
-The `bindings` field has several subfields:
-
-- `type: default`: indicates that this route invokes an agent method; other types are documented below
-- `componentName`: the name of the component containing the agent to invoke
-- `response`: the Rib script that handles the request
-- optionally `idempotencyKey`: a Rib script that computes an _idempotency key_ for the request
-- optionally `invocationContext`: a Rib script that computes an _invocation context_ for the request
-
-To learn more about the **Rib scripting language**, see the [Rib page](/rib).
-
-##### Response script
-The response script has access to the `request` object, which allows access to details of the HTTP request:
-
-- `request.path.xyz` refers to a path variable named `xyz`
-- `request.headers.xyz` refers to a header named `xyz`
-- `request.body` refers to the JSON request body - it can be inspected by accessing its fields such as `request.body.exampleField` etc.
-- `request.auth` when authentication is configured (see below)
-- `request.request_id.value` is a string containing a UUID that is unique for each incoming request. It can be used with ephemeral agents to provide a unique identity for each request by defining a `requestId` string parameter for the ephemeral agent's constructor, and passing this value from Rib.
-
-The script can construct an agent reference for any of the agent types defined in the **component** identified by `componentName` by using the agent type name and providing the necessary constructor parameters. For example if there is an agent type `counter-agent` with a single string constructor parameter, the following Rib snippets are constructing an instance of it:
-
-```rib
-let agent = counter-agent("test");
+</Tabs.Tab>
+<Tabs.Tab>
+```rust
+#[agent_definition(mount = "/task-agents/{name}")]
+pub trait Tasks {
+    fn new(name: String) -> Self;
+    // ...
+}
 ```
-
-or
-
-```rib
-let agent = counter-agent(request.path.user);
+</Tabs.Tab>
+<Tabs.Tab>
+```scala
+@agentDefinition(mount = "/task-agents/{name}")
+trait Tasks extends BaseAgent {
+  // ...
+}
 ```
-
-This `agent` variable then can be used to _invoke_ an agent method, for example:
-
-```rib
-let new-value = agent.increment();
+</Tabs.Tab>
+<Tabs.Tab>
+```moonbit
+#derive.agent
+#derive.mount("/task-agents/{name}")
+pub(all) struct Tasks {
+  // ...
+}
 ```
+</Tabs.Tab>
+</Tabs>
 
-The script must return an object with at least a `status` and a `body` field:
+If there are multiple agent constructor parameters, they all have to be mapped in the mount path.
 
-```rib
-{ status: 200u64, body: "Hello World" }
+## Endpoints
+
+Once the mount is defined, individual agent methods can be exposed as HTTP **endpoints**. Each endpoint specifies an HTTP method and a path suffix relative to the mount point. Path placeholders are mapped to method parameters. Parameters not mapped through the path or headers are taken from the request body.
+
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
+<Tabs.Tab>
+```typescript
+@endpoint({ post: "/tasks" })
+async createTask(request: CreateTaskRequest): Promise<Task> {
+  // ...
+}
+
+@endpoint({ get: "/tasks" })
+async getTasks(): Promise<Task[]> {
+  // ...
+}
+
+@endpoint({ post: "/tasks/{id}/complete" })
+async completeTask(id: number): Promise<Task | null> {
+  // ...
+}
 ```
+</Tabs.Tab>
+<Tabs.Tab>
+```rust
+#[endpoint(post = "/tasks")]
+fn create_task(&mut self, request: CreateTaskRequest) -> Task;
 
-Additionally, this response object can also have a `headers` field, which is a map of header names to values.
+#[endpoint(get = "/tasks")]
+fn get_tasks(&self) -> Vec<Task>;
 
-For example, it is possible to modify the **response content type** by adding a `Content-Type` header:
-
-```rib
-{ status: 200u64, body: "Hello World", headers: { Content-Type: "text/plain" } }
+#[endpoint(post = "/tasks/{id}/complete")]
+fn complete_task(&mut self, id: usize) -> Option<Task>;
 ```
+</Tabs.Tab>
+<Tabs.Tab>
+```scala
+@endpoint(method = "POST", path = "/tasks")
+def createTask(request: CreateTaskRequest): Future[Task]
 
-The next example reads a custom header from the requests, and uses it as another custom header that is added to the response:
+@endpoint(method = "GET", path = "/tasks")
+def getTasks(): Future[Array[Task]]
 
-```rib
-let customer-id: string = request.headers.X-Customer-ID;
-{
-  status: 200u64,
-  body: "The customer id header was ${customer-id}",
-  headers: {
-    Content-Type: "text/plain",
-    X-Request-Customer-ID: customer-id
+@endpoint(method = "POST", path = "/tasks/{id}/complete")
+def completeTask(id: Int): Future[Option[Task]]
+```
+</Tabs.Tab>
+<Tabs.Tab>
+```moonbit
+#derive.endpoint(post = "/tasks")
+pub fn Tasks::create_task(self : Self, request : CreateTaskRequest) -> Task {
+  // ...
+}
+
+#derive.endpoint(get = "/tasks")
+pub fn Tasks::get_tasks(self : Self) -> Array[Task] {
+  // ...
+}
+
+#derive.endpoint(post = "/tasks/{id}/complete")
+pub fn Tasks::complete_task(self : Self, id : UInt32) -> Option[Task] {
+  // ...
+}
+```
+</Tabs.Tab>
+</Tabs>
+
+Supported HTTP methods: `get`, `post`, `put`, `delete`, `patch`, `head`, `options`, `connect`, `trace`, and `custom` (for arbitrary method strings, TypeScript only).
+
+### Query Parameters
+
+Query parameters can be bound to method parameters using standard HTTP query syntax in the endpoint path:
+
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
+<Tabs.Tab>
+```typescript
+@endpoint({ get: "/search?q={query}&limit={limit}" })
+async search(query: string, limit: number): Promise<SearchResult[]> {
+  // ...
+}
+```
+</Tabs.Tab>
+<Tabs.Tab>
+```rust
+#[endpoint(get = "/search/{category}?limit={limit}&offset={offset}")]
+fn search(&self, category: String, limit: u64, offset: u64) -> Vec<Item>;
+```
+</Tabs.Tab>
+<Tabs.Tab>
+```scala
+@endpoint(method = "GET", path = "/search/{category}?limit={limit}&offset={offset}")
+def search(category: String, limit: Int, offset: Int): Future[Array[Item]]
+```
+</Tabs.Tab>
+<Tabs.Tab>
+```moonbit
+#derive.endpoint(get = "/search/{category}?limit={limit}&offset={offset}")
+pub fn MyAgent::search(self : Self, category : String, limit : UInt64, offset : UInt64) -> Array[Item] {
+  // ...
+}
+```
+</Tabs.Tab>
+</Tabs>
+
+### Header Mapping
+
+Custom HTTP headers can be mapped to function parameters:
+
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
+<Tabs.Tab>
+```typescript
+@endpoint({
+  get: '/example',
+  headers: { 'X-Foo': 'location', 'X-Bar': 'name' },
+})
+async example(location: string, name: string): Promise<string> {
+  // ...
+}
+```
+</Tabs.Tab>
+<Tabs.Tab>
+```rust
+#[endpoint(get = "/example", headers("X-Foo" = "location", "X-Bar" = "name"))]
+fn example(&self, location: String, name: String) -> String;
+```
+</Tabs.Tab>
+<Tabs.Tab>
+```scala
+@endpoint(method = "GET", path = "/example")
+def example(@header("X-Foo") location: String, @header("X-Bar") name: String): Future[String]
+```
+</Tabs.Tab>
+<Tabs.Tab>
+```moonbit
+#derive.endpoint(get = "/example")
+#derive.endpoint_header("X-Foo", "location")
+#derive.endpoint_header("X-Bar", "name")
+pub fn ExampleAgent::example(self : Self, location : String, name : String) -> String {
+  // ...
+}
+```
+</Tabs.Tab>
+</Tabs>
+
+### Catch-all Path Segments
+
+The `{*variable}` syntax captures all remaining path segments. It must be the last segment in the path:
+
+<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
+<Tabs.Tab>
+```typescript
+@endpoint({ get: "/files/{*rest}" })
+async serveFile(rest: string): Promise<FileData> {
+  // ...
+}
+```
+</Tabs.Tab>
+<Tabs.Tab>
+```rust
+#[endpoint(get = "/rest/{*tail}")]
+fn catch_all(&self, tail: String) -> String;
+```
+</Tabs.Tab>
+</Tabs>
+
+### Response Conventions
+
+Return types control the HTTP response:
+
+| Return type | HTTP response |
+|-------------|---------------|
+| A value (e.g. `Task`) | `200 OK` with JSON body |
+| `Option<T>` / `T \| null` | `Some`/non-null → `200`; `None`/`null` → `404 Not Found` |
+| `Result<T, E>` | `Ok` → `200`; `Err` → `400 Bad Request` with JSON error |
+| `void` / `()` | `204 No Content` |
+
+### Binary Request Bodies
+
+Use the `UnstructuredBinary` type to receive raw binary data in the request body:
+
+<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
+<Tabs.Tab>
+```typescript
+@endpoint({ post: "/upload" })
+async upload(file: UnstructuredBinary): Promise<number> {
+  // ...
+}
+```
+</Tabs.Tab>
+<Tabs.Tab>
+```rust
+#[endpoint(post = "/upload")]
+fn upload(&mut self, file: UnstructuredBinary) -> u64;
+```
+</Tabs.Tab>
+</Tabs>
+
+## CORS
+
+CORS can be configured at the **mount level** (applies to all endpoints) and optionally overridden per **endpoint**:
+
+<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
+<Tabs.Tab>
+```typescript
+@agent({
+  mount: '/api/{name}',
+  cors: ['https://app.example.com'],
+})
+export class MyAgent extends BaseAgent {
+  // All endpoints inherit the mount-level CORS setting
+
+  @endpoint({ get: "/public", cors: ["*"] })
+  async getPublic(): Promise<Data> {
+    // This endpoint adds additional allowed origins
   }
 }
 ```
+</Tabs.Tab>
+<Tabs.Tab>
+```rust
+#[agent_definition(mount = "/api/{name}", cors = ["https://app.example.com"])]
+pub trait MyAgent {
+    // All endpoints inherit the mount-level CORS setting
 
-##### Example
-The following example defines an _increment endpoint_ for the example used on the [Quickstart page](/quickstart):
+    #[endpoint(get = "/public", cors = ["*"])]
+    fn get_public(&self) -> Data;
+    // This endpoint adds additional allowed origins
+}
+```
+</Tabs.Tab>
+</Tabs>
+
+Per-endpoint CORS settings are unioned with the mount-level settings.
+
+## Authentication
+
+Golem API gateway has built-in authentication support. Authentication can be enabled at the mount level or per endpoint using `auth = true`. See [the API authentication page](/invoke/making-custom-apis/authentication) for setup details.
+
+<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
+<Tabs.Tab>
+```typescript
+@agent({
+  mount: '/secure/{name}',
+  auth: true, // require auth on all endpoints
+})
+export class SecureAgent extends BaseAgent {
+  // ...
+}
+
+// Or per-endpoint:
+@endpoint({ get: "/admin", auth: true })
+async adminOnly(principal: Principal): Promise<AdminData> {
+  // principal contains the authenticated user's identity
+}
+```
+</Tabs.Tab>
+<Tabs.Tab>
+```rust
+// Mount-level: all endpoints require auth
+#[agent_definition(mount = "/secure/{name}", auth = true)]
+pub trait SecureAgent {
+    // ...
+}
+
+// Or per-endpoint:
+#[endpoint(get = "/admin", auth = true)]
+fn admin_only(&self, principal: Principal) -> AdminData;
+// principal contains the authenticated user's identity
+```
+</Tabs.Tab>
+</Tabs>
+
+When authentication is enabled, agent constructors and methods can optionally receive a `Principal` parameter containing information about the authenticated caller.
+
+## Phantom Agents
+
+Endpoints can be served by **phantom agents** — ephemeral, stateless agents that are created for each request and discarded afterward. This is useful for gateway-like agents that dispatch to internal agents, allowing requests to be processed completely in parallel.
+
+<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
+<Tabs.Tab>
+```typescript
+@agent({
+  mount: '/gateway/{name}',
+  phantomAgent: true,
+})
+export class Gateway extends BaseAgent {
+  // A new instance is created per request
+}
+```
+</Tabs.Tab>
+<Tabs.Tab>
+```rust
+#[agent_definition(mount = "/gateway/{name}", phantom_agent = true)]
+pub trait Gateway {
+    // A new instance is created per request
+}
+```
+</Tabs.Tab>
+</Tabs>
+
+## Deployments
+
+To make the code-first routes accessible, a deployment section is needed in the application manifest (`golem.yaml`). This maps agents to domains per environment:
 
 ```yaml
 httpApi:
-  definitions:
-    counter-api:
-      version: '0.0.2'
-      routes:
-        - method: POST
-          path: /{name}/increment
-          binding:
-            type: default
-            componentName: "example:counter"
-            response: |
-              let name: string = request.path.name;
-              let agent = counter-agent(name);
-              let new-value = agent.increment();
-              { status: 200u64, body: { result: "incremented ${name}, new value is ${new-value}" } }
+  deployments:
+    local:
+    - domain: app-name.localhost:9006
+      agents:
+        Tasks: {}
 ```
 
-Note that when the content type header is not specified, the `body` is automatically serialized as JSON and the `Content-Type: application/json` header is added to the response.
-
-##### Non-JSON request or response bodies
-Currently Rib only supports JSON request bodies. The `request.body` field is always a parsed JSON object, allowing access to its fields. Arbitrary payload can be only sent as part of the JSON object, for example by encoding it as a base64 string.
-
-The response body's content type can be customized by adding a `Content-Type` header to the response object, and it also depends on the request's `Accept` header, if any. Depending on the accept and content type headers, different values returned in the response object's `body` field have different outcomes:
-
-- By default, if no `Accept` or `Content-Type` header is present, the resulting content type is `application/json`, and the `body` field can be any structured value, that is going to be serialized as JSON.
-- One exception to the above rule is if the value returned as the response body is an **array of bytes**. In this case the content type is set to `application/octet-stream` and the byte array is sent as-is in the response body.
-- If there is an explicit `Content-Type` header, or if the `Accept` header in the request requires a specific content type, then the following rules apply:
-  - If the content type is `application/json`, then the `body` field can be any structured value, that is going to be serialized as JSON.
-  - If the content type is `text/plain`, then the `body` field must be a string, which is sent as-is in the response body.
-  - If the content type is anything else, then the `body` field must be an array of bytes, which is sent as-is in the response body.
-
-##### Optional idempotency key script
-In Golem every request is associated with an _idempotency key_. If there is no special idempotency key script provided, then this key is either taken from the `Idempotency-Key` HTTP header, if any, or otherwise a random key is generated for each request.
-
-The `idempotencyKey` field of a binding can define a Rib script returning a **string** value. The following example uses a custom header instead of the `Idempotency-Key` one for extracting the idempotency key:
-
-```rib
-request.headers.X-Custom-Idempotency-Key
-```
-
-##### Optional invocation context script
-Every invocation in Golem has access to an _invocation context_. This invocation context has a span ID and a set of key-value pairs associated with it. Golem adds several keys by default to the invocation context, but by providing a Rib script in the binding's `invocationContext` field, additional key-value pairs can be added to the invocation context of the agent method invocation based on the request.
-
-The result of this Rib script must be an object of which each field is going to be added to the invocation context.
-
-#### Authentication
-Golem API gateway has built-in authentication support to identify users using OpenID protocol. See [the API authentication page](/invoke/making-custom-apis/authentication) for details.
-
-When authentication is configured for a route, the `request` object in the Rib script has an additional `auth` field, which contains the claims from the authenticated user's ID token. For example, if the authentication provider provides an `email` claim, it can be accessed as `request.auth.email`.
-
-In the HTTP API route definitions, authentication is enabled by adding a `security` field to the route (next to the `method`, `path` and `binding` fields) referring to the preconfigured security scheme:
-
-```yaml
-httpApi:
-  definitions:
-    counter-api:
-      version: '0.0.2'
-      routes:
-        - method: POST
-          path: /{name}/increment
-          security: my-security
-          binding:
-            type: default
-            componentName: "example:counter"
-            response: |
-              # ...
-```
-
-#### CORS
-Setting up CORS for a route in API Gateway is done by specifying an extra route for the same path with `OPTIONS` method and using the `cors-preflight` binding type.
-
-Optionally a `response` field can be added to the binding, customizing the CORS headers:
-
-```yaml
-httpApi:
-  definitions:
-    counter-api:
-      version: '0.0.2'
-      routes:
-        - method: POST
-          path: /{name}/increment
-          binding:
-            type: default
-            componentName: "example:counter"
-            response: |
-              # ...
-        - method: OPTIONS
-          path: /{name}/increment
-          binding:
-            type: cors-preflight
-            response: | # this field is optional
-             {
-              Access-Control-Allow-Origin: "*",
-              Access-Control-Allow-Methods: "GET, POST, PUT, DELETE, OPTIONS",
-              Access-Control-Allow-Headers: "Content-Type, Authorization",
-              Access-Control-Expose-Headers: "Content-Length, X-Requested-With",
-              Access-Control-Allow-Credentials: true,
-              Access-Control-Max-Age: 86400u64
-             }
-```
-
-### Deployments
-
-A _deployment_ simply associates a set of API definitions with a host, for example to deploy the example API definition when running the local Golem server, the following deployment can be used:
-
-```yaml
-httpApi:
-    definitions:
-      # ...
-    deployments:
-        local:
-          - host: localhost:9006
-            definitions:
-              - counter-api
-```
+You can specify which agents to deploy to which (sub)domains, organized by environment (e.g. `local`, `staging`, `prod`).
 
 ## Deploying the API
-Once the API definition and deployments are added to the `golem.yaml` file, the API can be deployed using the following command:
+
+Once the deployment is configured in `golem.yaml`, deploy with:
 
 ```shell
-golem api deploy
+golem app deploy
 ```
 
-The interactive shell will force you to update the version of the API definition to not lose track of the changes,
-and keep a note that you can have advanced management of the APIs using the `golem api definition` and `golem api deploy` commands
-allowing you to switch back to a previous API if needed.
+## OpenAPI Specification
 
-Note that the `api deploy` command also deploys the underlying components if needed.
+Golem automatically generates an OpenAPI specification from the code-first route definitions. Each deployment exposes an `openapi.yaml` endpoint:
 
-### Constraints
-
-Once an API is deployed using a specific component-version, the agent methods used in the Rib script of the deployed API definition must be kept backward compatible. This is checked and enforced in the deploy command.
-
-If there are conflicts the `api deploy` command will fail with a conflict report message,
-which details especially the missing functions and conflicting functions, where conflicting functions
-detail about existing parameter types, new parameter types, existing return type, and new return type.
-
-## Exporting as OpenAPI specification
-The API definitions can also be exported as OpenAPI specifications, which can be used for generating client code or as documentation.
-
-Use the `golem api definition export` CLI command to export the OpenAPI specification of a specific API definition:
-
-```shell copy
-golem api definition export --id counter-api --version 0.0.1
+```shell
+curl http://app-name.localhost:9006/openapi.yaml
 ```
+
+This returns a standard OpenAPI 3.0 specification describing all the deployed endpoints, including path parameters, request/response schemas, and more.
 
 ## Troubleshooting
 See the [troubleshooting page](/invoke/making-custom-apis/troubleshooting) for some common issues and their solutions.

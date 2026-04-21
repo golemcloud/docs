@@ -8,6 +8,7 @@ export const enum Release {
   R_1_2_4,
   R_1_3_0,
   R_1_4_0,
+  R_1_5_0,
 }
 
 type ReleaseMeta = {
@@ -69,6 +70,27 @@ const Releases: { [key in Release]: ReleaseMeta } = {
     json: "1.4.0",
     otherChanges: <></>,
   },
+  [Release.R_1_5_0]: {
+    json: "1.5.0",
+    otherChanges: (
+      <>
+        <div>
+          removed {code("tempDir")}, {code("witDeps")},{" "}
+          {code("components.<component-name>.sourceWit")},{" "}
+          {code("components.<component-name>.generatedWit")},{" "}
+          {code("components.<component-name>.linkedWasm")},{" "}
+          {code("components.<component-name>.componentType")},{" "}
+          {code("components.<component-name>.dependencies")},{" "}
+          {code("components.<component-name>.dependenciesMergeMode")}
+        </div>
+        <div>removed {code("httpApi.definitions")} subtree</div>
+        <div>
+          renamed {code("linkedWasm")} to {code("outputWasm")}
+        </div>
+        <div>restructured {code("httpApi")} to deployment-only model</div>
+      </>
+    ),
+  },
 }
 
 export type FieldMeta = {
@@ -116,6 +138,11 @@ const FieldSpecializations: FieldSpecialization[] = [
     pathPrefixMatch: "components.<component-name>.clean",
     parentPrefix: "clean",
     descriptionPrefix: "Component specific ",
+  },
+  {
+    pathPrefixMatch: "agents.<agent-type-name>.presets.<preset-name>.",
+    parentPrefix: "agents.<agent-type-name>.",
+    descriptionPrefix: "Preset specific ",
   },
 ]
 
@@ -297,6 +324,7 @@ export const Fields: FC<FieldsProps> = ({ children }) => {
     [Release.R_1_2_4]: {},
     [Release.R_1_3_0]: {},
     [Release.R_1_4_0]: {},
+    [Release.R_1_5_0]: {},
   })
 
   const addField = (relase: Release, path: string, id: string) => {

@@ -322,13 +322,11 @@ First start the REPL using:
 golem repl
 ```
 
-The REPL uses a special scripting language called [Rib](/rib). We can create some counter agents and interact with them using the following commands:
+The REPL by default is a TypeScript REPL, although we also have limited support for a Rust REPL as well. In the REPL we have access to all agents defined in the current application, we can get or create instances of them and invoke their methods:
 
 ```shell copy
->>> let a1 = counter-agent("agent-1")
-()
->>> let a2 = counter-agent("another")
-()
+>>> const a1 = await CounterAgent.get("agent-1")
+>>> const a2 = await CounterAgent.get("another")
 >>> a1.increment()
 1
 >>> a1.increment()
@@ -337,7 +335,7 @@ The REPL uses a special scripting language called [Rib](/rib). We can create som
 1
 ```
 
-Note that the REPL provides autocompletion on Tab.
+Note that the REPL provides autocompletion on Tab, and gives access to many CLI commands through `:` prefixed aliases.
 
 Check the [Invoke section](/invoke) to learn more about other ways to invoke agents.
 

@@ -3,7 +3,8 @@
 Once you have a component using `golem` commands,
 you can spin up a REPL to interact with your functions.
 
-Golem REPL is backed by the language [Rib](/rib)
+There are multiple REPLs in Golem - TypeScript and Rust but currently the most feature complete is the TypeScript one.
+It is possible to use any REPL with any agents, no matter the language they are implemented in.
 
 For example, using the [quickstart example](/quickstart):
 
@@ -12,10 +13,8 @@ golem repl
 ```
 
 ```shell
->>> let a1 = counter-agent("agent-1")
-()
->>> let a2 = counter-agent("another")
-()
+>>> const a1 = await CounterAgent.get("agent-1")
+>>> const a2 = await CounterAgent.get("another")
 >>> a1.increment()
 1
 >>> a1.increment()
@@ -24,5 +23,4 @@ golem repl
 1
 ```
 
-REPL is a great way to test the component and its functions,
-however note that it's a brand new feature and is experimental in nature.
+The REPL also contains built-in commands corresponding to CLI commands so it is possible to build, deploy and manage agents without leaving the REPL. These commands are available with the `:` prefix. Use the tab-completion to discover them.
