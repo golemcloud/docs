@@ -114,10 +114,8 @@ For both `file` and `stdout` logging, a set of boolean flags control the format 
 
 ### Getting agent logs
 
-Agent logs (both stdout/err and WASI logging entries) are persisted for each agent, and they can be watched in live by using the **connect API**. There are three ways to connect to an agent:
+Agent logs (both stdout/err and WASI logging entries) are persisted for each agent, and they can be watched in live by using the **connect API**. There are two ways to connect to an agent:
 
 - Using `golem`
 - Using the connect WebSocket API
-- Using the [Golem Console](https://console.golem.cloud/) (Golem Cloud only)
-
 To connect to a agent's log with `golem`, use either the `golem agent stream` command or the `--stream` flag when making an invocation. See the [CLI documentation](/cli/agents) for more details.

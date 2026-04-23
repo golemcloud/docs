@@ -34,9 +34,6 @@ export default {
   cli: {
     title: "CLI",
   },
-  desktop: {
-    title: "Desktop",
-  },
   "-- How-To Guides": {
     type: "separator",
     title: "How-To Guides",

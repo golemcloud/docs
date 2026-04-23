@@ -89,10 +89,7 @@ const support = [
   { name: "Help Center", href: "https://help.golem.cloud" },
 ]
 
-const golem = [
-  { name: "About", href: "https://www.golem.cloud" },
-  { name: "Console", href: "https://console.golem.cloud" },
-]
+const golem = [{ name: "About", href: "https://www.golem.cloud" }]
 
 const socials = [
   {
