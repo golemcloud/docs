@@ -12,6 +12,7 @@ const CATEGORIES: Record<string, string> = {
   rust: "Rust",
   ts: "TypeScript",
   scala: "Scala",
+  moonbit: "MoonBit",
 }
 
 type Skill = {

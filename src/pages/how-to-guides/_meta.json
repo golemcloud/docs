@@ -10,5 +10,8 @@
   },
   "scala": {
     "title": "Scala"
+  },
+  "moonbit": {
+    "title": "MoonBit"
   }
 }
