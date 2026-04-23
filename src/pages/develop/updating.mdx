@@ -1,4 +1,4 @@
-import { Tabs } from "nextra/components"
+import { Callout, Tabs } from "nextra/components"
 
 # Updating agents to newer versions of components
 
@@ -9,6 +9,10 @@ As described in the general [Agents](/concepts/agents) page, each agent runs on 
 The **automatic update** mode works as it is described in the general [Agents](/concepts/agents) page.
 
 ## Manual snapshot-based update
+
+<Callout>
+Snapshots can also be used for fast recovery during normal operation, not just for updates. See [Snapshotting](/develop/snapshotting) for details on snapshot-based recovery, default snapshotting implementations, and configuring periodic snapshots.
+</Callout>
 
 It is also possible to manually implement a pair of functions for saving and loading an agent's state into an arbitrary byte array. This is useful when making significant changes to the implementation of an agent, such that the automatic replay based update mechanism is no longer working. Future versions of Golem may also use the same snapshotting functions for optimizing recovery time of agents.
 

@@ -3,7 +3,8 @@
 The `golem` command line interface exposes one invocation subcommand:
 
 - `golem agent invoke` triggers a function invocation on an agent and awaits its result
-- `golem agent invoke --enqueue` just enqueues an invocation and returns immediately
+- `golem agent invoke --trigger` (or `-t`) fire-and-forget mode — triggers the invocation without waiting for the result
+- `golem agent invoke --trigger --schedule-at <DATETIME>` schedules the invocation at a specific time (ISO 8601 format; requires `--trigger`)
 
 ## Specifying what to invoke
 
@@ -28,7 +29,7 @@ The CLI requires you to encode the function parameters using the [WebAssembly Va
 
 ## Getting results
 
-When using `invoke` without the `--enqueue` flag, the CLI awaits the result of the invocation and prints the result value to the standard output. By default it uses the `text` format, in which case it prints the result value using the [WebAssembly Value Encoding](https://github.com/bytecodealliance/wasm-tools/tree/main/crates/wasm-wave).
+When using `invoke` without the `--trigger` flag, the CLI awaits the result of the invocation and prints the result value to the standard output. By default it uses the `text` format, in which case it prints the result value using the [WebAssembly Value Encoding](https://github.com/bytecodealliance/wasm-tools/tree/main/crates/wasm-wave).
 
 This can be changed with `--format json` or `--format yaml` to print the invocation result in JSON or YAML, using the [mapping described on Type Mapping page](/type-mapping).
 

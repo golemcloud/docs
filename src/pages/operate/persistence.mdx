@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The Golem Worker Executor uses a set of storage layers for persisting worker state and everything related to the execution of workers. This page gives an overview of what is stored where, as well as some pointers for extending Golem OSS with new storage implementations.
+The Golem Worker Executor uses a set of storage layers for persisting agent state and everything related to the execution of agents. This page gives an overview of what is stored where, as well as some pointers for extending Golem OSS with new storage implementations.
 
 ## Storage types
 
@@ -28,14 +28,14 @@ The **component compilation service** is a special, horizontally scalable compon
 
 ## Oplog
 
-Running agents continuously persist operations into the worker's **oplog**. The oplog is append-only (persisted entries are never modified) and it is indexable (during the recovery of an agent it is read from the earliest entry to the latest one).
+Running agents continuously persist operations into the agent's **oplog**. The oplog is append-only (persisted entries are never modified) and it is indexable (during the recovery of an agent it is read from the earliest entry to the latest one).
 The oplog is stored in multiple configurable layers. The default configuration is the following:
 
 - The **primary oplog layer** uses the **indexed storage**. This is the one where running agent's entries are appended to
 - There is a **secondary layer** that is also persisted to the **indexed storage**, but on this level each entry holds a compressed set of oplog entries.
 - A **tertiary layer** holds even larger chunks of compressed oplog entries and stores them in the **blob storage**.
 
-Oplogs are continuously moved towards the lower layers to prevent the primary oplog storage (Redis) from getting full. Agents which were not active for a while are fully stored in the blob storage only.
+Oplogs are continuously moved towards the lower layers to prevent the primary oplog storage (Redis) from getting full. Agents that were not active for a while are fully stored in the blob storage only.
 
 In addition to the above, there are oplog entries holding user-defined data (such as invocation parameters). As these user-defined payloads can have an arbitrary size, the worker executor has to protect its storage layer against putting too large entries into the primary oplog. For this reason large payloads are written to the **blob storage** and the corresponding oplog entry only stores a reference to them. Payloads below a configurable limit are stored inline in the oplog entry.
 
@@ -66,7 +66,7 @@ These options have the following meaning:
 | `max_operations_before_commit` | The number of non-critical oplog entries that can be buffered before committed to the oplog             |
 | `max_payload_size`             | The maximum size of user-defined payloads that can be stored inline in an oplog entry                   |
 
-## Worker metadata
+## Agent metadata
 
 The **oplog** is the primary source of truth for everything we need to store about an agent, but for performance reasons the **key value store** is also used to store aggregated agent metadata for agents. This metadata is not always completely up-to-date; it store the last oplog index it was calculated from, and its latest version can be reproduced by reading and processing the newer oplog entries. For agents which has no longer data in the primary oplog, we don't store agent metadata either. When these agents have to be recovered, their metadata is reconstructed by reading the whole archived oplog.
 

@@ -246,3 +246,70 @@ The retry policy which controls the maximum number of retries and the exponentia
         ```
     </Tabs.Tab>
 </Tabs>
+
+<Callout type="info">
+    MoonBit uses a simpler `RetryPolicy` struct with `max_attempts`, `min_delay`, `max_delay`, `multiplier`, and `max_jitter_factor` fields, rather than the tree-based `NamedRetryPolicy` used by TypeScript, Rust, and Scala. The named retry policy system described below applies to TypeScript, Rust, and Scala only.
+</Callout>
+
+### Named retry policies in golem.yaml
+
+Retry policies can also be defined declaratively in the application manifest (`golem.yaml`). These named retry policies are created in the environment during deployment, making them available to all agents without requiring code changes.
+
+```yaml
+retryPolicyDefaults:
+  local:
+    - name: default-retry
+      priority: 10
+      predicate: "true"
+      policy:
+        countBox:
+          maxRetries: 3
+          inner:
+            exponential:
+              baseDelay: { secs: 1, nanos: 0 }
+              factor: 2.0
+```
+
+### Policy types reference
+
+The following policy types can be used to construct retry policy trees:
+
+| Type | Fields | Description |
+|------|--------|-------------|
+| `"immediate"` | — | Retry immediately |
+| `"never"` | — | Never retry |
+| `periodic` | `{ secs, nanos }` | Fixed delay between retries |
+| `exponential` | `{ baseDelay, factor }` | Exponentially increasing delay |
+| `fibonacci` | `{ first, second }` | Fibonacci-sequence delays |
+| `countBox` | `{ maxRetries, inner }` | Limit total retry count |
+| `timeBox` | `{ limit, inner }` | Limit total retry time |
+| `clamp` | `{ minDelay, maxDelay, inner }` | Clamp delay range |
+| `addDelay` | `{ delay, inner }` | Add fixed delay to inner policy |
+| `jitter` | `{ factor, inner }` | Add random jitter |
+| `filteredOn` | `{ predicate, inner }` | Apply only when predicate matches |
+| `andThen` | `[policy1, policy2]` | Sequential composition |
+| `union` | `[policy1, policy2]` | Union of two policies |
+| `intersect` | `[policy1, policy2]` | Intersection of two policies |
+
+### Predicates reference
+
+Predicates control when a retry policy is applied. The following predicate types are available:
+
+| Type | Fields | Description |
+|------|--------|-------------|
+| `"true"` | — | Always matches |
+| `"false"` | — | Never matches |
+| `propEq` | `{ property, value }` | Property equals value |
+| `propNeq` | `{ property, value }` | Property not equal |
+| `propGt` / `propGte` | `{ property, value }` | Greater than / greater or equal |
+| `propLt` / `propLte` | `{ property, value }` | Less than / less or equal |
+| `propExists` | string | Property exists |
+| `propIn` | `{ property, values }` | Property in set |
+| `propMatches` | `{ property, pattern }` | Regex match |
+| `propStartsWith` | `{ property, prefix }` | Starts with prefix |
+| `propContains` | `{ property, substring }` | Contains substring |
+| `and` | `[pred1, pred2]` | Logical AND |
+| `or` | `[pred1, pred2]` | Logical OR |
+| `not` | predicate | Logical NOT |
+
+Predicate values are typed: `{ text: "..." }`, `{ integer: 42 }`, or `{ boolean: true }`.

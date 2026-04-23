@@ -65,10 +65,6 @@ When creating components or agents, the project can be specified with the `--pro
 
 ### Sharing projects with other accounts
 
-<Callout type="warning">
-The share command still uses the old terminology of _workers_ instead of talking about _agents_. This is going to be changed in the next version.
-</Callout>
-
 Projects can be shared among multiple Golem Cloud accounts.
 
 To share a project, use the `share` subcommand:
@@ -84,7 +80,7 @@ This example shares the "Golem Demo" project with the account identified by `08b
   subcommand, and refer to these policies in the `share` command later.
 </Callout>
 
-The following table lists all the **actions** that can be granted to a project:
+The following table lists all the **actions** that can be granted to a project. The REST API and permission action names still use "worker" for backwards compatibility.
 
 | Action                | Description                                   |
 | --------------------- | --------------------------------------------- |
@@ -92,10 +88,10 @@ The following table lists all the **actions** that can be granted to a project:
 | `CreateComponent`     | Create new components                         |
 | `UpdateComponent`     | Update existing components                    |
 | `DeleteComponent`     | Delete components                             |
-| `ViewWorker`          | List and get metadata of workers              |
-| `CreateWorker`        | Create new workers                            |
-| `UpdateWorker`        | Update existing workers                       |
-| `DeleteWorker`        | Delete workers                                |
+| `ViewWorker`          | List and get metadata of agents               |
+| `CreateWorker`        | Create new agents                             |
+| `UpdateWorker`        | Update existing agents                        |
+| `DeleteWorker`        | Delete agents                                 |
 | `ViewProjectGrants`   | List existing project grants                  |
 | `CreateProjectGrants` | Grant more access for the project             |
 | `DeleteProjectGrants` | Revoke access for the project                 |

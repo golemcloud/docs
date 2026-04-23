@@ -28,7 +28,7 @@ Golem is an agent-native runtime that gives you durability, exactly-once effects
 
 ### The Code You Write; The Runtime You Don't
 
-Use normal TypeScript to write agents and tools. Beneath it, Golem runs a complete runtime—persistence, exactly-once I/O, observability, autoscaling, isolation, and safe upgrades—so your agents survive reality without bespoke infra.
+Use TypeScript, Rust, Scala, or MoonBit to write agents and tools. Beneath it, Golem runs a complete runtime—persistence, exactly-once I/O, observability, autoscaling, isolation, and safe upgrades—so your agents survive reality without bespoke infra.
 
 ## What You Stop Building
 
@@ -79,20 +79,19 @@ Use normal TypeScript to write agents and tools. Beneath it, Golem runs a comple
 
 - Your app is stateless or completes in a single request/response
 - You only need a prompt library or a light orchestration DSL and reliability doesn't matter to you
-- You require a programming language other than TypeScript today (more languages are on the way)
 - You already run on a durable runtime that guarantees exactly-once and you're satisfied with its ops/tooling
 
 *Our goal is to help you decide quickly — even if the answer is "not yet."*
 
 ## How Golem Fits Your Stack
 
-1. **Build** agents and tools in TypeScript.
+1. **Build** agents and tools in TypeScript, Rust, Scala, or MoonBit.
 2. **Grant** capabilities (APIs, tools, other agents).
 3. **Deploy** agent types to the runtime.
 4. **Trigger** via secure APIs; send commands or messages.
 5. **Observe** execution with searchable traces and safe replay.
 
-**Interop:** Agents call your services over HTTP under exactly-once mediation. Connect tools (including MCP) and other agents with durable delivery. Start with one use case; retire bespoke queues and schedulers over time.
+**Interop:** Agents call your services over HTTP under exactly-once mediation. Connect tools (including MCP) and other agents with durable delivery. Define HTTP routes and MCP servers code-first, use typed configuration and secrets, connect via WebSockets, and call agents from outside Golem through bridge libraries. Full OpenTelemetry integration provides end-to-end visibility. Start with one use case; retire bespoke queues and schedulers over time.
 
 ## Why a Runtime (Not Just a Library)?
 
@@ -120,7 +119,7 @@ No. Start by running the stateful, failure-sensitive parts of your agents on Gol
 
 **What languages are supported?**
 
-TypeScript today, with more languages on the way.
+TypeScript, Rust, Scala, and MoonBit.
 
 **How does Golem prevent duplicate effects?**
 

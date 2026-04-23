@@ -1,4 +1,10 @@
+import { Callout } from "nextra/components"
+
 # Agent type and method name mapping
+
+<Callout type="info">
+Golem 1.5 uses [code-first routes](/invoke/making-custom-apis) for HTTP API definitions — no Rib scripting needed. The Rib name mapping described below applies to the legacy YAML-based API definition approach.
+</Callout>
 
 The agents defined by code are compiled to WebAssembly and there are some specific rules of how the agent methods can be referred to from outside the source code, such as from Rib scripts or the CLI.
 

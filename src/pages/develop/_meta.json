@@ -12,7 +12,9 @@
     "title": "Golem SDK"
   },
   "http": "HTTP client",
+  "websocket": "WebSocket client",
   "durability": "Durability",
+  "snapshotting": "Snapshotting",
   "retries": "Retries",
   "transactions": "Transactions",
   "promises": "Promises",
@@ -22,5 +24,9 @@
   "agent-filesystem": "Agent Filesystem",
   "ai": "Using AI Providers",
   "rdbms": "Using Relational Databases",
-  "forking": "Forking Agents"
+  "forking": "Forking Agents",
+  "config-and-secrets": "Configuration and Secrets",
+  "webhooks": "Webhooks",
+  "quotas": "Quotas",
+  "observability": "Observability"
 }

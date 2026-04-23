@@ -38,7 +38,7 @@ Component compilation service exposes the following Prometheus metrics:
 | `cache_miss_total`                   | counter   | `cache`            | Number of cache misses                         |
 | `cache_eviction_total`               | counter   | `cache`, `trigger` | Number of cache evictions                      |
 | `component_compilation_queue_length` | gauge     |                    | Number of compilation requests enqueued        |
-| `compilation_time_seconds`           | histogram |                    | Time to compile a WASM compnent to native code |
+| `compilation_time_seconds`           | histogram |                    | Time to compile a WASM component to native code |
 
 ### Shard Manager
 
@@ -50,7 +50,7 @@ Shard manager exposes the following Prometheus metrics:
 | `api_failure_seconds`               | histogram | `api`, `api_type`   | Measures the duration of failed API requests (both HTTP and gRPC)               |
 | `grpc_api_active_streams`           | gauge     |                     | Number of open incoming gRPC streams                                            |
 | `http_api_active_streams`           | gauge     |                     | Number of open incoming HTTP streams                                            |
-| `external_call_success_seconds`     | histogram | `target`, `op`      | Dureation of successful outgoing calls                                          |
+| `external_call_success_seconds`     | histogram | `target`, `op`      | Duration of successful outgoing calls                                          |
 | `external_call_response_size_bytes` | histogram | `target`, `op`      | Size of the response of outgoing calls                                          |
 | `external_call_retry_total`         | counter   | `target`, `op`      | Number of failed outgoing calls that got retried                                |
 | `external_call_failure_total`       | counter   | `target`, `op`      | Number of failed outgoing calls not to be retried                               |
@@ -69,7 +69,7 @@ Worker executors expose the following Prometheus metrics:
 | `api_failure_seconds`               | histogram | `api`, `api_type`   | Measures the duration of failed API requests (both HTTP and gRPC)               |
 | `grpc_api_active_streams`           | gauge     |                     | Number of open incoming gRPC streams                                            |
 | `http_api_active_streams`           | gauge     |                     | Number of open incoming HTTP streams                                            |
-| `external_call_success_seconds`     | histogram | `target`, `op`      | Dureation of successful outgoing calls                                          |
+| `external_call_success_seconds`     | histogram | `target`, `op`      | Duration of successful outgoing calls                                          |
 | `external_call_response_size_bytes` | histogram | `target`, `op`      | Size of the response of outgoing calls                                          |
 | `external_call_retry_total`         | counter   | `target`, `op`      | Number of failed outgoing calls that got retried                                |
 | `external_call_failure_total`       | counter   | `target`, `op`      | Number of failed outgoing calls not to be retried                               |
@@ -81,7 +81,7 @@ Worker executors expose the following Prometheus metrics:
 | `cache_hit_total`                   | counter   | `cache`             | Number of cache hits                                                            |
 | `cache_miss_total`                  | counter   | `cache`             | Number of cache misses                                                          |
 | `cache_eviction_total`              | counter   | `cache`, `trigger`  | Number of cache evictions                                                       |
-| `compilation_time_seconds`          | histogram |                     | Time to compile a WASM compnent to native code                                  |
+| `compilation_time_seconds`          | histogram |                     | Time to compile a WASM component to native code                                 |
 | `event_total`                       | counter   | `event`             | Number of events produced by workers                                            |
 | `event_broadcast_total`             | counter   | `event`             | Number of events broadcasted by the executor                                    |
 | `worker_executor_call_total`        | counter   | `api`               | Number of calls to the worker layer                                             |
@@ -111,7 +111,7 @@ Worker service exposes the following Prometheus metrics:
 | `api_failure_seconds`               | histogram | `api`, `api_type`                                                                                          | Measures the duration of failed API requests (both HTTP and gRPC)               |
 | `grpc_api_active_streams`           | gauge     |                                                                                                            | Number of open incoming gRPC streams                                            |
 | `http_api_active_streams`           | gauge     |                                                                                                            | Number of open incoming HTTP streams                                            |
-| `external_call_success_seconds`     | histogram | `target`, `op`                                                                                             | Dureation of successful outgoing calls                                          |
+| `external_call_success_seconds`     | histogram | `target`, `op`                                                                                             | Duration of successful outgoing calls                                          |
 | `external_call_response_size_bytes` | histogram | `target`, `op`                                                                                             | Size of the response of outgoing calls                                          |
 | `external_call_retry_total`         | counter   | `target`, `op`                                                                                             | Number of failed outgoing calls that got retried                                |
 | `external_call_failure_total`       | counter   | `target`, `op`                                                                                             | Number of failed outgoing calls not to be retried                               |
@@ -119,3 +119,5 @@ Worker service exposes the following Prometheus metrics:
 | `cache_hit_total`                   | counter   | `cache`                                                                                                    | Number of cache hits                                                            |
 | `cache_miss_total`                  | counter   | `cache`                                                                                                    | Number of cache misses                                                          |
 | `cache_eviction_total`              | counter   | `cache`, `trigger`                                                                                         | Number of cache evictions                                                       |
+
+For application-level observability with traces, logs, and metrics exported via OpenTelemetry, see the [Observability](/develop/observability) page.

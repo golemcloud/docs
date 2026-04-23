@@ -7,6 +7,7 @@ The currently supported databases are:
 
 - PostgreSQL
 - MySQL
+- Apache Ignite 2
 
 <details>
     <summary>See the full API definition</summary>
@@ -802,6 +803,147 @@ To execute an SQL statement with `golem-rdbms`, first crete a `db-connection` re
   The functions in `golemcloud/golem_sdk/interface/golem/rdbms/postgres` are **not async**. This is due to a limitation of the current Golem runtime, and are subject to change in future releases.
   </Callout>
   </Tabs.Tab>
+</Tabs>
+
+#### Apache Ignite
+
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
+  <Tabs.Tab>
+  ```typescript
+  import { DbConnection } from "golem:rdbms/ignite2@1.5.0";
+
+  // Connecting to an Apache Ignite 2 instance
+  const conn = DbConnection.open("ignite://localhost:10800");
+  conn.execute(
+    `CREATE TABLE IF NOT EXISTS test_users
+      (
+          user_id             varchar(25)    NOT NULL,
+          name                varchar(255)   NOT NULL,
+          PRIMARY KEY (user_id)
+      ) WITH "CACHE_NAME=TestUsers";`,
+    []
+  )
+
+  // Querying data
+  const result = conn.query("SELECT user_id, name FROM test_users WHERE name = ?", [
+    { tag: "db-string", val: "hello" }
+  ]);
+
+  // Using transactions
+  const tx = conn.beginTransaction();
+  tx.execute("INSERT INTO test_users (user_id, name) VALUES (?, ?)", [
+    { tag: "db-string", val: "1" },
+    { tag: "db-string", val: "Alice" }
+  ]);
+  tx.commit();
+  ```
+
+  <Callout type="info">
+  The functions in the `golem:rdbms/ignite2@1.5.0` module are **not async**. This is due to a limitation of the current Golem runtime, and are subject to change in future releases.
+  </Callout>
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+  ```rust
+  use golem_rust::bindings::golem::rdbms::ignite2::*;
+
+  // Connecting to an Apache Ignite 2 instance
+  // Use appropriate error handling in real code
+  let conn = DbConnection::open("ignite://localhost:10800").expect("Failed to connect to database");
+
+  conn.execute(
+    "CREATE TABLE IF NOT EXISTS test_users
+      (
+          user_id             varchar(25)    NOT NULL,
+          name                varchar(255)   NOT NULL,
+          PRIMARY KEY (user_id)
+      ) WITH \"CACHE_NAME=TestUsers\";",
+    &[])
+    .expect("Failed to execute statement");
+
+  // Querying data
+  let result = conn.query(
+    "SELECT user_id, name FROM test_users WHERE name = ?",
+    &[DbValue::DbString("hello".to_string())]
+  ).expect("Failed to query");
+
+  // Using transactions
+  let tx = conn.begin_transaction().expect("Failed to begin transaction");
+  tx.execute(
+    "INSERT INTO test_users (user_id, name) VALUES (?, ?)",
+    &[DbValue::DbString("1".to_string()), DbValue::DbString("Alice".to_string())]
+  ).expect("Failed to execute");
+  tx.commit().expect("Failed to commit");
+  ```
+
+  <Callout type="info">
+  The functions in the `golem_rust::bindings::golem::rdbms::ignite2` bindings are **not async**. This is due to a limitation of the current Golem runtime, and are subject to change in future releases.
+  </Callout>
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+  ```scala
+  import golem.host.Rdbms
+
+  // Connecting to an Apache Ignite 2 instance
+  // Use appropriate error handling in real code
+  val result =
+    Rdbms.Ignite2.open("ignite://localhost:10800").flatMap { conn =>
+      conn.execute(
+        """CREATE TABLE IF NOT EXISTS test_users
+          |  (
+          |      user_id             varchar(25)    NOT NULL,
+          |      name                varchar(255)   NOT NULL,
+          |      PRIMARY KEY (user_id)
+          |  ) WITH "CACHE_NAME=TestUsers";""".stripMargin,
+        Nil
+      )
+    }
+  ```
+
+  <Callout type="info">
+  The functions in `golem.host.Rdbms.Ignite2` are **not async**. This is due to a limitation of the current Golem runtime, and are subject to change in future releases.
+  </Callout>
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+  ```moonbit
+  // Assuming `golemcloud/golem_sdk/interface/golem/rdbms/ignite2` is imported as `@ignite`:
+
+  // Connecting to an Apache Ignite 2 instance
+  // Use appropriate error handling in real code
+  let conn = @ignite.DbConnection::open("ignite://127.0.0.1:10800").unwrap()
+  let statement =
+    #|CREATE TABLE IF NOT EXISTS test_users
+    #|  (
+    #|      user_id             varchar(25)    NOT NULL,
+    #|      name                varchar(255)   NOT NULL,
+    #|      PRIMARY KEY (user_id)
+    #|  ) WITH "CACHE_NAME=TestUsers";
+
+  @ignite.DbConnection::execute(conn, statement, []).unwrap()
+
+  // Querying data
+  let result = @ignite.DbConnection::query(
+    conn,
+    "SELECT user_id, name FROM test_users WHERE name = ?",
+    [@ignite.DbValue::DbString("hello")]
+  ).unwrap()
+
+  // Using transactions
+  let tx = conn.begin_transaction().unwrap()
+  tx.execute(
+    "INSERT INTO test_users (user_id, name) VALUES (?, ?)",
+    [@ignite.DbValue::DbString("1"), @ignite.DbValue::DbString("Alice")]
+  ).unwrap()
+  tx.commit().unwrap()
+  ```
+
+  <Callout type="info">
+  The functions in `golemcloud/golem_sdk/interface/golem/rdbms/ignite2` are **not async**. This is due to a limitation of the current Golem runtime, and are subject to change in future releases.
+  </Callout>
+  </Tabs.Tab>
+
 </Tabs>
 
 #### API

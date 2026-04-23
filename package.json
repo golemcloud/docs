@@ -36,6 +36,9 @@
     "react-dom": "^18",
     "shiki": "^0.14.3"
   },
+  "overrides": {
+    "next-mdx-remote": "6.0.0"
+  },
   "devDependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
     "@types/bun": "^1.0.1",

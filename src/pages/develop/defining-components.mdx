@@ -516,3 +516,65 @@ components:
             MY_ENV_VAR: "some value"
             ANOTHER_ENV_VAR: "another value"
 ```
+
+### Per-agent configuration
+
+In Golem 1.5, configuration is primarily per-agent rather than per-component. The configuration follows a cascade hierarchy:
+
+```
+componentTemplates → components → agents → presets
+```
+
+Each level can define `env` (environment variables) and `files` (initial filesystem), with more specific levels overriding more general ones.
+
+#### Agent-level configuration in golem.yaml
+
+```yaml
+agents:
+  InboxAgent:
+    env:
+      OPENAI_API_KEY: "{{ OPENAI_API_KEY }}"
+      MODEL: gpt-4.1-mini
+    files:
+      - sourcePath: ./prompts/inbox-system.md
+        targetPath: /prompts/system.md
+        permissions: read-only
+    config:
+      defaultQueue: general
+      summarizeReplies: true
+
+  EscalationAgent:
+    env:
+      JIRA_BASE_URL: https://acme.atlassian.net
+    files:
+      - sourcePath: ./prompts/escalation-system.md
+        targetPath: /prompts/system.md
+        permissions: read-only
+```
+
+#### Merge modes
+
+By default, child-level environment variables are upserted (added or updated) into parent values. This can be changed with `envMergeMode`:
+
+| Mode | Behavior |
+|------|----------|
+| `upsert` | (default) Add new keys, overwrite existing ones |
+| `replace` | Discard all parent env vars, use only this level's values |
+| `remove` | Remove the listed keys from the parent map |
+
+Similarly, `filesMergeMode` controls how initial files are merged: `append` (default), `prepend`, or `replace`.
+
+#### Presets
+
+Both components and agents support presets that can override configuration per deployment target:
+
+```yaml
+environments:
+  local:
+    default: true
+    server: local
+    componentPresets: local
+  prod:
+    server: cloud
+    componentPresets: cloud
+```

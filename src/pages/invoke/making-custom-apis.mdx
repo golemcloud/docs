@@ -201,7 +201,7 @@ pub fn ExampleAgent::example(self : Self, location : String, name : String) -> S
 
 The `{*variable}` syntax captures all remaining path segments. It must be the last segment in the path:
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
 <Tabs.Tab>
 ```typescript
 @endpoint({ get: "/files/{*rest}" })
@@ -214,6 +214,20 @@ async serveFile(rest: string): Promise<FileData> {
 ```rust
 #[endpoint(get = "/rest/{*tail}")]
 fn catch_all(&self, tail: String) -> String;
+```
+</Tabs.Tab>
+<Tabs.Tab>
+```scala
+@endpoint(method = "GET", path = "/files/{*path}")
+def serveFile(path: String): Future[FileData]
+```
+</Tabs.Tab>
+<Tabs.Tab>
+```moonbit
+#derive.endpoint(get = "/files/{*path}")
+pub fn MyAgent::serve_file(self : Self, path : String) -> FileData {
+  // ...
+}
 ```
 </Tabs.Tab>
 </Tabs>
@@ -233,7 +247,7 @@ Return types control the HTTP response:
 
 Use the `UnstructuredBinary` type to receive raw binary data in the request body:
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
 <Tabs.Tab>
 ```typescript
 @endpoint({ post: "/upload" })
@@ -248,13 +262,27 @@ async upload(file: UnstructuredBinary): Promise<number> {
 fn upload(&mut self, file: UnstructuredBinary) -> u64;
 ```
 </Tabs.Tab>
+<Tabs.Tab>
+```scala
+@endpoint(method = "POST", path = "/upload")
+def upload(file: UnstructuredBinary): Future[Long]
+```
+</Tabs.Tab>
+<Tabs.Tab>
+```moonbit
+#derive.endpoint(post = "/upload")
+pub fn MyAgent::upload(self : Self, file : UnstructuredBinary) -> UInt64 {
+  // ...
+}
+```
+</Tabs.Tab>
 </Tabs>
 
 ## CORS
 
 CORS can be configured at the **mount level** (applies to all endpoints) and optionally overridden per **endpoint**:
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
 <Tabs.Tab>
 ```typescript
 @agent({
@@ -283,6 +311,36 @@ pub trait MyAgent {
 }
 ```
 </Tabs.Tab>
+<Tabs.Tab>
+```scala
+@agentDefinition(mount = "/api/{name}", cors = Array("https://app.example.com"))
+trait MyAgent extends BaseAgent {
+  // All endpoints inherit the mount-level CORS setting
+
+  @endpoint(method = "GET", path = "/public", cors = Array("*"))
+  def getPublic(): Future[Data]
+  // This endpoint adds additional allowed origins
+}
+```
+</Tabs.Tab>
+<Tabs.Tab>
+```moonbit
+#derive.agent
+#derive.mount("/api/{name}")
+#derive.mount_cors("https://app.example.com")
+pub(all) struct MyAgent {
+  // ...
+}
+
+// All endpoints inherit the mount-level CORS setting
+
+#derive.endpoint(get = "/public")
+#derive.endpoint_cors("*")
+pub fn MyAgent::get_public(self : Self) -> Data {
+  // This endpoint adds additional allowed origins
+}
+```
+</Tabs.Tab>
 </Tabs>
 
 Per-endpoint CORS settings are unioned with the mount-level settings.
@@ -291,7 +349,7 @@ Per-endpoint CORS settings are unioned with the mount-level settings.
 
 Golem API gateway has built-in authentication support. Authentication can be enabled at the mount level or per endpoint using `auth = true`. See [the API authentication page](/invoke/making-custom-apis/authentication) for setup details.
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
 <Tabs.Tab>
 ```typescript
 @agent({
@@ -323,6 +381,38 @@ fn admin_only(&self, principal: Principal) -> AdminData;
 // principal contains the authenticated user's identity
 ```
 </Tabs.Tab>
+<Tabs.Tab>
+```scala
+// Mount-level: all endpoints require auth
+@agentDefinition(mount = "/secure/{name}", auth = true)
+trait SecureAgent extends BaseAgent {
+  // ...
+}
+
+// Or per-endpoint:
+@endpoint(method = "GET", path = "/admin", auth = true)
+def adminOnly(principal: Principal): Future[AdminData]
+// principal contains the authenticated user's identity
+```
+</Tabs.Tab>
+<Tabs.Tab>
+```moonbit
+// Mount-level: all endpoints require auth
+#derive.agent
+#derive.mount("/secure/{name}")
+#derive.mount_auth(true)
+pub(all) struct SecureAgent {
+  // ...
+}
+
+// Or per-endpoint:
+#derive.endpoint(get = "/admin")
+#derive.endpoint_auth(true)
+pub fn SecureAgent::admin_only(self : Self, principal : Principal) -> AdminData {
+  // principal contains the authenticated user's identity
+}
+```
+</Tabs.Tab>
 </Tabs>
 
 When authentication is enabled, agent constructors and methods can optionally receive a `Principal` parameter containing information about the authenticated caller.
@@ -331,7 +421,7 @@ When authentication is enabled, agent constructors and methods can optionally re
 
 Endpoints can be served by **phantom agents** — ephemeral, stateless agents that are created for each request and discarded afterward. This is useful for gateway-like agents that dispatch to internal agents, allowing requests to be processed completely in parallel.
 
-<Tabs items={["TypeScript", "Rust"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
 <Tabs.Tab>
 ```typescript
 @agent({
@@ -348,6 +438,24 @@ export class Gateway extends BaseAgent {
 #[agent_definition(mount = "/gateway/{name}", phantom_agent = true)]
 pub trait Gateway {
     // A new instance is created per request
+}
+```
+</Tabs.Tab>
+<Tabs.Tab>
+```scala
+@agentDefinition(mount = "/gateway/{name}", phantomAgent = true)
+trait Gateway extends BaseAgent {
+  // A new instance is created per request
+}
+```
+</Tabs.Tab>
+<Tabs.Tab>
+```moonbit
+#derive.agent
+#derive.mount("/gateway/{name}")
+#derive.mount_phantom(true)
+pub(all) struct Gateway {
+  // A new instance is created per request
 }
 ```
 </Tabs.Tab>

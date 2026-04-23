@@ -204,9 +204,9 @@ consider implementing your own retry strategies for such cases.
 
 ### Customization
 
-Currently, you can customize an agent's retry policy, including number of
-retries, delays, and so on, but it is a global setting that applies to all
-failed operations. See the [page about retries](/develop/retries) for details.
+You can customize retry behavior using composable named retry policies with
+predicates, allowing fine-grained control over which operations are retried
+and how. See the [page about retries](/develop/retries) for details.
 
 ## Fault-Tolerance
 
@@ -218,7 +218,7 @@ In order to more precisely define the scope of these guarantees, we need to
 introduce some terminology:
 
 - **Failure Event**. A _failure event_ is any event that causes an agent to
-  interrupt execution, but excluding all internal errors in the worker itself.
+  interrupt execution, but excluding all internal errors in the agent itself.
   This includes operating system faults, hardware faults, disruptions
   (termination through the container orchestrator), restarts, and updates.
 - **Supervision**. _Supervision_ is the process by which Golem detects failure
@@ -259,9 +259,9 @@ To mitigate this issue, you should consider using HTTP APIs that support the
 This header allows you to provide a unique key for each request, which the
 remote system can use to ensure that the request is idempotent.
 
-In a future release, Golem will automatically generate idempotency keys for
-each request. For now, however, you can use the language-specific Golem SDK
-to generate an idempotency key, which you can then pass to the remote system.
+Golem supports automatic idempotency key generation. You can use
+`generateIdempotencyKey()` from the Golem SDK to generate a unique key,
+which you can then pass to the remote system.
 
 <Callout type="warning">
   It is recommended to use the Golem SDK to generate idempotency keys, rather than generating them
@@ -335,9 +335,8 @@ handling mechanisms. While Golem offers substantial reliability features, it's
 essential to understand its current limitations. These include the potential
 for at-least-once semantics in certain external system interactions and
 limitations in the availability of specific agents during cluster changes.
-However, Golem's team is actively working on addressing these areas, with
-plans for customizable retry strategies and improved agent availability on
-the horizon.
+Golem addresses many of these concerns with features like composable retry
+policies and continues to improve agent availability.
 
 For developers leveraging Golem, a deep understanding of these reliability
 concepts and Golem's capabilities is crucial. This knowledge allows you to make
@@ -346,10 +345,10 @@ reliability measures may be necessary, and fully utilize Golem's built-in
 features to create robust distributed applications.
 
 As distributed systems continue to grow in complexity and importance, platforms
-like Golem evolve to meet these challenges. Future releases promise to bring
-even more advanced reliability features, such as automatic idempotency key
-generation and instant failover for high-priority agents, further enhancing
-Golem's ability to support mission-critical applications.
+like Golem evolve to meet these challenges. With features like automatic
+idempotency key generation, composable retry policies, and plans for instant
+failover for high-priority agents, Golem continues to enhance its ability to
+support mission-critical applications.
 
 In conclusion, Golem provides a powerful foundation for building highly reliable
 distributed systems. By abstracting away many of the complexities associated with

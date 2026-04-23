@@ -113,7 +113,7 @@ However, in brief, Golem provides the following guarantees:
   systems that do not.
 - **Indefinite Life**. Unless forcibly deleted or failed in a way that is
   unrecoverable (e.g. corruption of memory in a C program), agents live
-  forever, without loss of state or progress. This allows workers to be used
+  forever, without loss of state or progress. This allows agents to be used
   for long-running tasks, such as background processing, or for implementing
   APIs that require long-lived state.
 - **Secure Sandboxing**. Agents are executed in completely sandboxed
@@ -190,9 +190,9 @@ There are two ways to update an existing agents to a new version of a component,
 
 #### Automatic update details
 
-Automatic update can be initiated any time, even while the agent is processing an invocation. The executor interrupts the agent, reloads it using the new component version and then replays the agent's oplog from the beginning of time. If the replay succeeds with the new codebase, the worker continues running from where it was interrupted, but now on the new component version. If the replay fails, the agent gets reverted to the original component version and continues running with that.
+Automatic update can be initiated any time, even while the agent is processing an invocation. The executor interrupts the agent, reloads it using the new component version and then replays the agent's oplog from the beginning of time. If the replay succeeds with the new codebase, the agent continues running from where it was interrupted, but now on the new component version. If the replay fails, the agent gets reverted to the original component version and continues running with that.
 
-How can the replay fail? Golem performs **divergence detection** during replaying the oplog. The following situations are considered divergences:
+How can the replay fail? Golem performs **divergence detection** during replay. The following situations are considered divergences:
 
 - **Invocation result divergence**. If the new component produces a different result value for a past invocation than the old one
 - **Side effect divergence**. If the new component would perform different side effects (such as HTTP requests, generating random numbers, accessing the current time, etc) than the ones that have been recorded.

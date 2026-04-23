@@ -1,4 +1,4 @@
-import { Tabs } from "nextra/components"
+import { Callout, Tabs } from "nextra/components"
 
 # High level transactions
 
@@ -322,6 +322,10 @@ The defined operations can be executed in _fallible_ or _infallible_ mode:
     ```
     </Tabs.Tab>
     <Tabs.Tab>
+    <Callout type="info">
+    The MoonBit SDK does not yet provide high-level `fallibleTransaction` / `infallibleTransaction` helpers like the other languages. The saga pattern must be implemented manually using oplog primitives as shown below.
+    </Callout>
+
     ```moonbit
     import "golemcloud/golem_sdk/api" as @api
 

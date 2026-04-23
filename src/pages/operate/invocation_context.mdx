@@ -25,7 +25,7 @@ When an invocation reaches an agent, a new span is created containing the follow
 - `name`: span's name (`invoke-exported-function`)
 - `idempotency_key`: unique identifier of the invocation
 - `function_name`: the fully qualified function name
-- `worker_id`: worker's ID (consists of component ID and agent ID)
+- `worker_id`: agent's ID (consists of component ID and agent name)
 - `agent_type`: the agent type of this agent
 - `agent_parameters`: constructor parameter values of the agent
 
@@ -40,10 +40,12 @@ Outgoing HTTP requests are also represented by their own automatic spans with th
 RPC calls on the caller side are also represented by custom spans. First, a span is created when the underlying RPC resource is initialized, with the following attributes:
 
 - `name`: span's name (`rpc-connection`)
-- `target_worker_id`: the target worker's ID
+- `target_worker_id`: the target agent's ID
 
 Within this span, a new span is created for each remote invocation, with the following attributes:
 
 - `name`: span's name (`rpc-invocation`)
 - `function_name`: the invoked function's fully qualified name
 - `idempotency_key`: the unique identifier of the invocation
+
+Note: some attribute names such as `worker_id` and `target_worker_id` use legacy "worker" terminology for backwards compatibility.

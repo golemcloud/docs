@@ -995,6 +995,8 @@ If `finish` is not explicitly called on the span, it is going to be finished whe
 
 The custom spans are pushed onto the invocation context stack, so whenever an RPC call or HTTP call is made, their parent span(s) will include the user-defined custom spans as well as the rest of the invocation context.
 
+To export traces, logs, and metrics to an external system, see the [Observability](/develop/observability) page for setting up the OpenTelemetry plugin.
+
 ### The WASI Key-Value store interface
 
 Although Golem agents can store their state completely in their own memory, it is possible to use the `wasi:keyvalue` interface to store key-value pairs in a Golem managed key value storage.
