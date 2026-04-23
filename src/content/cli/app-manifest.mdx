@@ -12,16 +12,15 @@ Once all manifest documents are found, the paths in them are resolved based on t
 
 ## Using component templates
 
-Golem projects can be created with `golem new` command. This creates a new application that may consist of multiple components. To add a new component to an existing application, use `golem component new`. E.g.: let's add a new _c_ and _ts_ component in a new and empty directory:
+Golem projects can be created with `golem new` command. This creates a new application that may consist of multiple components. To add a new component to an existing application, run `golem new` again from within the application directory with the `--component-name` option. E.g.: let's add a new _rust_ and _ts_ component in a new and empty directory:
 
 ```shell
-golem new myapp rust
+golem new --template rust --component-name app:component-a myapp
 cd myapp
-golem component new rust app:component-a
-golem component new ts app:component-b
+golem new --template ts --component-name app:component-b .
 ```
 
-When using the `app new` command, it will create:
+When using the `golem new` command, it will create:
 
 - common directory for the given language (`common-rust` and `common-ts`):
 - this directory contains the languages specific _Application Manifest Template_, which defines how to
@@ -37,12 +36,6 @@ Let's rename one of the generated agents, so they are unique for the deployment.
 + class OtherCounterAgent extends BaseAgent {
 ```
 
-and in `components-ts/app-component-b/golem.yaml`:
-```diff
--             let agent = counter-agent(name);
-+             let agent = other-counter-agent(name);
-```
-
 Now that we added our components, let's use the `golem` command list our project metadata:
 
 ```shell
@@ -53,14 +46,15 @@ Golem Command Line Interface
 Usage: golem [OPTIONS] <COMMAND>
 
 Commands:
-  new               Create a new application
+  new               Create a new application, component, or agent
+  templates         List or search application templates
   build             Build all or selected components in the application
-  repl              Start TypeScript REPL for a selected component
+  generate-bridge   Generate bridge SDK(s) for the selected agent(s)
+  repl              Start REPL for a selected component
   deploy            Deploy application
   clean             Clean all components in the application or by selection
   update-agents     Try to automatically update all existing agents of the application to the latest version
   redeploy-agents   Redeploy all agents of the application using the latest version
-  diagnose          Diagnose possible tooling problems
   list-agent-types  List all the deployed agent types
   exec              Execute custom, application manifest defined commands
   environment       Manage environments
@@ -71,6 +65,9 @@ Commands:
   profile           Manage global CLI profiles
   server            Run and manage the local Golem server
   cloud             Manage Golem Cloud accounts and projects
+  agent-secret      Manage Agent Secrets
+  retry-policy      Manage Retry Policies
+  resource          Manage quota resource definitions
   completion        Generate shell completion
   help              Print this message or the help of the given subcommand(s)
 
@@ -80,7 +77,7 @@ Options:
   -E, --environment <ENVIRONMENT>
           Select Golem environment by name
   -L, --local
-          Select" local" environment from the manifest, or "local" profile
+          Select "local" environment from the manifest, or "local" profile
   -C, --cloud
           Select "cloud" environment from the manifest, or "cloud" profile
   -A, --app-manifest-path <APP_MANIFEST_PATH>

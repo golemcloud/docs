@@ -339,46 +339,156 @@ Check the [Invoke section](/invoke) to learn more about other ways to invoke age
 
 ### Expose an HTTP API
 
-Agents can be invoked from other agents, through the REPL or CLI, or Golem's Invocation API, but Golem Applications can also define **HTTP APIs** that map routes to agents and agent methods.
+Agents can be invoked from other agents, through the REPL or CLI, or Golem's Invocation API, but Golem Applications can also define **HTTP APIs** that map routes to agents and agent methods using [code-first routes](/invoke/making-custom-apis).
 
-To finish the Quickstart example with an HTTP POST endpoint for tracking counts, let's open the `golem.yaml` file in the component's directory. It's going to contain a `components` and a `dependencies` section already.
+To finish the Quickstart example with an HTTP POST endpoint for tracking counts, first add a **mount point** and an **endpoint** decorator to the agent code:
 
-To define the HTTP API, we add its definition and information about how to expose it:
+<Tabs items={["TypeScript", "Rust", "Scala", "MoonBit"]} storageKey="nextra-tabs-Rust|TypeScript|MoonBit">
+  <Tabs.Tab>
+```typescript
+import {
+    BaseAgent,
+    agent,
+    endpoint,
+    prompt,
+    description,
+} from '@golemcloud/golem-ts-sdk';
+
+@agent({ mount: '/counters/{name}' })
+class CounterAgent extends BaseAgent {
+    private readonly name: string;
+    private value: number = 0;
+
+    constructor(name: string) {
+        super();
+        this.name = name;
+    }
+
+    @endpoint({ post: '/increment' })
+    @prompt("Increase the count by one")
+    @description("Increases the count by one and returns the new value")
+    async increment(): Promise<number> {
+        this.value += 1;
+        return this.value;
+    }
+}
+```
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+```rust
+use golem_rust::{
+    agent_definition, agent_implementation, description, prompt, agentic::BaseAgent,
+};
+
+#[agent_definition(mount = "/counters/{name}")]
+pub trait CounterAgent: BaseAgent {
+    fn new(name: String) -> Self;
+
+    #[endpoint(post = "/increment")]
+    #[prompt("Increase the count by one")]
+    #[description("Increases the count by one and returns the new value")]
+    fn increment(&mut self) -> u32;
+}
+
+struct CounterImpl {
+    count: u32,
+    _name: String,
+}
+
+#[agent_implementation]
+impl CounterAgent for CounterImpl {
+    fn new(name: String) -> Self {
+        Self {
+            _name: name,
+            count: 0,
+        }
+    }
+
+    fn increment(&mut self) -> u32 {
+        self.count += 1;
+        self.count
+    }
+}
+```
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+```scala
+package example_counter
+
+import golem.runtime.annotations.{agentDefinition, description, endpoint, prompt}
+import golem.BaseAgent
+
+import scala.concurrent.Future
+
+@agentDefinition(mount = "/counters/{name}")
+trait CounterAgent extends BaseAgent {
+
+  class Id(val name: String)
+
+  @endpoint(method = "POST", path = "/increment")
+  @prompt("Increase the count by one")
+  @description("Increases the count by one and returns the new value")
+  def increment(): Future[Int]
+}
+```
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+```moonbit
+///|
+/// Counter agent in MoonBit
+#derive.agent
+#derive.mount("/counters/{name}")
+struct CounterAgent {
+  name : String
+  mut value : UInt64
+}
+
+///|
+fn CounterAgent::new(name : String) -> CounterAgent {
+  { name, value: 0 }
+}
+
+///|
+/// Increases the count by one and returns the new value
+#derive.prompt_hint("Increase the count by one")
+#derive.endpoint(post = "/increment")
+pub fn CounterAgent::increment(self : Self) -> UInt64 {
+  self.value += 1
+  self.value
+}
+
+///|
+fn main {
+
+}
+```
+  </Tabs.Tab>
+</Tabs>
+
+Then, add a deployment section to the component's `golem.yaml` to expose the API:
 
 ```yaml
 httpApi:
-  definitions:
-    counter-api:
-      version: '0.0.1'
-      routes:
-        - method: POST
-          path: /{name}/increment
-          binding:
-            type: default
-            componentName: "example:counter"
-            response: |
-              let name: string = request.path.name;
-              let agent = counter-agent(name);
-              let new-value = agent.increment();
-              { status: 200, body: { result: "incremented ${name}, new value is ${new-value}" } }
-
   deployments:
     local:
     - domain: localhost:9006
-      definitions:
-      - counter-api
+      agents:
+        CounterAgent: {}
 ```
 
-Then use the `golem` CLI to deploy again, now including the API:
+Now rebuild and deploy:
 
 ```shell copy
 golem deploy
 ```
 
-After this command, the API is deployed to our locally running Golem instance and can be tried out by sending POST requests to `http://localhost:9006/{name}/increment`:
+After this command, the API is deployed to our locally running Golem instance and can be tried out by sending POST requests to `http://localhost:9006/counters/{name}/increment`:
 
 ```shell copy
-curl -X POST http://localhost:9006/agent-1/increment
+curl -X POST http://localhost:9006/counters/agent-1/increment
 ```
 
 ### Next Steps

@@ -18,7 +18,7 @@ Even though agents can automatically start on the first invocation, it is possib
 This allows specifying command line arguments and environment variables for the agent.
 
 ```shell copy
-golem agent new 'example:counter/counter-agent("my-counter")' --env A=1 --env B=2 arg1 arg2
+golem agent new 'example:counter/CounterAgent("my-counter")' --env A=1 --env B=2
 ```
 
 ## Get agent metadata
@@ -28,8 +28,8 @@ golem agent new 'example:counter/counter-agent("my-counter")' --env A=1 --env B=
 You can get the agent metadata using the agent-id (the agent type and it's constructor parameters) and (optionally prefixed by the component name, if it is not inferrable from the current context):
 
 ```shell copy
-golem agent get 'counter-agent("my-counter")'
-golem agent get 'example:counter/counter-agent("my-counter")'
+golem agent get 'CounterAgent("my-counter")'
+golem agent get 'example:counter/CounterAgent("my-counter")'
 ```
 
 ## Search agents
@@ -53,20 +53,18 @@ The folowing section shows the basics of invoking agents through the CLI. See th
 
 ### Without waiting for result
 
-You can invoke an agent function without waiting for function result using `agent invoke --enqueue` command:
+You can invoke an agent function without waiting for function result using `agent invoke --trigger` command:
 
 ```shell copy
-golem agent invoke --enqueue 'counter-agent("my-counter")' 'increment-by' 5
+golem agent invoke --trigger 'CounterAgent("my-counter")' incrementBy 5
 ```
-
-Function parameters can be specified using repeated `--arg` parameters.
 
 ### Waiting for result
 
 You can invoke an agent method and wait for result using `agent invoke` command:
 
 ```shell copy
-golem agent invoke 'counter-agent("my-counter")' 'get-value'
+golem agent invoke 'CounterAgent("my-counter")' getValue
 ```
 
 ```
@@ -85,23 +83,17 @@ You can use any string as idempotency key.
 You can connect to your running agent and stream its logs using the `agent stream` command:
 
 ```shell copy
-golem agent stream 'counter-agent("my-counter")'
+golem agent stream 'CounterAgent("my-counter")'
 ```
 
-You can also use the `--stream` option on `invoke` command to connect to the agent right after invoking the command.
+By default, the `invoke` command streams the agent's output. Use the `--no-stream` option to disable this.
 
 ## Agent update
 
 To update the agent to a specific component version, use the `agent update` command:
 
 ```shell copy
-golem agent update 'counter-agent("my-counter")' --target-version 2 --mode auto
-```
-
-The `agent update-many` with the same `--filter` parameters as in `agent list` command can update multiple agents:
-
-```shell copy
-golem agent update-many example:counter --filter 'version < 2' --target-version 2 --mode auto
+golem agent update 'CounterAgent("my-counter")' auto 2
 ```
 
 ## Interrupt and resume agents
@@ -109,8 +101,8 @@ golem agent update-many example:counter --filter 'version < 2' --target-version 
 If you want to interrupt and later resume a long-running agent you can use `interrupt` and `resume` commands:
 
 ```shell copy
-golem agent interrupt 'counter-agent("my-counter")'
-golem agent resume 'counter-agent("my-counter")'
+golem agent interrupt 'CounterAgent("my-counter")'
+golem agent resume 'CounterAgent("my-counter")'
 ```
 
 ## Testing crash recovery
@@ -118,7 +110,7 @@ golem agent resume 'counter-agent("my-counter")'
 There is a special command to simulate a crash on an agent:
 
 ```shell copy
-golem agent simulated-crash 'counter-agent("my-counter")'
+golem agent simulate-crash 'CounterAgent("my-counter")'
 ```
 
 ## Deleting agents
@@ -126,7 +118,7 @@ golem agent simulated-crash 'counter-agent("my-counter")'
 Idle agents are not actively consuming resources but they take storage as their state is persisted. An agent can be deleted using the `agent delete` command:
 
 ```shell copy
-golem agent delete 'counter-agent("my-counter")'
+golem agent delete 'CounterAgent("my-counter")'
 ```
 
 This command deletes agent state.
@@ -134,8 +126,8 @@ This command deletes agent state.
 Please note that a next invocation to the same agent will recreate it with fresh state:
 
 ```shell
-golem agent delete 'counter-agent("my-counter")'
-golem agent invoke 'counter-agent("my-counter")' 'get-value'
+golem agent delete 'CounterAgent("my-counter")'
+golem agent invoke 'CounterAgent("my-counter")' getValue
 ```
 
 ```
@@ -148,13 +140,13 @@ Invocation results in WAVE format:
 It is possible to **query** an existing agent's oplog for debugging purposes. To get the **full oplog** of an agent, use the `agent oplog` command:
 
 ```shell copy
-golem agent oplog 'counter-agent("my-counter")'
+golem agent oplog 'CounterAgent("my-counter")'
 ```
 
 With the optional `--from` parameter it is possible to only get oplog entries _after_ a certain oplog index:
 
 ```shell copy
-golem agent oplog --from 100 'counter-agent("my-counter")'
+golem agent oplog --from 100 'CounterAgent("my-counter")'
 ```
 
 Oplog entries are indexed from 1, and the first entry is always a **create** entry that defines the initial state of the agent.
@@ -213,7 +205,7 @@ The cases marked with **(\*)** can use the `field:value` syntax to look into the
 For example to look for oplog entries that contain parameters or return values of **exported functions** where any of these input/output values is a **record** having a field `product-id` with either value `123` or `456`, we can use the following query:
 
 ```shell
-golem agent oplog --query 'exported-function AND (product-id:123 OR product-id:456)' 'counter-agent("my-counter")'
+golem agent oplog --query 'exported-function AND (product-id:123 OR product-id:456)' 'CounterAgent("my-counter")'
 ```
 
 ## Reverting an agent
@@ -228,13 +220,13 @@ There are two possible ways to specify which state to revert to:
 To revert to a given oplog, use the `agent revert` command:
 
 ```shell copy
-golem agent revert 'counter-agent("my-counter")' --last-oplog-index 42
+golem agent revert 'CounterAgent("my-counter")' --last-oplog-index 42
 ```
 
 To revert some of the last invocations, use the `--number-of-invocations` parameter instead:
 
 ```shell copy
-golem agent revert 'counter-agent("my-counter")' --number-of-invocations 3
+golem agent revert 'CounterAgent("my-counter")' --number-of-invocations 3
 ```
 
 ## Cancelling a pending invocation
@@ -242,5 +234,5 @@ golem agent revert 'counter-agent("my-counter")' --number-of-invocations 3
 If an invocation is enqueued for an agent, but it has not been started yet, it can be removed from the invocation queue by using it's idempotency key:
 
 ```shell copy
-golem agent cancel-invocation 'counter-agent("my-counter")' my-key
+golem agent cancel-invocation 'CounterAgent("my-counter")' my-key
 ```

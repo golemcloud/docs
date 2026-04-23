@@ -1,7 +1,4 @@
-import { Callout } from "nextra/components"
-import { Cards } from "nextra/components"
-
-# Introduction
+# API Definitions
 
 Golem is a durable computing platform that makes it simple to build and deploy
 highly reliable distributed systems.
@@ -18,54 +15,32 @@ Golem gives you to create and interact with your agents are usually not the
 polished, engineered APIs that you want to expose to other organizations,
 developers of mobile or web applications, or other backend teams.
 
-To allow you to stand up a custom API for your components, Golem supports a
-feature called _API Definitions_. API definitions give you the flexibility of
-having a precisely engineered API, but without any of the typical boilerplate.
+To allow you to stand up a custom API for your components, Golem supports
+**code-first routes** — HTTP endpoints defined directly in your agent code
+using language-native decorators and macros, with no separate configuration needed.
 
-This page contains a high-level introduction to API definitions, with links to
-technical reference material.
+## Code-First Routes
 
-# API Definitions
+In Golem, HTTP APIs are defined using **mount points** and **endpoint decorators** in your agent source code. This approach means your API definition lives alongside your implementation, with no separate YAML or OpenAPI files to maintain.
 
-In Golem, an API Definition is similar to an OpenAPI specification for an API.
-Like OpenAPI specifications, API Definitions contain the following elements:
+### Mount Points
 
-- **Version**. The version defines the version of the API.
-- **Status**. The status defines whether the API is a draft, or whether it is
-  published. Currently, published APIs may not be modified.
-- **Routes**. The routes are a list of individual HTTP endpoints.
+Every agent that exposes HTTP endpoints defines a **mount point** — the base URL prefix under which all its endpoints are available. The mount path can contain placeholders that map to the agent's constructor parameters.
 
-In an API definition, the routes define not just the structure of the overall
-HTTP, but also how invocation of these APIs triggers the creation and activation
-of agents.
+### Endpoints
 
-The next section introduces routes in more detail.
+Individual agent methods are exposed as HTTP endpoints using language-native decorators. Each endpoint specifies an HTTP method and a path suffix relative to the mount point.
 
-## Routes
+### Deployments
 
-The elements of a route are as follows:
+To make the endpoints accessible, a deployment section in the application manifest (`golem.yaml`) maps agents to domains per environment.
 
-- **Path**. The path of the route, such as `/users/{user-id}`. Paths may
-  contain variables, which may be accessed inside the route binding.
-- **Method**. The method of the route, such as GET, PUT, POST, or DELETE.
-- **Binding**. The binding defines what agent will be created and invoked
-  when the endpoint itself is invoked.
+## Management
 
-In the following section, you will learn more about the binding.
+API definitions are managed through the application manifest and deployed using the CLI:
 
-### Bindings
+- **Define** mount points and endpoints in your agent source code.
+- **Configure** deployments in `golem.yaml`.
+- **Deploy** with `golem deploy`.
 
-Bindings are the glue that connects your endpoint to an actual agent.
-Examples of what binding can do include invoking an agent or retrieving files from the agent filesystem.
-
-# Management
-
-There are a variety of ways to create and manage API Definition:
-
-- **Golem CLI**. The command-line interface lets you manage API definition.
-- **REST API**. The Golem REST API lets you manage API definition
-
-Both the CLI and REST API let you import an existing OpenAPI definition, with
-a custom per-endpoint extension that contains the binding.
-
-See more examples of implementing custom APIs [here](/invoke/making-custom-apis).
+See the [code-first routes guide](/invoke/making-custom-apis) for detailed examples in TypeScript, Rust, Scala, and MoonBit.

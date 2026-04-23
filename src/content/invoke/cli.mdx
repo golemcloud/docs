@@ -12,12 +12,12 @@ The command requires specifying which agent to invoke, and the name of the funct
 
 There are multiple options for selecting the agent:
 
-- `agent-type(agent-parameters)`
-- `component-name/agent-type(agent-parameters)`
-- `project-name/component-name/agent-type(agent-parameters)`
-- `account-name/project-name/component-name/agent-type(agent-parameters)`
+- `AgentType(agent-parameters)`
+- `environment/AgentType(agent-parameters)`
+- `application/environment/AgentType(agent-parameters)`
+- `account/application/environment/AgentType(agent-parameters)`
 
-Note that the `agent-type(agent-parameters)` part is also referred as the _agent ID_, or in previous versions, the _worker name_.
+Note that `AgentType(agent-parameters)` is the _agent ID_. The agent type name uses PascalCase, matching the name in the source code.
 
 Also note that you can only omit the component name if it can be inferred from the context, for example if the current directory is a component directory or the application root with a single component only.
 
@@ -25,7 +25,7 @@ The function to be invoked is selected by the second parameter. Read the [page a
 
 ## Encoding parameters
 
-The CLI requires you to encode the function parameters using the [WebAssembly Value Encoding](https://github.com/bytecodealliance/wasm-tools/tree/main/crates/wasm-wave) with one or more parameters following the function name (one for each invocation parameter).
+The function parameters are specified as positional arguments following the function name (one for each invocation parameter), using the source language's native syntax. See the [Type Mapping](/type-mapping) page for details on how types are represented.
 
 ## Getting results
 
@@ -35,19 +35,18 @@ This can be changed with `--format json` or `--format yaml` to print the invocat
 
 ## Logs
 
-Both invocation commands accept an optional `--stream` flag for connecting to the invoked agent's event stream and showing its logs. This works the same as running a separate `golem agent stream` command during the invocation. The logs consists of everything the agent writes to its standard output and standard error, as well as through the logging API.
+By default, `agent invoke` streams the agent's standard output, standard error, and log channels live during the invocation. This works the same as running a separate `golem agent stream` command during the invocation. Use `--no-stream` (or `-n`) to disable this behavior.
 
-The `--stream` option's output (and also the `stream` subcommand) can be customized with the following parameters:
+The streaming output can be customized with the following parameters:
 
-- `--format text|json|yaml` for different encodings of the log lines
-- `--colors=yes|no` to enable/disable colors for the `text` format
-- `--show-timestamps=yes|no` to enable/disable showing timestamps for each log line
-- `--show-level=yes|no` to enable/disable showing the log level (or stdout/stderr) for each log line
+- `--stream-no-log-level` to hide log levels in stream output
+- `--stream-no-timestamp` to hide timestamps in stream output
+- `--logs-only` to only show entries coming from the agent, suppressing invocation markers and stream status messages
 
 ## Cancelling pending invocations
 
 As invocations are executed sequentially, it is possible to cancel a pending invocation before it starts executing. This can be done using the command line interface by running the `agent cancel-invocation` subcommand:
 
 ```shell copy
-golem agent cancel-invocation <component-name>/<agent-id> --idempotency-key <idempotency-key>
+golem agent cancel-invocation <agent-id> <idempotency-key>
 ```

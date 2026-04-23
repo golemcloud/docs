@@ -6,7 +6,7 @@ import { Callout } from "nextra/components"
 
 ## Tokens
 
-Tokens are API keys that allow accessing **Golem Cloud** APIs from external services. The `golem-cloud-cli` tool allows managing these tokens.
+Tokens are API keys that allow accessing **Golem Cloud** APIs from external services. The `golem` CLI allows managing these tokens.
 To manage them programmatically, check [the token API](/rest-api/token).
 
 ### Listing existing tokens
@@ -14,7 +14,7 @@ To manage them programmatically, check [the token API](/rest-api/token).
 The following command lists all the tokens associated with your account:
 
 ```shell copy
-golem token list
+golem cloud token list
 ```
 
 ### Creating a new token
@@ -22,7 +22,7 @@ golem token list
 To create a new token, use the following command:
 
 ```shell copy
-golem token add
+golem cloud token new
 ```
 
 ```
@@ -38,7 +38,7 @@ Optionally, an expiration date can be specified with `--expires-at`. If not spec
 Each token has a **token ID**. Use the `token delete` command to remove a token using it's identifier:
 
 ```shell copy
-golem token delete 08bc0eac-5c51-40a5-8bc6-5c8928efb475
+golem cloud token delete 08bc0eac-5c51-40a5-8bc6-5c8928efb475
 ```
 
 ## Project sharing

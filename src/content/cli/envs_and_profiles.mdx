@@ -117,7 +117,7 @@ Note that the `--cloud` is required to make sure that the authentication happens
 
 ## Profile management
 
-The `golem cloud account` subcommands can be used to
+The `golem profile` subcommands can be used to
 - create custom profiles, optionally with an interactive wizard
 - switch the default profile
 - get the current and list all available profiles
@@ -125,15 +125,17 @@ The `golem cloud account` subcommands can be used to
 See the builtin CLI help for more information:
 
 ```shell
-$ golem cloud account
-Manage Cloud Account
+$ golem profile
+Manage global CLI profiles
 
-Usage: golem cloud account [OPTIONS] <COMMAND>
+Usage: golem profile [OPTIONS] <COMMAND>
 
 Commands:
-  get     Get information about the account
-  update  Update some information about the account
-  new     Add a new account
-  delete  Delete the account
+  new     Create a new global profile, call without <PROFILE_NAME> for interactive setup
+  list    List global profiles
+  switch  Set the active global default profile
+  get     Show global profile details
+  delete  Remove global profile
+  config  Configure global profile
   help    Print this message or the help of the given subcommand(s)
 ```

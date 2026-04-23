@@ -8,10 +8,10 @@ To create, list, build and deploy components you can use `golem component` comma
 
 ## Creating a new component
 
-To create a new component in an application directory (previously created with `golem new`) use the `component new` command in the following way:
+To create a new component in an existing application directory (previously created with `golem new`) use the `golem new` command with the `--component-name` option from within the application directory:
 
 ```shell copy
-golem component new <template-name> <component-name>
+golem new --template <template-name> --component-name <component-name>
 ```
 
 To see all the available component templates, just run the command without providing one.
@@ -20,13 +20,13 @@ This command only modifies the source code of the application, does not create a
 
 ## Building a component
 
-To build a component, use the `component build` command in the following way:
+To build a component, use the `build` command in the following way:
 
 ```shell copy
-golem component build <component-name>
+golem build <component-name>
 ```
 
-To build the whole application, use the `app build` command in the following way:
+To build the whole application, use the `build` command without specifying a component name:
 
 ```shell copy
 golem build
@@ -47,7 +47,7 @@ golem deploy
 If you want to get the latest version of the component using its name you can you can use the `component get` command.
 
 ```shell copy
-golem get example:component
+golem component get example:component
 ```
 
 ### Using component name and specific version
@@ -55,7 +55,7 @@ golem get example:component
 To get a specific version of a component, just pass the desired version number as well:
 
 ```shell copy
-golem get example:component 2
+golem component get example:component 2
 ```
 
 ### Getting component list
@@ -80,21 +80,21 @@ golem component list
 
 ## Updating component
 
-To update a component just run the `component deploy` (or `app deploy`) command again.
+To update a component just run the `golem deploy` command again.
 
-If you want to trigger an update all agents to the new latest version right after creating this version you can use `--try-update-agents` option.
+If you want to trigger an update all agents to the new latest version right after creating this version you can use `--update-agents` option.
 
 It is possible to change the **component's type** (from durable to ephemeral, or from ephemeral to durable) when
 updating the component by changing the manifest file.
 
 ## Updating agents
 
-If you want to update all agents you can use `component try-update-agents` command.
+If you want to update all agents you can use `component update-agents` command.
 
 This command gets all agents for the component that are not using the latest version and triggers an update for them one by one:
 
 ```shell copy
-golem component try-update-agents example:component
+golem component update-agents example:component
 ```
 
 The update request is enqueued and processed by the agents asynchronously, `golem` cannot await for the update to finish.
@@ -112,10 +112,10 @@ During the development of a Golem Component, it is often necessary to quickly re
 
 This is different from updating the agents as they will loose their state, but it can speed up the feedback loop during development.
 
-This workflow is supported by the `component redeploy` command:
+This workflow is supported by the `component redeploy-agents` command:
 
 ```shell copy
-golem component redeploy example:component
+golem component redeploy-agents example:component
 ```
 
 This command deletes all agents that are not using the latest version of component and re-creates them with the same name, parameters and environment variables.
