@@ -2,7 +2,7 @@ import { writeFile, readFile, readdir, mkdir, rm } from "fs/promises"
 import { join } from "path"
 import { existsSync } from "fs"
 
-const OUTPUT_PATH = "./src/pages/how-to-guides"
+const OUTPUT_PATH = "./src/content/how-to-guides"
 const GITHUB_API_BASE = "https://api.github.com/repos/golemcloud/golem/contents"
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/golemcloud/golem/main"
 const SKILLS_REL_PATH = "golem-skills/skills"
@@ -75,15 +75,21 @@ async function main() {
       meta[skill.name] = skill.title
     }
 
-    await writeFile(join(OUTPUT_PATH, category, "_meta.json"), JSON.stringify(meta, null, 2) + "\n")
+    await writeFile(
+      join(OUTPUT_PATH, category, "_meta.js"),
+      "export default " + JSON.stringify(meta, null, 2) + ";\n"
+    )
   }
 
-  // Write top-level _meta.json for how-to-guides
+  // Write top-level _meta.js for how-to-guides
   const topMeta: Record<string, string | object> = {}
   for (const [category, categoryTitle] of Object.entries(CATEGORIES)) {
     topMeta[category] = { title: categoryTitle }
   }
-  await writeFile(join(OUTPUT_PATH, "_meta.json"), JSON.stringify(topMeta, null, 2) + "\n")
+  await writeFile(
+    join(OUTPUT_PATH, "_meta.js"),
+    "export default " + JSON.stringify(topMeta, null, 2) + ";\n"
+  )
 
   // Write landing pages
   await writeLandingPage(skills)
@@ -240,11 +246,11 @@ async function writeLandingPage(skills: Skill[]) {
   const cards = categoryCounts
     .map(
       ({ cat, title, count }) =>
-        `  <Card title="${title} (${count})" href="how-to-guides/${cat}" />`
+        `  <Cards.Card title="${title} (${count})" href="how-to-guides/${cat}" />`
     )
     .join("\n")
 
-  const page = `import { Cards, Card } from "nextra/components"
+  const page = `import { Cards } from "nextra/components"
 
 # How-To Guides
 
@@ -255,7 +261,7 @@ ${cards}
 </Cards>
 `
 
-  await writeFile("./src/pages/how-to-guides.mdx", page)
+  await writeFile("./src/content/how-to-guides.mdx", page)
 }
 
 async function writeCategoryLandingPages(skills: Skill[]) {
@@ -267,7 +273,7 @@ async function writeCategoryLandingPages(skills: Skill[]) {
     if (categorySkills.length === 0) continue
 
     const cards = categorySkills
-      .map(s => `  <Card title="${s.title}" href="${s.name}" />`)
+      .map(s => `  <Cards.Card title="${s.title}" href="${category}/${s.name}" />`)
       .join("\n")
 
     const description =
@@ -275,7 +281,7 @@ async function writeCategoryLandingPages(skills: Skill[]) {
         ? "Language-agnostic guides covering the Golem CLI, project setup, deployment, and configuration."
         : `Guides specific to developing Golem agents in ${categoryTitle}.`
 
-    const page = `import { Cards, Card } from "nextra/components"
+    const page = `import { Cards } from "nextra/components"
 
 # ${categoryTitle} How-To Guides
 
