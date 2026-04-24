@@ -40,8 +40,9 @@ a.onWorkDone.trigger(result); // OK: fire-and-forget
 
 ## CLI Equivalent
 
-From the command line, use `--trigger`:
+From the command line, use `--enqueue`:
 
 ```shell
-golem agent invoke --trigger 'CounterAgent("my-counter")' increment
+golem agent invoke --enqueue 'counter-agent("my-counter")' \
+  'my:comp/counter-agent.{increment}'
 ```
