@@ -64,6 +64,20 @@ You can download the precompiled version of `golem` (and `golem-cli`) from the f
 
 It is also possible to build it from source for yourself using Rust tooling. Refer to [the page about building Golem CLI for yourself](/cli/install-from-source) for more information.
 
+### Installing bootstrap skills
+
+Golem provides **AI coding agent skills** that teach your coding agent (such as Amp, Cursor, or Claude Code) how to work with Golem. To install the two **bootstrap skills**, run:
+
+```shell copy
+npx skills add golemcloud/skills
+```
+
+These bootstrap skills give your coding agent enough knowledge to get started with Golem. When you create a new project with `golem new`, additional language- and project-specific skills are automatically added to the project directory, providing much deeper guidance.
+
+<Callout type="info">
+  Learn more about AI coding agent skills at [skills.sh](https://skills.sh).
+</Callout>
+
 ## Working with components
 
 Golem CLI can manage components. See the [Golem CLI components page](/cli/components) for details.

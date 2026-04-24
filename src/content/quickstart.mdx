@@ -47,6 +47,20 @@ You can download the full version of `golem` from the following page:
 
 In this documentation we will use the `golem` command in the snippets. The available commands (except the one for starting the local Golem cluster) are the same in both variants.
 
+### Install Bootstrap Skills
+
+Golem provides **AI coding agent skills** that teach your coding agent (such as Amp, Cursor, or Claude Code) how to work with Golem. To install the two **bootstrap skills**, run:
+
+```shell copy
+npx skills add golemcloud/skills
+```
+
+These bootstrap skills give your coding agent enough knowledge to get started with Golem. When you create a new project with `golem new`, additional language- and project-specific skills are automatically added to the project directory, providing much deeper guidance.
+
+<Callout type="info">
+  Learn more about AI coding agent skills at [skills.sh](https://skills.sh).
+</Callout>
+
 ### Running Golem
 
 It is possible to test Golem locally without installing anything other than the `golem` executable described above. To use it, start the local Golem cluster by running the following command:
